@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <!--<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+    <!--<script src="https://unpkg.com/vue"></script>-->
+    <!--<script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+    <link rel="stylesheet" href="webjars/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="webjars/vue/2.5.16/vue.min.js"></script>
+    <script src="webjars/axios/0.18.0/dist/axios.min.js"></script>
+    <title>Logs Management</title>
+</head>
+<body>
+<div class="container" id="app">
+    <h2><span>日志</span></h2>
+    <p><span>共有 {{logs.length }} 条日志.</span></p>
+
+    <span>筛选</span> <input type="text" class="form-control" v-model="message">
+    <table class="table table-condensed table-striped table-bordered">
+        <thead>
+        <tr title="click to order">
+            <th><span>Name</span></th>
+            <th><span>Level</span></th>
+        </tr>
+        </thead>
+        <tr v-for="log in logs">
+            <td>
+                <small>{{log.name}}</small>
+            </td>
+            <td>
+                <button class="btn btn-sm" v-bind:class="[ log.level=='TRACE' ? 'btn-danger' : '']" v-on:click="changeLevel(log.name, $event)">TRACE</button>
+                <button class="btn btn-sm" v-bind:class="[ log.level=='DEBUG' ? 'btn-warning' : '']" v-on:click="changeLevel(log.name, $event)">DEBUG</button>
+                <button class="btn btn-sm" v-bind:class="[ log.level=='INFO' ? 'btn-info' : '']" v-on:click="changeLevel(log.name, $event)">INFO</button>
+                <button class="btn btn-sm" v-bind:class="[ log.level=='WARN' ? 'btn-success' : '']" v-on:click="changeLevel(log.name, $event)">WARN</button>
+                <button class="btn btn-sm" v-bind:class="[ log.level=='ERROR' ? 'btn-primary' : '']" v-on:click="changeLevel(log.name, $event)">ERROR</button>
+                <!--<button class="btn btn-sm" v-bind:class="[ log.level=='FATAL' ? 'btn-primary' : '']" v-on:click="changeLevel(log.name, $event)">FATAL</button>-->
+                <button class="btn btn-sm" v-bind:class="[ log.level=='OFF' ? 'btn-default' : '']" v-on:click="changeLevel(log.name, $event)">OFF</button>
+            </td>
+        </tr>
+    </table>
+
+</div>
+</body>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            originalLogs: [],
+            logs : [],
+            message:""
+        },
+        created: function () {
+            this.findAll();
+        },
+        watch: {
+            message : function (val) {
+                this.logs = this.originalLogs.filter(function (item) {
+                    return item.name.indexOf(val) >= 0
+                });
+            }
+        },
+        methods: {
+            changeLevel: function (name, event) {
+                var _this = this;
+                axios.put('./management/logs', {
+                    "name" : name,
+                    "level" : event.target.innerHTML
+                    })
+                    .then(function (response) {
+                        _this.findAll();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            findAll: function() {
+                var _this = this;
+                axios.get('./management/logs')
+                    .then(function (response) {
+                        _this.originalLogs = response.data;
+						 
+						if(_this.message) {
+							_this.logs = _this.originalLogs.filter(function (item) {
+								return item.name.indexOf(_this.message) >= 0
+							});
+						} else {
+							_this.logs = _this.originalLogs;
+						}
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+
+    })
+
+</script>
+</html>

@@ -1,0 +1,181 @@
+package com.alili.swagger.web;
+
+import com.alili.swagger.web.entity.Definition;
+import com.alili.swagger.web.entity.Parameter;
+import com.alili.swagger.web.entity.SwaggerEntity;
+import com.alili.swagger.web.model.DocInterface;
+import com.alili.swagger.web.model.DocParameter;
+import com.alili.swagger.web.model.DocResponse;
+import com.alili.swagger.web.model.WordDocument;
+import com.alili.web.file.FileDownloadStreamingResponseBody;
+import com.alili.web.file.FileViewStreamingResponseBody;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import io.swagger.models.Path;
+import io.swagger.models.Swagger;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.service.Documentation;
+import springfox.documentation.spring.web.DocumentationCache;
+import springfox.documentation.spring.web.json.Json;
+import springfox.documentation.spring.web.json.JsonSerializer;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2Mapper;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@ApiIgnore
+public class SwaggerCustomController {
+
+    private final DocumentationCache documentationCache;
+    private final ServiceModelToSwagger2Mapper mapper;
+    private final JsonSerializer jsonSerializer;
+
+    public SwaggerCustomController(DocumentationCache documentationCache,
+                                   ServiceModelToSwagger2Mapper mapper,
+                                   JsonSerializer jsonSerializer) {
+        this.documentationCache = documentationCache;
+        this.mapper = mapper;
+        this.jsonSerializer = jsonSerializer;
+    }
+
+    @RequestMapping("v2/export")
+    public ResponseEntity<FileViewStreamingResponseBody> exportDocument(
+            @RequestParam(value = "group", required = false) String swaggerGroup) throws IOException, TemplateException {
+
+        //=====================引用swagger部分
+        String groupName = Optional.fromNullable(swaggerGroup).or(Docket.DEFAULT_GROUP_NAME);
+        Documentation documentation = documentationCache.documentationByGroup(groupName);
+        if (documentation == null) {
+            //return new ResponseEntity<Json>(HttpStatus.NOT_FOUND);
+        }
+        Swagger swagger = mapper.mapDocumentation(documentation);
+
+        Map<String, Path> paths = swagger.getPaths();
+
+        /*paths.forEach((s, path) -> {
+            //path.getDocParameters()
+        });*/
+
+        Json json = jsonSerializer.toJson(swagger);
+
+        //=====================引用swagger结束
+
+        //转换成我们需要的对象
+
+        String value = json.value();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        SwaggerEntity swaggerEntity = objectMapper.readValue(value, SwaggerEntity.class);
+
+        //转换结束
+
+        //拼装word需要的对象
+        WordDocument wordDocument = new WordDocument();
+        wordDocument.setTitle(swaggerEntity.getInfo().getTitle());
+        wordDocument.setVersion(swaggerEntity.getInfo().getVersion());
+        //设置接口列表
+        List<DocInterface> docInterfaces = new ArrayList<>();
+        wordDocument.setInterfaces(docInterfaces);
+
+        Map<String, Map<String, com.alili.swagger.web.entity.Path>> pathsMap = swaggerEntity.getPaths();
+
+        pathsMap.forEach((pathValue, pathMap) -> {
+            pathMap.forEach((method, path) -> {
+                //对单个接口处理
+                DocInterface docInterface = new DocInterface();
+                docInterface.setHttpMethod(method);
+                docInterface.setPath(pathValue);
+                docInterface.setSummary(path.getSummary());
+
+                docInterfaces.add(docInterface);
+                List<DocParameter> docParameters = new ArrayList<>();
+                List<DocResponse> docResponses = new ArrayList<>();
+
+                //接口的请求与返回
+                docInterface.setParameters(docParameters);
+                docInterface.setResponses(docResponses);
+
+                List<Parameter> parameters = path.getParameters();
+
+                //请求参数
+                parameters.forEach(parameter -> {
+
+                    DocParameter docParameter = new DocParameter();
+                    docParameter.setName(parameter.getName());
+                    docParameter.setType(parameter.getType());
+                    docParameter.setDescription(parameter.getDescription());
+                    docParameter.setRequired(parameter.isRequired());
+
+                    docParameters.add(docParameter);
+
+                });
+
+                //返回参数
+                path.getResponses().forEach((s, response)-> {
+                    if(s.startsWith("200")) {
+                        String definitionRef = response.getSchema().get$ref();
+                        definitionRef = definitionRef.replace("#/definitions/", "");
+
+                        if("ResponseEntity".equals(definitionRef)) {
+                            return;
+                        }
+
+                        Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
+                        docInterface.setResponseType(definition.getType());
+
+                        definition.getProperties().forEach(((propertyName, property) -> {
+                            DocResponse docResponse = new DocResponse();
+                            docResponse.setName(propertyName);
+                            docResponse.setType(property.getType());
+                            docResponse.setDescription(property.getDescription());
+                            docResponse.setRequired(property.isRequired());
+                            docResponses.add(docResponse);
+                        }));
+
+                    }
+
+
+                });
+            });
+        });
+
+        //利用freemarker生成word
+
+        // step1 创建freeMarker配置实例
+        Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+
+        configuration.setClassForTemplateLoading(this.getClass(), "/");
+        // step2 获取模版路径
+        //configuration.setDirectoryForTemplateLoading(new File(path));
+        // step4 加载模版文件
+        Template template = configuration.getTemplate("doc.ftl");
+
+        // 新建字节输出流,Freemarker操作此输出流写入生成的业务文件.
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        template.process(wordDocument, new BufferedWriter(new OutputStreamWriter(out)));
+
+        // 将outputstream转成inputstream
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+        return new FileDownloadStreamingResponseBody(in).fileName(wordDocument.getTitle() + ".doc").toResponseEntity();
+
+    }
+
+
+}

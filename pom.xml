@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.alili</groupId>
+    <artifactId>boot-plus</artifactId>
+    <version>1.0.0</version>
+    <modules>
+        <module>boot-plus-core</module>
+        <module>boot-plus-core-datasource</module>
+        <module>boot-plus-core-quartz</module>
+        <module>boot-plus-web</module>
+        <module>boot-plus-integration</module>
+        <module>boot-plus-integration-jpa</module>
+        <module>boot-plus-test</module>
+        <module>boot-plus-web-swagger</module>
+        <module>boot-plus-web-log</module>
+        <module>boot-plus-dependencies</module>
+        <module>boot-plus-generator</module>
+        <module>boot-plus-biz-security</module>
+    </modules>
+    <packaging>pom</packaging>
+
+    <properties>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <activatedProperties>dev</activatedProperties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
+        <springfox.version>2.8.0</springfox.version>
+        <vue.version>2.5.16</vue.version>
+        <axios.version>0.18.0</axios.version>
+        <bootstrap.version>4.1.3</bootstrap.version>
+        <freemarker.version>2.3.23</freemarker.version>
+        <java.jwt.version>3.2.0</java.jwt.version>
+        <ehcache.version>3.5.2</ehcache.version>
+        <!-- The main class to start by executing java -jar -->
+        <start-class>com.AppStart</start-class>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <activatedProperties>dev</activatedProperties>
+                <logback.loglevel>DEBUG</logback.loglevel>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <activatedProperties>test</activatedProperties>
+                <logback.loglevel>INFO</logback.loglevel>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activatedProperties>prod</activatedProperties>
+                <logback.loglevel>INFO</logback.loglevel>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
