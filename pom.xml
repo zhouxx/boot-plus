@@ -14,7 +14,6 @@
         <module>boot-plus-web</module>
         <module>boot-plus-integration</module>
         <module>boot-plus-integration-jpa</module>
-        <module>boot-plus-test</module>
         <module>boot-plus-web-swagger</module>
         <module>boot-plus-web-log</module>
         <module>boot-plus-dependencies</module>
