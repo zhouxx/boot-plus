@@ -15,6 +15,7 @@
  */
 package com.alili.integration.jpa;
 
+import com.alili.integration.jpa.mapper.Mapper;
 import com.alili.integration.jpa.meta.EntityMetaData;
 import com.alili.integration.jpa.meta.JoinColumnMetaData;
 import com.alili.integration.jpa.definition.MapperDefinition;
@@ -51,6 +52,11 @@ public class JpaInitializer {
         Collection<Class<?>> mapperClasses = configuration.getMapperRegistry().getMappers();
 
         for(Class<?> mapperClass : mapperClasses) {
+            //If mapper is not extend from Mapper, do not register
+            if(!Mapper.class.isAssignableFrom(mapperClass)) {
+                continue;
+            }
+
             Class entityType = mapperDescriptionRegistry.register(mapperClass);
             entityMetaDataRegistry.register(entityType);
         }

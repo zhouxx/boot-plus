@@ -29,14 +29,6 @@ public class TableConfig {
 
     private boolean override;
 
-    private String ignore;
-
-    private String query;
-
-    private String detail;
-
-    private String extend;
-
     public TableConfig() {
     }
 
@@ -71,38 +63,6 @@ public class TableConfig {
 
     public void setOverride(boolean override) {
         this.override = override;
-    }
-
-    public String getIgnore() {
-        return ignore;
-    }
-
-    public void setIgnore(String ignore) {
-        this.ignore = ignore;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
-
-    public String getExtend() {
-        return extend;
-    }
-
-    public void setExtend(String extend) {
-        this.extend = extend;
     }
 
 }

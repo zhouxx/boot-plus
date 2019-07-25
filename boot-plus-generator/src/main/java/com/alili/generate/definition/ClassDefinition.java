@@ -16,12 +16,9 @@
 package com.alili.generate.definition;
 
 import com.fasterxml.classmate.ResolvedType;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -245,7 +242,7 @@ public class ClassDefinition {
 
         //comment part
         if(comments != null) {
-            buffer.append("/*" + lineEnd);
+            buffer.append("/**" + lineEnd);
             comments.forEach(s -> {
                 buffer.append(" * " + s + lineEnd);
             });
@@ -286,7 +283,7 @@ public class ClassDefinition {
             for(FieldDefinition fieldDefinition : fieldDefinitions) {
 
                 if(fieldDefinition.getComments() != null) {
-                    buffer.append(space4 + "/*" + lineEnd);
+                    buffer.append(space4 + "/**" + lineEnd);
                     fieldDefinition.getComments().forEach(s -> {
                         buffer.append(space4 + " * " + s + lineEnd);
                     });
@@ -347,14 +344,6 @@ public class ClassDefinition {
         buffer.append("}" + lineEnd);
 
         return buffer.toString();
-    }
-
-    public static void main(String[] args) throws IOException {
-        ClassDefinition classDefinition = new ClassDefinition("Test");
-        classDefinition.addExtend(ClassDefinition.class).addImplement(Serializable.class).addAnnotation(Getter.class).addAnnotation(Setter.class)
-        .setPackageName("com.test")
-        .addFieldDefinition(new FieldDefinition("String","id").addAnnotation(Getter.class));
-        classDefinition.out(System.out);
     }
 
 }

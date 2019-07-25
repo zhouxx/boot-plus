@@ -15,40 +15,26 @@
  */
 package com.alili.generate;
 
-import com.alili.core.util.BeanUtils;
-import com.alili.core.util.JavaBeansUtil;
 import com.alili.generate.config.DataSourceConfig;
 import com.alili.generate.config.GlobalConfig;
 import com.alili.generate.config.TableConfig;
-import com.alili.generate.definition.*;
-import com.alili.generate.utils.ColumnUtils;
+import com.alili.generate.definition.AnnotationDefinition;
+import com.alili.generate.definition.ClassDefinition;
+import com.alili.generate.definition.ClassType;
+import com.alili.generate.definition.FieldDefinition;
 import com.alili.integration.jpa.anotation.GeneratedValue;
-import com.alili.integration.jpa.anotation.IfTest;
-import com.alili.integration.jpa.domain.Pageable;
-import com.alili.integration.jpa.domain.Sort;
 import com.alili.integration.jpa.mapper.PageMapper;
 import com.alili.integration.jpa.parameter.GenerationType;
-import com.alili.web.validate.ValidateException;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.Id;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Zhou Xiaoxiang
@@ -75,8 +61,8 @@ public class GeneratorUtils {
                 String tableName = tableConfig.getTableName();
 
                 List<TableColumn> tableColumns = new ArrayList<>();
-                List<TableColumn> queryColumns = new ArrayList<>();
-                List<TableColumn> detailColumns = new ArrayList<>();
+                //List<TableColumn> queryColumns = new ArrayList<>();
+                //List<TableColumn> detailColumns = new ArrayList<>();
 
 
                 /*ResultSet rsTable = metaData.getTables(null, "", tableName, null);
@@ -123,7 +109,7 @@ public class GeneratorUtils {
                     tableColumn.setGeneratedColumn("YES".equals(isGeneratedColumn) ? true : false);
                     tableColumn.setScale(scale);
 
-                    if(Arrays.asList(tableConfig.getQuery().split(",")).contains(columnName)) {
+                    /*if(Arrays.asList(tableConfig.getQuery().split(",")).contains(columnName)) {
                         queryColumns.add(tableColumn);
                     }
                     if(Arrays.asList(tableConfig.getDetail().split(",")).contains(columnName)) {
@@ -132,7 +118,7 @@ public class GeneratorUtils {
 
                     if(tableConfig.getIgnore().contains(columnName)) {
                         continue;
-                    }
+                    }*/
 
                     tableColumns.add(tableColumn);
 
@@ -141,7 +127,7 @@ public class GeneratorUtils {
                 rsPK.close();
                 rs.close();
 
-                Table table = new Table(tableColumns, queryColumns, detailColumns, tableConfig);
+                Table table = new Table(tableColumns, tableConfig);
 
                 tables.add(table);
             }
@@ -216,7 +202,7 @@ public class GeneratorUtils {
     private static Map<String, byte[]> getExtend(Table table) {
         Map<String, byte[]> map = new HashMap<>();
         //set extend
-        String extend = table.getTableConfig().getExtend();
+        /*String extend = table.getTableConfig().getExtend();
         byte[] bytes = null;
         try {
             Class<?> aClass = Class.forName(extend);
@@ -231,7 +217,7 @@ public class GeneratorUtils {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         return map;
     }
@@ -242,7 +228,7 @@ public class GeneratorUtils {
         classDefinition.setClassType(ClassType.DOMAIN).setPackageName(globalPackageName + "." + ClassType.DOMAIN.getType());
         classDefinition.addAnnotation(new AnnotationDefinition(javax.persistence.Table.class).addProperty("name", table.getTableConfig().getTableName()));
 
-        classDefinition.addExtend(table.getTableConfig().getExtend());
+        // classDefinition.addExtend(table.getTableConfig().getExtend());
 
         table.getTableColumns().forEach(tableColumn -> {
             FieldDefinition fieldDefinition = new FieldDefinition(tableColumn.getColumnType(), tableColumn.getProperty());
@@ -316,7 +302,7 @@ public class GeneratorUtils {
         //classDefinition.addImport(CurdMapper.class).addImport(domainClass).addImport(idClass);
         //classDefinition.addExtend(CurdMapper.class.getSimpleName() + "<" + domainClass.getSimpleName() + ", " + idClass.getSimpleName() + ">");
 
-        if(!CollectionUtils.isEmpty(table.getQueryColumns())) {
+        /*if(!CollectionUtils.isEmpty(table.getQueryColumns())) {
 
             List<String> byNames = new ArrayList<>();
 
@@ -338,7 +324,7 @@ public class GeneratorUtils {
             methodDefinition.setReturnValueClass(List.class).setReturnValue("List<" + domainClass.getSimpleName() + ">");
             methodDefinition.setHasBody(false);
             classDefinition.addMethodDefinition(methodDefinition);
-        }
+        }*/
 
 
         return classDefinition;

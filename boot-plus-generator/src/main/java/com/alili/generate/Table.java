@@ -27,18 +27,12 @@ public class Table {
 
     private List<TableColumn> tableColumns;
 
-    private List<TableColumn> queryColumns;
-
-    private List<TableColumn> detailColumns;
-
     private TableConfig tableConfig;
 
     private TableColumn primaryKeyColumn;
 
-    public Table(List<TableColumn> tableColumns, List<TableColumn> queryColumns, List<TableColumn> detailColumns, TableConfig tableConfig) {
+    public Table(List<TableColumn> tableColumns, TableConfig tableConfig) {
         this.tableColumns = tableColumns;
-        this.queryColumns = queryColumns;
-        this.detailColumns = detailColumns;
         this.tableConfig = tableConfig;
     }
 
@@ -56,22 +50,6 @@ public class Table {
 
     public void setTableConfig(TableConfig tableConfig) {
         this.tableConfig = tableConfig;
-    }
-
-    public List<TableColumn> getQueryColumns() {
-        return queryColumns;
-    }
-
-    public void setQueryColumns(List<TableColumn> queryColumns) {
-        this.queryColumns = queryColumns;
-    }
-
-    public List<TableColumn> getDetailColumns() {
-        return detailColumns;
-    }
-
-    public void setDetailColumns(List<TableColumn> detailColumns) {
-        this.detailColumns = detailColumns;
     }
 
     public TableColumn getPrimaryKeyColumn() {
