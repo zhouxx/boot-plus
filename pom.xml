@@ -6,7 +6,7 @@
 
     <groupId>com.alili</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>${project.version}</version>
+    <version>1.0.1</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-core-datasource</module>
