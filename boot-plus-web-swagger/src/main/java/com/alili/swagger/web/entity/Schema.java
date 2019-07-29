@@ -1,6 +1,6 @@
 package com.alili.swagger.web.entity;
 
-public class ResponseSchema {
+public class Schema {
 
     private String $ref;
 

@@ -4,7 +4,7 @@ public class Response {
 
     private String description;
 
-    private ResponseSchema schema;
+    private Schema schema;
 
     public String getDescription() {
         return description;
@@ -14,11 +14,11 @@ public class Response {
         this.description = description;
     }
 
-    public ResponseSchema getSchema() {
+    public Schema getSchema() {
         return schema;
     }
 
-    public void setSchema(ResponseSchema schema) {
+    public void setSchema(Schema schema) {
         this.schema = schema;
     }
 }

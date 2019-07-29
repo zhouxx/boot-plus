@@ -18,6 +18,7 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,45 +113,67 @@ public class SwaggerCustomController {
 
                 List<Parameter> parameters = path.getParameters();
 
-                //请求参数
-                parameters.forEach(parameter -> {
 
-                    DocParameter docParameter = new DocParameter();
-                    docParameter.setName(parameter.getName());
-                    docParameter.setType(parameter.getType());
-                    docParameter.setDescription(parameter.getDescription());
-                    docParameter.setRequired(parameter.isRequired());
+                if(!CollectionUtils.isEmpty(parameters)) {
+                    //请求参数
+                    parameters.forEach(parameter -> {
+                        //request body
+                        if("body".equals(parameter.getIn())) {
+                            String definitionRef = parameter.getSchema().get$ref();
+                            definitionRef = definitionRef.replace("#/definitions/", "");
 
-                    docParameters.add(docParameter);
+                            Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
+                            definition.getProperties().forEach(((propertyName, property) -> {
+                                DocParameter docParameter = new DocParameter();
+                                docParameter.setName(propertyName);
+                                docParameter.setType(property.getType());
+                                docParameter.setDescription(property.getDescription());
+                                docParameter.setRequired(property.isRequired());
 
-                });
+                                docParameters.add(docParameter);
+                            }));
+                        } else {
+                            DocParameter docParameter = new DocParameter();
+                            docParameter.setName(parameter.getName());
+                            docParameter.setType(parameter.getType());
+                            docParameter.setDescription(parameter.getDescription());
+                            docParameter.setRequired(parameter.isRequired());
 
-                //返回参数
-                path.getResponses().forEach((s, response)-> {
-                    if(s.startsWith("200")) {
-                        String definitionRef = response.getSchema().get$ref();
-                        definitionRef = definitionRef.replace("#/definitions/", "");
-
-                        if("ResponseEntity".equals(definitionRef)) {
-                            return;
+                            docParameters.add(docParameter);
                         }
 
-                        Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
-                        docInterface.setResponseType(definition.getType());
-
-                        definition.getProperties().forEach(((propertyName, property) -> {
-                            DocResponse docResponse = new DocResponse();
-                            docResponse.setName(propertyName);
-                            docResponse.setType(property.getType());
-                            docResponse.setDescription(property.getDescription());
-                            docResponse.setRequired(property.isRequired());
-                            docResponses.add(docResponse);
-                        }));
-
-                    }
+                    });
+                }
 
 
-                });
+                if(!CollectionUtils.isEmpty(path.getResponses())) {
+                    //返回参数
+                    path.getResponses().forEach((s, response) -> {
+                        if (s.startsWith("200")) {
+                            String definitionRef = response.getSchema().get$ref();
+                            definitionRef = definitionRef.replace("#/definitions/", "");
+
+                            if ("ResponseEntity".equals(definitionRef)) {
+                                return;
+                            }
+
+                            Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
+                            docInterface.setResponseType(definition.getType());
+
+                            definition.getProperties().forEach(((propertyName, property) -> {
+                                DocResponse docResponse = new DocResponse();
+                                docResponse.setName(propertyName);
+                                docResponse.setType(property.getType());
+                                docResponse.setDescription(property.getDescription());
+                                docResponse.setRequired(property.isRequired());
+                                docResponses.add(docResponse);
+                            }));
+
+                        }
+
+
+                    });
+                }
             });
         });
 

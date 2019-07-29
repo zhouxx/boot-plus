@@ -14,6 +14,8 @@ public class Parameter {
 
     private String description;
 
+    private Schema schema;
+
     public String getName() {
         return name;
     }
@@ -60,5 +62,13 @@ public class Parameter {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(Schema schema) {
+        this.schema = schema;
     }
 }
