@@ -15,32 +15,20 @@
  */
 package com.alili.swagger.web.entity;
 
-import java.util.Map;
-
 /**
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class Definition {
+public class Items {
 
-    private String type;
+    private String $ref;
 
-    private Map<String, Property> properties;
-
-    public String getType() {
-        return type;
+    public String get$ref() {
+        return $ref;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Map<String, Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Property> properties) {
-        this.properties = properties;
+    public void set$ref(String $ref) {
+        this.$ref = $ref;
     }
 }
