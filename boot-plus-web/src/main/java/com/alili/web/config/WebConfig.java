@@ -20,10 +20,12 @@ import com.alili.web.config.properties.JsonProperties;
 import com.alili.web.exception.DefaultExceptionResolver;
 import com.alili.web.jackson.CustomObjectMapper;
 import com.alili.web.jackson.DictFormatSerializerModifier;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -65,6 +67,7 @@ public class WebConfig implements WebMvcConfigurer {
                     .allowedOrigins(corsProperties.getAllowedOrigins())
                     .allowedMethods(corsProperties.getAllowedMethods())
                     .allowCredentials(corsProperties.isAllowCredentials())
+                    .exposedHeaders(StringUtils.tokenizeToStringArray(corsProperties.getExposedHeaders(), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS))
                     .maxAge(corsProperties.getMaxAge());
         }
     }

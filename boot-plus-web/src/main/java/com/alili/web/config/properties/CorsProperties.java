@@ -23,7 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@ConfigurationProperties(prefix = "mvc.cros", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "mvc.cors", ignoreUnknownFields = false)
 public class CorsProperties {
 
     private boolean enabled = false;
@@ -37,6 +37,8 @@ public class CorsProperties {
     private boolean allowCredentials = true;
 
     private long maxAge = 3600;
+
+    private String exposedHeaders = "";
 
     public boolean isEnabled() {
         return enabled;
@@ -84,5 +86,13 @@ public class CorsProperties {
 
     public void setMaxAge(long maxAge) {
         this.maxAge = maxAge;
+    }
+
+    public String getExposedHeaders() {
+        return exposedHeaders;
+    }
+
+    public void setExposedHeaders(String exposedHeaders) {
+        this.exposedHeaders = exposedHeaders;
     }
 }

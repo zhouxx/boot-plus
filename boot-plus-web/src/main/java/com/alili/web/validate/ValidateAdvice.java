@@ -45,7 +45,9 @@ public class ValidateAdvice {
             return validateHandler.handle(e);
         }
         ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
-        return ResponseEntity.badRequest().header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage())).build();
+        return ResponseEntity.badRequest()
+                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
+                .build();
     }
 
     @ExceptionHandler({ ValidateException.class })
