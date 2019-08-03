@@ -19,11 +19,16 @@ import com.alili.core.util.UnicodeUtils;
 import com.alili.web.config.WebConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
  * @author Zhou Xiaoxiang
@@ -42,7 +47,10 @@ public class ValidateAdvice {
     @ResponseBody
     public ResponseEntity handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         if(validateHandler != null) {
-            return validateHandler.handle(e);
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
         }
         ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
         return ResponseEntity.badRequest()
@@ -50,14 +58,73 @@ public class ValidateAdvice {
                 .build();
     }
 
+    @ExceptionHandler({ BindException.class})
+    @ResponseBody
+    public ResponseEntity handleBindException(BindException e) {
+        if(validateHandler != null) {
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
+        }
+        ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
+        return ResponseEntity.badRequest()
+                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
+                .build();
+    }
+
+    @ExceptionHandler({ MissingServletRequestParameterException.class,  MissingPathVariableException.class})
+    @ResponseBody
+    public ResponseEntity handleServletRequestBindingException(ServletRequestBindingException e) {
+        if(validateHandler != null) {
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
+        }
+        return ResponseEntity.badRequest()
+                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .build();
+    }
+
+    @ExceptionHandler({ NoHandlerFoundException.class})
+    @ResponseBody
+    public ResponseEntity handleNoHandlerFoundException(NoHandlerFoundException e) {
+        if(validateHandler != null) {
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
+        }
+        return ResponseEntity.notFound()
+                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .build();
+    }
+
+    @ExceptionHandler({ NoDataFoundException.class})
+    @ResponseBody
+    public ResponseEntity handleNoResultException(NoDataFoundException e) {
+        if(validateHandler != null) {
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
+        }
+        return ResponseEntity.notFound()
+                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .build();
+    }
+
     @ExceptionHandler({ ValidateException.class })
     @ResponseBody
     public ResponseEntity handleValidateException(ValidateException e) {
         if(validateHandler != null) {
-            return validateHandler.handle(e);
+            ResponseEntity responseEntity = validateHandler.handle(e);
+            if(responseEntity != null) {
+                return responseEntity;
+            }
         }
         return ResponseEntity.badRequest().header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage())).build();
-        //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
 }
