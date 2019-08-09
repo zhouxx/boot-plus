@@ -25,6 +25,9 @@ import com.alili.integration.spring.MybatisJpaConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
@@ -43,9 +46,11 @@ import java.util.List;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE - 10)
-public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEvent> {
+public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private ApplicationContext applicationContext;
 
     private SqlSessionFactory sqlSessionFactory;
     private DatabaseRegistry databaseRegistry;
@@ -99,5 +104,11 @@ public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEven
 
         watch.stop();
         logger.debug("Started Mybatis Jpa in {} ms", watch.getTotalTimeMillis());
+        applicationContext.publishEvent(new MybatisJpaStartedEvent(applicationContext));
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
