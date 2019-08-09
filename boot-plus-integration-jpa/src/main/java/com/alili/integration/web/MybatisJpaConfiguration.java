@@ -15,6 +15,7 @@
  */
 package com.alili.integration.web;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -27,6 +28,7 @@ import java.util.List;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnClass(WebMvcConfigurer.class)
 public class MybatisJpaConfiguration implements WebMvcConfigurer {
 
     @Bean
