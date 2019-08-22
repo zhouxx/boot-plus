@@ -110,7 +110,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
         if(swaggerProperties.getGlobal() != null) {
             swaggerProperties.getGlobal().forEach(globalParameter -> {
                 ParameterBuilder parameterBuilder = new ParameterBuilder();
-                parameterBuilder.name(globalParameter.getType())
+                parameterBuilder.name(globalParameter.getName())
                         .description(globalParameter.getDescription())
                         .modelRef(new ModelRef(globalParameter.getType()))
                         .parameterType(globalParameter.getParameterType())
