@@ -6,7 +6,7 @@
 
     <groupId>com.alili</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-core-datasource</module>
@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <project.version>1.0.1</project.version>
+        <project.version>1.0.4</project.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <activatedProperties>dev</activatedProperties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,7 +39,6 @@
         <freemarker.version>2.3.23</freemarker.version>
         <java.jwt.version>3.2.0</java.jwt.version>
         <ehcache.version>3.5.2</ehcache.version>
-        <!-- The main class to start by executing java -jar -->
         <start-class>com.AppStart</start-class>
     </properties>
 
