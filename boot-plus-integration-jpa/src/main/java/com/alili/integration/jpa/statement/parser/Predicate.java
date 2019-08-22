@@ -184,7 +184,7 @@ public class Predicate {
             String[] split = split(source, "And");
             for (String part : split) {
                 if (StringUtils.hasText(part)) {
-                    children.add(new Part(part, domainClass));
+                    children.add(new Part(part, domainClass, methodDesc));
                 }
             }
 

@@ -17,7 +17,8 @@ package com.alili.integration.jpa.statement.parser;
 
 
 import com.alili.integration.jpa.EntityMetaDataRegistry;
-import com.alili.integration.jpa.util.ColumnUtils;
+import com.alili.integration.jpa.definition.MethodDefinition;
+import com.alili.integration.jpa.exception.PropertyNotFoundException;
 import com.alili.integration.jpa.util.CommonUtils;
 
 /**
@@ -29,33 +30,12 @@ import com.alili.integration.jpa.util.CommonUtils;
  */
 public class PropertyPath {
 
-    private Class<?> ownerType;
-
-    private Class<?> type;
-
     private String name;
 
-    private String ColumnName;
+    private String columnName;
 
-    public PropertyPath(Class<?> ownerType, String name) {
-        this.ownerType = ownerType;
+    public PropertyPath(String name) {
         this.name = name;
-    }
-
-    public Class<?> getOwnerType() {
-        return ownerType;
-    }
-
-    public void setOwnerType(Class<?> ownerType) {
-        this.ownerType = ownerType;
-    }
-
-    public Class<?> getType() {
-        return type;
-    }
-
-    public void setType(Class<?> type) {
-        this.type = type;
     }
 
     public String getName() {
@@ -67,19 +47,22 @@ public class PropertyPath {
     }
 
     public String getColumnName() {
-        return ColumnName;
+        return columnName;
     }
 
     public void setColumnName(String columnName) {
-        ColumnName = columnName;
+        this.columnName = columnName;
     }
 
-    public static PropertyPath from(String name, Class<?> clazz) {
-        PropertyPath propertyPath = new PropertyPath(clazz, name);
+    public static PropertyPath from(String name, Class<?> clazz, MethodDefinition methodDefinition) {
+        PropertyPath propertyPath = new PropertyPath(name);
         String columnName = "";
         if(clazz == null) {
             columnName = CommonUtils.camelToUnderline(name);
         } else {
+            if(!EntityMetaDataRegistry.getInstance().get(clazz).getColumnMetaDataMap().containsKey(name)) {
+                throw new PropertyNotFoundException(clazz, name, methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName(), "Can not found property!");
+            }
             columnName = EntityMetaDataRegistry.getInstance().get(clazz).getColumnMetaDataMap().get(name).getColumnName();
         }
 

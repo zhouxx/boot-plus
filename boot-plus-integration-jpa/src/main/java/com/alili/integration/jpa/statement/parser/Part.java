@@ -15,6 +15,7 @@
  */
 package com.alili.integration.jpa.statement.parser;
 
+import com.alili.integration.jpa.definition.MethodDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -50,17 +51,22 @@ public class Part {
 	 * start parameter index.
 	 *
 	 * @param source must not be {@literal null}.
-	 * @param clazz must not be {@literal null}.
+	 * @param clazz
 	 */
-	public Part(String source, Class<?> clazz) {
+	public Part(String source, Class<?> clazz, MethodDefinition methodDesc) {
 
 		Assert.hasText(source, "Part source must not be null or emtpy!");
 		//Assert.notNull(clazz, "Type must not be null!");
 
 		String partToUse = detectAndSetIgnoreCase(source);
 		this.type = Type.fromProperty(partToUse);
-		this.propertyPath = PropertyPath.from(type.extractProperty(partToUse), clazz);
+		this.propertyPath = PropertyPath.from(type.extractProperty(partToUse), clazz, methodDesc);
 		this.likeType = type.likeType;
+	}
+
+	public boolean getParameterRequired() {
+
+		return getNumberOfArguments() > 0;
 	}
 
 	private String detectAndSetIgnoreCase(String part) {
@@ -73,11 +79,6 @@ public class Part {
 		}
 
 		return result;
-	}
-
-	public boolean getParameterRequired() {
-
-		return getNumberOfArguments() > 0;
 	}
 
 	/**
@@ -393,9 +394,6 @@ public class Part {
 		 */
 		@Override
 		public String toString() {
-			if(this == IN) {
-				String ret = "<foreach collection=\"(0)\" index=\"index\" item=\"item\" open=\"(\" separator=\",\" close=\")\">#{item}</foreach>";
-			}
 			return String.format("%s ", this.expression.getExpression());
 			//return String.format("%s %s", name(), getNumberOfArguments(), getKeywords());
 		}
