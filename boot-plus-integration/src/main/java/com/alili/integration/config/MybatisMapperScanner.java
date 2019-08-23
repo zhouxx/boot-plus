@@ -34,6 +34,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
@@ -49,9 +50,9 @@ import static org.springframework.util.Assert.notNull;
  * @since 1.0
  */
 @Component
-public class BaseMapperScanner implements BeanDefinitionRegistryPostProcessor, ResourceLoaderAware, InitializingBean, EnvironmentAware {
+public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor, ResourceLoaderAware, InitializingBean, EnvironmentAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseMapperScanner.class);
+    private static final Logger logger = LoggerFactory.getLogger(MybatisMapperScanner.class);
 
     private ResourceLoader resourceLoader;
 
@@ -89,15 +90,12 @@ public class BaseMapperScanner implements BeanDefinitionRegistryPostProcessor, R
         scanner.setSqlSessionTemplateBeanName(mapperScanProperties.getSqlSessionTemplateRef());
         scanner.setSqlSessionFactoryBeanName(mapperScanProperties.getSqlSessionFactoryRef());
 
-        List<String> basePackages = new ArrayList<String>();
-        /*for (String pkg : annoAttrs.getStringArray("value")) {
-            if (StringUtils.hasText(pkg)) {
-                basePackages.add(pkg);
-            }
-        }*/
-        for (String pkg : mapperScanProperties.getBasePackages()) {
-            if (StringUtils.hasText(pkg)) {
-                basePackages.add(pkg);
+        List<String> basePackages = new ArrayList<>();
+        if(mapperScanProperties.getBasePackages() != null && mapperScanProperties.getBasePackages().length > 0) {
+            for (String pkg : mapperScanProperties.getBasePackages()) {
+                if (StringUtils.hasText(pkg)) {
+                    basePackages.add(pkg);
+                }
             }
         }
         for (Class<?> clazz : mapperScanProperties.getBasePackageClasses()) {
@@ -105,9 +103,16 @@ public class BaseMapperScanner implements BeanDefinitionRegistryPostProcessor, R
         }
         scanner.registerFilters();
         //scanner.addExcludeFilter(new AnnotationTypeFilter(NoRepositoryBean.class));
-        scanner.doScan(StringUtils.toStringArray(basePackages));
 
-        logger.info("BaseMapperScanner init");
+        if(!CollectionUtils.isEmpty(basePackages)) {
+            scanner.doScan(StringUtils.toStringArray(basePackages));
+        }
+
+        if(CollectionUtils.isEmpty(basePackages)) {
+            logger.warn("Mybatis mapper scanner init, scan packages count: {}", 0);
+        } else {
+            logger.info("Mybatis mapper scanner init, scan packages count: {}", basePackages.size());
+        }
     }
 
     @Override
