@@ -15,6 +15,7 @@
  */
 package com.alili.integration.jpa;
 
+import com.alili.integration.jpa.anotation.NoMapperBean;
 import com.alili.integration.jpa.mapper.Mapper;
 import com.alili.integration.jpa.meta.EntityMetaData;
 import com.alili.integration.jpa.meta.JoinColumnMetaData;
@@ -46,14 +47,19 @@ public class JpaInitializer {
 
         this.configuration = configuration;
 
-        //注册Boolean Handler
+        //register Boolean Handler
         configuration.getTypeHandlerRegistry().register((Class)Boolean.class, (TypeHandler)(new BooleanTypeHandler()));
 
         Collection<Class<?>> mapperClasses = configuration.getMapperRegistry().getMappers();
 
         for(Class<?> mapperClass : mapperClasses) {
-            //If mapper is not extend from Mapper, do not register
+            //If mapper is not extend from Mapper, not register
             if(!Mapper.class.isAssignableFrom(mapperClass)) {
+                continue;
+            }
+
+            //if mapper has NoMapperBean, not register
+            if(mapperClass.isAnnotationPresent(NoMapperBean.class)) {
                 continue;
             }
 

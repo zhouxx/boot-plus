@@ -16,6 +16,7 @@
 package com.alili.integration.jpa.mapper;
 
 
+import com.alili.integration.jpa.anotation.NoMapperBean;
 import com.alili.integration.jpa.domain.Pageable;
 import com.alili.integration.jpa.domain.Sort;
 
@@ -28,6 +29,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@NoMapperBean
 public interface PageMapper<T, ID extends Serializable> extends CrudMapper<T, ID> {
 
     List<T> findAllPage(Pageable pageable);

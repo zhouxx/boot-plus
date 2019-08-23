@@ -15,6 +15,7 @@
  */
 package com.alili.integration.jpa.mapper;
 
+import com.alili.integration.jpa.anotation.NoMapperBean;
 import com.alili.integration.jpa.domain.Sort;
 
 import java.io.Serializable;
@@ -28,6 +29,7 @@ import java.util.Optional;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@NoMapperBean
 public interface CrudMapper<T, ID extends Serializable> extends Mapper<T, ID> {
 
     List<T> findAll();

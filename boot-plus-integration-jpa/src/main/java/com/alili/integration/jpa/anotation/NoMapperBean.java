@@ -13,19 +13,19 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alili.integration.jpa.mapper;
+package com.alili.integration.jpa.anotation;
 
-import com.alili.integration.jpa.anotation.NoMapperBean;
 
-import java.io.Serializable;
-
+import java.lang.annotation.*;
 
 /**
- * 模拟JPA
+ * The interfaces include the annotation indicate that the mapper is not parsed by jpa
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@NoMapperBean
-public interface Mapper<T, ID extends Serializable> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Documented
+public @interface NoMapperBean {
 }
