@@ -165,6 +165,8 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         //未指定主键
         if(entityMetaData.getPrimaryColumnMetaData() == null) {
             setNoKeyGenerator(preMapperStatement);
+        } else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() == GenerationType.AUTO){
+            setNoKeyGenerator(preMapperStatement);
         }
         //主键不是序列
         else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() != GenerationType.SEQUENCE) {
