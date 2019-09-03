@@ -15,6 +15,7 @@
  */
 package com.alili.datasource.routing;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -24,10 +25,14 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.bind.BindHandler;
 import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -41,11 +46,13 @@ import java.util.*;
  * @author ZhouXiaoxiang
  * @since 1.0
  */
-public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProcessor, EnvironmentAware {
+public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProcessor, EnvironmentAware, ApplicationContextAware {
 
     private static final String DATASOURCE_BEAN_NAME = "dataSource";
 
     private Environment environment;
+
+    private ApplicationContext context;
 
     private final ConfigurationPropertyName SPRING_DATASOURCE = ConfigurationPropertyName
             .of("spring.datasource");
@@ -130,9 +137,47 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
         this.environment = environment;
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
+
     private DataSource buildDataSource(String dataSourceName) {
         BindResult<DataSourceProperties> bindResult = Binder.get(environment).bind("spring.datasource." + dataSourceName, DataSourceProperties.class);
-        return bindResult.get().initializeDataSourceBuilder().build();
+        DataSource dataSource = bindResult.get().initializeDataSourceBuilder().build();
+
+        //if datasource type is HikariDataSource, bind properties to hikari
+        if(hasClass("com.zaxxer.hikari.HikariDataSource")) {
+            if(dataSource instanceof HikariDataSource) {
+                BindHandler bindHandler = new IgnoreTopLevelConverterNotFoundBindHandler();
+                Bindable<?> target = Bindable.of(HikariDataSource.class).withExistingValue((HikariDataSource) dataSource);
+                Binder.get(environment).bind("spring.datasource." + dataSourceName + ".hikari", target, bindHandler);
+            }
+        }
+
+        return dataSource;
+    }
+
+    private boolean hasClass(String className) {
+        ClassLoader classLoader = context.getClassLoader();
+        boolean hasClassHikariDataSource;
+        try {
+            forName("com.zaxxer.hikari.HikariDataSource", classLoader);
+            hasClassHikariDataSource = true;
+        }
+        catch (Throwable ex) {
+            hasClassHikariDataSource = false;
+        }
+
+        return hasClassHikariDataSource;
+    }
+
+    private static Class<?> forName(String className, ClassLoader classLoader)
+            throws ClassNotFoundException {
+        if (classLoader != null) {
+            return classLoader.loadClass(className);
+        }
+        return Class.forName(className);
     }
 
 }
