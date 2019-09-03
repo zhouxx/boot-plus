@@ -6,7 +6,7 @@
 
     <groupId>com.alili</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-core-datasource</module>
@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <project.version>1.0.4</project.version>
+        <project.version>1.0.6</project.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <activatedProperties>dev</activatedProperties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

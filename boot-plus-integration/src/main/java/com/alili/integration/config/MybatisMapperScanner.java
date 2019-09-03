@@ -123,7 +123,6 @@ public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
-
     }
 
     /**
