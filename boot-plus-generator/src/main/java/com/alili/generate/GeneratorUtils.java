@@ -56,6 +56,8 @@ public class GeneratorUtils {
 
             DatabaseMetaData metaData = connection.getMetaData();
 
+            String catalog = connection.getCatalog();
+
             for (TableConfig tableConfig : tableConfigList) {
 
                 String tableName = tableConfig.getTableName();
@@ -68,7 +70,7 @@ public class GeneratorUtils {
                 /*ResultSet rsTable = metaData.getTables(null, "", tableName, null);
                 rsTable.next();
                 rsTable.getString("REMARKS");*/
-                ResultSet rsPK = metaData.getPrimaryKeys(null, "", tableName);
+                ResultSet rsPK = metaData.getPrimaryKeys(catalog, null, tableName);
 
                 String pkColumn = null;
 
@@ -78,7 +80,7 @@ public class GeneratorUtils {
                     //rsPK.getString("PK_NAME");
                 }
 
-                ResultSet rs = metaData.getColumns(null, "", tableName, "%");
+                ResultSet rs = metaData.getColumns(catalog, "%", tableName, "%");
 
                 while (rs.next()) {
 
@@ -92,7 +94,7 @@ public class GeneratorUtils {
                     String remark = rs.getString("REMARKS");
                     String defaultValue = rs.getString("COLUMN_DEF");
                     String isAutoIncrement = rs.getString("IS_AUTOINCREMENT");
-                    String isGeneratedColumn = rs.getString("IS_GENERATEDCOLUMN");
+                    // String isGeneratedColumn = rs.getString("IS_GENERATEDCOLUMN");
 
                     //String tableCat = rs.getString("TABLE_CAT");
                     //String tableSchem = rs.getString("TABLE_SCHEM");
@@ -106,7 +108,7 @@ public class GeneratorUtils {
                     tableColumn.setPrimary(columnName.equals(pkColumn) ? true : false);
                     tableColumn.setRemark(remark);
                     tableColumn.setAutoIncrement("YES".equals(isAutoIncrement) ? true : false);
-                    tableColumn.setGeneratedColumn("YES".equals(isGeneratedColumn) ? true : false);
+                    // tableColumn.setGeneratedColumn("YES".equals(isGeneratedColumn) ? true : false);
                     tableColumn.setScale(scale);
 
                     /*if(Arrays.asList(tableConfig.getQuery().split(",")).contains(columnName)) {
