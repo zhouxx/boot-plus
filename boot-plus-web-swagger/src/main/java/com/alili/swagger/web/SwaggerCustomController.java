@@ -15,6 +15,7 @@
  */
 package com.alili.swagger.web;
 
+import com.alili.core.constants.Profiles;
 import com.alili.swagger.web.entity.Definition;
 import com.alili.swagger.web.entity.Parameter;
 import com.alili.swagger.web.entity.SwaggerEntity;
@@ -32,6 +33,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +59,7 @@ import java.util.Map;
  */
 @RestController
 @ApiIgnore
+@Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
 public class SwaggerCustomController {
 
     private final DocumentationCache documentationCache;
