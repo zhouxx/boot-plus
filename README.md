@@ -35,7 +35,7 @@ Boot Plus是基于spring boot构建的框架，使其开发更方便，更简单
 
 # 文档
 
-[中文文档](http://120.79.244.131:8888/) 
+[中文文档](https://github.com/zhouxx/boot-plus/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3) 
 
 # License
 
