@@ -70,7 +70,9 @@ public class AuthorizationConfiguration extends WebSecurityConfigurerAdapter {
                         return fsi;
                     }
                 });
-
+        if(securityBizProperties.isCors()) {
+            http.cors();
+        }
         http.sessionManagement().disable();
         http.csrf().disable();
         http.logout().disable();

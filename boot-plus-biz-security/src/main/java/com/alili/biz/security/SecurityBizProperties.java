@@ -1,3 +1,18 @@
+/**
+ *    Copyright 2017-2019 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package com.alili.biz.security;
 
 import com.alili.biz.security.domain.BizUser;
@@ -17,6 +32,11 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "security.token", ignoreUnknownFields = false)
 public class SecurityBizProperties {
+
+    /**
+     * Authentication and authorization is cors
+     */
+    private boolean cors;
 
     /**
      * ignore url patterns that not managed by security
@@ -48,6 +68,14 @@ public class SecurityBizProperties {
      * jwt properties
      */
     private JWT jwt = new JWT();
+
+    public boolean isCors() {
+        return cors;
+    }
+
+    public void setCors(boolean cors) {
+        this.cors = cors;
+    }
 
     public String getIgnorePatterns() {
         return ignorePatterns;
