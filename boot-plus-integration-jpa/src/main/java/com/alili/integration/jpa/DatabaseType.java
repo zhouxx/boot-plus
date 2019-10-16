@@ -52,6 +52,7 @@ public class DatabaseType {
     public static final DatabaseType HSQL;
     public static final DatabaseType INFORMIX;
     public static final DatabaseType SQL_SERVER;
+    public static final DatabaseType MS_SQL_SERVER;
     public static final DatabaseType POSTGRE;
     public static final DatabaseType SYBASE;
 
@@ -64,6 +65,7 @@ public class DatabaseType {
         HSQL = valueOf("HSQL", "HSql database");
         INFORMIX = valueOf("Informix", "Informix database");
         SQL_SERVER = valueOf("MS-SQL", "SqlServer database");
+        MS_SQL_SERVER = valueOf("Microsoft SQL Server", "SqlServer database");
         POSTGRE = valueOf("PostgreSQL", "MySql database");
         SYBASE = valueOf("Sybase", "Sybase database");
     }

@@ -143,8 +143,20 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
      */
     protected void setTriggerValue4Jdbc3KeyGenerator(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
+        //jdbc
         preMapperStatement.setKeyColumn(entityMetaData.getPrimaryColumnMetaData().getColumnName());
         preMapperStatement.setKeyProperty(entityMetaData.getPrimaryColumnMetaData().getProperty());
+    }
+
+    /**
+     * 设置JDBC类型key生成器，
+     * @param preMapperStatement
+     */
+    protected void setTriggerValue4Jdbc3KeyGeneratorButNotCallBack(PreMapperStatement preMapperStatement) {
+        preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
+        //jdbc
+        preMapperStatement.setKeyColumn(null);
+        preMapperStatement.setKeyProperty(null);
     }
 
     /**
@@ -168,9 +180,13 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         } else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() == GenerationType.AUTO){
             setNoKeyGenerator(preMapperStatement);
         }
-        //主键不是序列
-        else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() != GenerationType.SEQUENCE) {
+        //自增，指定回调
+        else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() == GenerationType.IDENTITY) {
             setTriggerValue4Jdbc3KeyGenerator(preMapperStatement);
+        }
+        //主键不是序列，并且不是自增，没有回调，否则一些数据库会出此置空ID的情况
+        else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() != GenerationType.SEQUENCE) {
+            setTriggerValue4Jdbc3KeyGeneratorButNotCallBack(preMapperStatement);
         }
         //主键是序列
         else {

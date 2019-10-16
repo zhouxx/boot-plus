@@ -38,6 +38,7 @@ public class DatabaseTypeRegistry {
         register(DatabaseType.HSQL);
         register(DatabaseType.INFORMIX);
         register(DatabaseType.SQL_SERVER);
+        register(DatabaseType.MS_SQL_SERVER);
         register(DatabaseType.POSTGRE);
         register(DatabaseType.SYBASE);
     }

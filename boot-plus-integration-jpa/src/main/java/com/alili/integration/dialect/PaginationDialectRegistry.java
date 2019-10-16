@@ -38,6 +38,7 @@ public class PaginationDialectRegistry {
         this.register(DatabaseType.MYSQL, new MySqlPaginationDialect());
         this.register(DatabaseType.ORACLE, new OraclePaginationDialect());
         this.register(DatabaseType.SQL_SERVER, new SQLServerPaginationDialect());
+        this.register(DatabaseType.MS_SQL_SERVER, new SQLServerPaginationDialect());
         this.register(DatabaseType.DB2, new DB2PaginationDialect());
         this.register(DatabaseType.H2, new H2PaginationDialect());
         this.register(DatabaseType.HSQL, new HSQLPaginationDialect());
