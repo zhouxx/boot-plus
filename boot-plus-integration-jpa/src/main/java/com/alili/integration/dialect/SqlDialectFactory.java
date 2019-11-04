@@ -56,5 +56,7 @@ public class SqlDialectFactory {
         return KeySqlDialectRegistry.getInstance().get(databaseType).generateKeySql(sequenceName);
     }
 
-
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
 }

@@ -16,6 +16,7 @@
 package com.alili.integration.jpa.pagination;
 
 import com.alili.integration.dialect.SqlDialectFactory;
+import com.alili.integration.jpa.DatabaseType;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -73,7 +74,7 @@ public class PaginationInterceptor implements Interceptor {
         Connection connection = (Connection) invocation.getArgs()[0];
         if (rowBounds instanceof Pagination) {
             Pagination page = (Pagination) rowBounds;
-            String sqlCount = getOriginalCountSql(originalSql);
+            String sqlCount = getOriginalCountSql(originalSql, sqlDialectFactory.getDatabaseType());
             this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
 
             originalSql = sqlDialectFactory.buildPaginationSql(page, originalSql);
@@ -100,7 +101,14 @@ public class PaginationInterceptor implements Interceptor {
      * @param originalSql
      * @return
      */
-    private String getOriginalCountSql(String originalSql) {
+    private String getOriginalCountSql(String originalSql, DatabaseType databaseType) {
+        if(databaseType == DatabaseType.MS_SQL_SERVER) {
+            String loweredString = originalSql.toLowerCase();
+            int orderByIndex = loweredString.indexOf("order by");
+            if (orderByIndex != -1) {
+                originalSql = originalSql.substring(0, orderByIndex);
+            }
+        }
         return String.format("SELECT COUNT(1) FROM ( %s ) TOTAL", originalSql);
     }
 
