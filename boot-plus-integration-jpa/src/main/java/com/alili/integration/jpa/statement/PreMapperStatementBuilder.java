@@ -25,6 +25,7 @@ import com.alili.integration.jpa.meta.EntityMetaData;
 import com.alili.integration.jpa.parameter.GenerationType;
 import com.alili.integration.jpa.parameter.TriggerValue4Jdbc3KeyGenerator;
 import com.alili.integration.jpa.parameter.TriggerValue4SelectKeyGenerator;
+import com.alili.integration.jpa.primary.key.KeyGenerator4Auto;
 import com.alili.integration.jpa.util.ResultMapIdUtils;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -174,10 +175,17 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
      * @param preMapperStatement
      */
     protected void setKeyGeneratorAndTriggerValue(PreMapperStatement preMapperStatement) {
+
         //未指定主键
         if(entityMetaData.getPrimaryColumnMetaData() == null) {
             setNoKeyGenerator(preMapperStatement);
-        } else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() == GenerationType.AUTO){
+        }
+        //指定了id class优先用自定义id class去生成
+        else if(entityMetaData.getPrimaryColumnMetaData().getIdGeneratorClass() != KeyGenerator4Auto.class) {
+            setTriggerValue4Jdbc3KeyGenerator(preMapperStatement);
+        }
+        //下面都是没有自定义id class
+        else if(entityMetaData.getPrimaryColumnMetaData().getIdGenerationType() == GenerationType.AUTO){
             setNoKeyGenerator(preMapperStatement);
         }
         //自增，指定回调
