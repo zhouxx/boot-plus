@@ -16,15 +16,14 @@
 package com.alili.log.aop;
 
 
-import com.alili.core.constants.Profiles;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -32,19 +31,19 @@ import java.util.Arrays;
 /**
  * Aspect for logging execution of service and repository Spring components.
  *
- * By default, it only runs with the "dev" profile.
+ * By default, it only runs with "logging.aspect = true".
  */
 @Aspect
 @Component
-@Profile(Profiles.SPRING_PROFILE_DEVELOPMENT)
+@ConditionalOnProperty(value = "logging.aspect", havingValue = "true")
 public class LoggingAspect {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final Environment env;
+    private ObjectProvider<LogExtension> logExtension;
 
-    public LoggingAspect(Environment env) {
-        this.env = env;
+    public LoggingAspect(ObjectProvider<LogExtension> logExtension) {
+        this.logExtension = logExtension;
     }
 
     /**
@@ -64,6 +63,10 @@ public class LoggingAspect {
      */
     @Around("loggingPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        if(logExtension.getIfAvailable() != null) {
+            logExtension.getIfAvailable().beforeEnter(joinPoint.getSignature(), joinPoint.getArgs());
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
@@ -73,6 +76,9 @@ public class LoggingAspect {
             if (log.isDebugEnabled()) {
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName(), result);
+            }
+            if(logExtension.getIfAvailable() != null) {
+                result = logExtension.getIfAvailable().afterExit(joinPoint.getSignature(), result);
             }
             return result;
         } catch (IllegalArgumentException e) {
