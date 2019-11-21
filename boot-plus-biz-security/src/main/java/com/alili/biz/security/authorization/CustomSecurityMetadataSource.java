@@ -17,11 +17,13 @@ package com.alili.biz.security.authorization;
 
 import com.alili.biz.security.ExtensibleSecurity;
 import com.alili.biz.security.SecurityBizProperties;
+import com.alili.biz.security.authentication.SecurityUser;
 import com.alili.biz.security.domain.BizResource;
 import com.alili.biz.security.domain.BizUser;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -81,13 +83,15 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
     private Map<RequestMatcher, Collection<ConfigAttribute>> getMetadataSource(HttpServletRequest request) {
 
         //拿到用户，判断是否是最大权限
-        String token = extensibleSecurity.resolveToken(request);
-        BizUser bizUser = (BizUser) cacheManager.getCache("cacheSecurity").get(token, securityBizProperties.getBizUserClass());
+        //String token = extensibleSecurity.resolveToken(request);
+        //BizUser bizUser = (BizUser) cacheManager.getCache("cacheSecurity").get(token, securityBizProperties.getBizUserClass());
+        //从上下文中取得用户对象，只需要解析一次token
+        BizUser bizUser = ((SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getBizUser();
 
         //角色code
         Collection<String> roles = new ArrayList<>();
         //默认uri匹配
-        RequestMatcher requestMatcher = new AntPathRequestMatcher(request.getRequestURI());
+        RequestMatcher requestMatcher = new AntPathRequestMatcher(request.getRequestURI(), request.getMethod());
 
         //有最大权限的用户
         if(securityBizProperties.getMaxAuthUsers().contains(bizUser.getUsername())) {
@@ -99,10 +103,12 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         } else {
             //需要鉴权的
             BizResource bizResource = extensibleSecurity.obtainResource(request);
-            roles = bizResource.getRoles();
-            requestMatcher = bizResource.getRequestMatcher();
-        }
 
+            if(bizResource != null) {
+                roles = bizResource.getRoles();
+                requestMatcher = bizResource.getRequestMatcher();
+            }
+        }
 
         //为了强制鉴权
         if(roles.isEmpty()) {
