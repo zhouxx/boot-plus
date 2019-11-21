@@ -118,71 +118,71 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
         return beanProperties;
     }
 
-    protected boolean isArrayType(BeanPropertyWriter writer) {
+    private boolean isArrayType(BeanPropertyWriter writer) {
         //Class clazz = writer.getPropertyType();
         Class clazz = writer.getType().getRawClass();
         return clazz.isArray() || clazz.equals(List.class) || clazz.equals(Set.class);
     }
 
-    protected boolean isStringType(BeanPropertyWriter writer) {
+    private boolean isStringType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(String.class);
     }
 
-    protected boolean isMapType(BeanPropertyWriter writer) {
+    private boolean isMapType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(Map.class);
     }
 
-    protected boolean isBigDecimalType(BeanPropertyWriter writer) {
+    private boolean isBigDecimalType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(BigDecimal.class);
     }
 
-    protected boolean isDoubleType(BeanPropertyWriter writer) {
+    private boolean isDoubleType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(Double.class);
     }
 
-    protected boolean isIntegerType(BeanPropertyWriter writer) {
+    private boolean isIntegerType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Short.class);
     }
 
-    protected boolean isDateType(BeanPropertyWriter writer) {
+    private boolean isDateType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(Date.class) || clazz.equals(java.sql.Date.class);
     }
 
-    protected JsonSerializer<Object> defaultNullArrayJsonSerializer() {
+    private JsonSerializer<Object> defaultNullArrayJsonSerializer() {
         return this._nullArrayJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullStringJsonSerializer() {
+    private JsonSerializer<Object> defaultNullStringJsonSerializer() {
         return this._nullStringJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullMapJsonSerializer() {
+    private JsonSerializer<Object> defaultNullMapJsonSerializer() {
         return this._nullMapJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullDoubleJsonSerializer() {
+    private JsonSerializer<Object> defaultNullDoubleJsonSerializer() {
         return this._nullDoubleJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullIntegerJsonSerializer() {
+    private JsonSerializer<Object> defaultNullIntegerJsonSerializer() {
         return this._nullIntegerJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullDateJsonSerializer() {
+    private JsonSerializer<Object> defaultNullDateJsonSerializer() {
         return this._nullDateJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullObjectJsonSerializer() {
+    private JsonSerializer<Object> defaultNullObjectJsonSerializer() {
         return this._nullObjectJsonSerializer;
     }
 
-    protected JsonSerializer<Object> defaultNullBigDecimalJsonSerializer() {
+    private JsonSerializer<Object> defaultNullBigDecimalJsonSerializer() {
         return this._nullBigDecimalJsonSerializer;
     }
 }

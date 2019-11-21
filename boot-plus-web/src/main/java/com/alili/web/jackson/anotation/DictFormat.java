@@ -33,32 +33,27 @@ public @interface DictFormat {
 
     /**
      * 字典名称编码, 默认为当前属性的名称
-     * @return
      */
     String dictKey() default "";
 
     /**
      * 字典的属性原始值是否转String输出
-     * @return
      */
     boolean dictKeyToString() default false;
 
 
     /**
      * 目标属性, 一个字典对应有个值，这个也要有个属性存在，默认为dicKey+"Name"
-     * @return
      */
     String targetFiled() default "";
 
     /**
      * 默认值，当字典里没有对应的值时，显示的字典值
-     * @return
      */
     String defaultValue() default "";
 
     /**
      * 禁用缓存  暂时未实现
-     * @return
      */
     boolean disableCache() default true;
 

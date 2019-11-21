@@ -14,6 +14,7 @@
  *    limitations under the License.
  */
 package com.alili.biz.security;
+
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0

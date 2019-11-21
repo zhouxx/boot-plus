@@ -53,6 +53,9 @@ public class JsonProperties {
      */
     private String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
+    /**
+     * 时区
+     */
     private String timezone = TimeZone.getDefault().getID();
 
     public boolean isFilterNull() {

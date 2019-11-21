@@ -15,6 +15,10 @@
  */
 package com.alili.biz.security;
 
+/**
+ * @author Zhou Xiaoxiang
+ * @since 1.0
+ */
 public enum TokenType {
 
     JWT,

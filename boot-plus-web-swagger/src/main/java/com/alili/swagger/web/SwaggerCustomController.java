@@ -27,7 +27,6 @@ import com.alili.web.file.FileDownloadStreamingResponseBody;
 import com.alili.web.file.FileViewStreamingResponseBody;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Optional;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -51,6 +50,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -79,14 +79,14 @@ public class SwaggerCustomController {
             @RequestParam(value = "group", required = false) String swaggerGroup) throws IOException, TemplateException {
 
         //=====================引用swagger部分
-        String groupName = Optional.fromNullable(swaggerGroup).or(Docket.DEFAULT_GROUP_NAME);
+        String groupName = Optional.ofNullable(swaggerGroup).orElse(Docket.DEFAULT_GROUP_NAME);
         Documentation documentation = documentationCache.documentationByGroup(groupName);
         if (documentation == null) {
             //return new ResponseEntity<Json>(HttpStatus.NOT_FOUND);
         }
         Swagger swagger = mapper.mapDocumentation(documentation);
 
-        Map<String, Path> paths = swagger.getPaths();
+        //Map<String, Path> paths = swagger.getPaths();
 
         /*paths.forEach((s, path) -> {
             //path.getDocParameters()

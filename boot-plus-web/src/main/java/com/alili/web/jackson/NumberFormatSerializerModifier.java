@@ -17,7 +17,6 @@ package com.alili.web.jackson;
 
 import com.alili.web.jackson.anotation.NumberFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -40,11 +39,9 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
 
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
-        for(int i = 0; i < beanProperties.size(); ++i) {
-            BeanPropertyWriter writer = (BeanPropertyWriter)beanProperties.get(i);
-
+        for (BeanPropertyWriter writer : beanProperties) {
             NumberFormat numberFormat = writer.getAnnotation(NumberFormat.class);
-            if(this.isNumberType(writer) && numberFormat != null) {
+            if (this.isNumberType(writer) && numberFormat != null) {
                 writer.assignSerializer(new NumberJsonSerializer(numberFormat));
             }
         }
@@ -52,7 +49,7 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
         return beanProperties;
     }
 
-    protected boolean isNumberType(BeanPropertyWriter writer) {
+    private boolean isNumberType(BeanPropertyWriter writer) {
         Class clazz = writer.getType().getRawClass();
         return clazz.equals(BigDecimal.class)
                 || clazz.equals(int.class) || clazz.equals(long.class) || clazz.equals(double.class) || clazz.equals(float.class)
@@ -63,12 +60,12 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
 
         private NumberFormat annotation;
 
-        public NumberJsonSerializer(NumberFormat annotation) {
+        NumberJsonSerializer(NumberFormat annotation) {
             this.annotation = annotation;
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             if(annotation.pattern().equals("")) {
                 BigDecimal bigDecimalValue = null;
                 if(value instanceof BigDecimal) {

@@ -162,7 +162,7 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
         ClassLoader classLoader = context.getClassLoader();
         boolean hasClassHikariDataSource;
         try {
-            forName("com.zaxxer.hikari.HikariDataSource", classLoader);
+            forName(className, classLoader);
             hasClassHikariDataSource = true;
         }
         catch (Throwable ex) {

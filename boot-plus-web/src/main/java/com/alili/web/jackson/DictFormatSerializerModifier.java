@@ -17,7 +17,6 @@ package com.alili.web.jackson;
 
 import com.alili.web.jackson.anotation.DictFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -56,15 +55,14 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
-        for(int i = 0; i < beanProperties.size(); ++i) {
-            BeanPropertyWriter writer = beanProperties.get(i);
+        for (BeanPropertyWriter writer : beanProperties) {
             DictFormat dictFormat = writer.getAnnotation(DictFormat.class);
-            if(dictFormat != null) {
+            if (dictFormat != null) {
                 String sourceFileName = writer.getFullName().getSimpleName();
-                String targetFiledName = isEmpty(dictFormat.targetFiled()) ? sourceFileName + "Name" : dictFormat.targetFiled() ;
+                String targetFiledName = isEmpty(dictFormat.targetFiled()) ? sourceFileName + "Name" : dictFormat.targetFiled();
                 String dicKey = isEmpty(dictFormat.dictKey()) ? sourceFileName : dictFormat.dictKey();
                 String defaultValue = dictFormat.defaultValue();
-                writer.assignSerializer(new DicJsonSerializer(new DictAnnotationConfig(sourceFileName, targetFiledName, dicKey, dictFormat.dictKeyToString(), defaultValue)));
+                writer.assignSerializer(new DictJsonSerializer(new DictAnnotationConfig(targetFiledName, dicKey, dictFormat.dictKeyToString(), defaultValue)));
             }
         }
 
@@ -75,16 +73,16 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
         return str == null || "".equals(str);
     }
 
-    protected class DicJsonSerializer extends JsonSerializer<Object> {
+    protected class DictJsonSerializer extends JsonSerializer<Object> {
 
         private DictAnnotationConfig dictAnnotationConfig;
 
-        public DicJsonSerializer(DictAnnotationConfig dictAnnotationConfig) {
+        DictJsonSerializer(DictAnnotationConfig dictAnnotationConfig) {
             this.dictAnnotationConfig = dictAnnotationConfig;
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             //将字典key的原始值转换成String
             if(dictAnnotationConfig.isDictKeyToString()) {
                 value = value == null ? null : value.toString();
@@ -95,9 +93,7 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
             if(!cacheMap.containsKey(dictAnnotationConfig.getDictKey()) || !cacheMap.get(dictAnnotationConfig.getDictKey()).containsKey(dictKeyStringValue)) {
                 logger.warn("dict key: {} and value: {} is not in cache, and it will reload all dict collectors.", dictAnnotationConfig.getDictKey(), dictKeyStringValue);
                 cacheMap.clear();
-                dictCollectorList.forEach(dictCollector -> {
-                    cacheMap.putAll(dictCollector.findDictAndValues());
-                });
+                dictCollectorList.forEach(dictCollector -> cacheMap.putAll(dictCollector.findDictAndValues()));
             }
             gen.writeObject(value);
             //写字典值
@@ -113,59 +109,33 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
     protected class DictAnnotationConfig {
 
-        private String sourceFileName;
         private String targetFiledName;
-
         private String dictKey;
         private boolean dictKeyToString;
         private String defaultValue;
 
-        public DictAnnotationConfig(String sourceFileName, String targetFiledName, String dictKey, boolean dictKeyToString, String defaultValue) {
-            this.sourceFileName = sourceFileName;
+        DictAnnotationConfig(String targetFiledName, String dictKey, boolean dictKeyToString, String defaultValue) {
             this.targetFiledName = targetFiledName;
             this.dictKey = dictKey;
             this.dictKeyToString = dictKeyToString;
             this.defaultValue = defaultValue;
         }
 
-        public String getSourceFileName() {
-            return sourceFileName;
-        }
-
-        public void setSourceFileName(String sourceFileName) {
-            this.sourceFileName = sourceFileName;
-        }
-
-        public String getTargetFiledName() {
+        String getTargetFiledName() {
             return targetFiledName;
         }
 
-        public void setTargetFiledName(String targetFiledName) {
-            this.targetFiledName = targetFiledName;
-        }
-
-        public String getDictKey() {
+        String getDictKey() {
             return dictKey;
         }
 
-        public void setDictKey(String dictKey) {
-            this.dictKey = dictKey;
-        }
-
-        public boolean isDictKeyToString() {
+        boolean isDictKeyToString() {
             return dictKeyToString;
         }
 
-        public void setDictKeyToString(boolean dictKeyToString) {
-            this.dictKeyToString = dictKeyToString;
-        }
-
-        public String getDefaultValue() {
+        String getDefaultValue() {
             return defaultValue;
         }
 
-        public void setDefaultValue(String defaultValue) {
-            this.defaultValue = defaultValue;
-        }
     }
 }

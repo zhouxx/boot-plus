@@ -32,7 +32,6 @@ public @interface NumberFormat {
 
     /**
      * 格式化格式,如果引用此样式，则强制设置成此样式的格式，并转换成字符串
-     * @return
      */
     String pattern() default "";
 

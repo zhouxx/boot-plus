@@ -86,7 +86,6 @@ public class WebConfig implements WebMvcConfigurer {
         for(HttpMessageConverter converter : converters) {
             if(converter instanceof MappingJackson2HttpMessageConverter) {
                 MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = (MappingJackson2HttpMessageConverter) converter;
-
                 jackson2HttpMessageConverter.setObjectMapper(objectMapper);
             }
         }

@@ -30,12 +30,12 @@ import java.lang.annotation.*;
 public @interface NullFormat {
 
     /*
-      是否启用null值处理
+     * 是否启用null值处理
      */
     boolean defaultNull() default false;
 
     /*
-    null值替换值
+     * null值替换值
      */
     String defaultNullValue();
 

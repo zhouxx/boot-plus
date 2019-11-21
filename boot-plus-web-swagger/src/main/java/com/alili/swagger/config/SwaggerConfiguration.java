@@ -164,9 +164,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     private List<ApiKey> securitySchemes(List<Authorized> authorizeds) {
 
-        List<ApiKey> apiKeys = authorizeds.stream().map(authorized -> {
-            return new ApiKey(authorized.getName(), authorized.getName(), authorized.getIn());
-        }).collect(toList());
+        List<ApiKey> apiKeys = authorizeds.stream().map(authorized -> new ApiKey(authorized.getName(), authorized.getName(), authorized.getIn())).collect(toList());
 
         return apiKeys;
     }

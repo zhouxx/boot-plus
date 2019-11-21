@@ -15,7 +15,6 @@
  */
 package com.alili.datasource.routing.aop;
 
-import com.alili.datasource.routing.DefaultDynamicDataSource;
 import com.alili.datasource.routing.DataSourceContextHolder;
 import com.alili.datasource.routing.annotation.DynamicSource;
 import org.aspectj.lang.JoinPoint;
@@ -25,11 +24,9 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 
 /**
@@ -43,8 +40,8 @@ public class DynamicDataSourceAspect implements Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private DataSource primaryDataSource;
+    //@Autowired
+    //private DataSource primaryDataSource;
 
     @Before("@annotation(com.alili.datasource.routing.annotation.DynamicSource) || @within(com.alili.datasource.routing.annotation.DynamicSource)")
     public void beforeSwitchDataSource(JoinPoint point) throws NoSuchMethodException {
@@ -76,7 +73,7 @@ public class DynamicDataSourceAspect implements Ordered {
                 dataSourceName = annotation.value();
             }
 
-            DefaultDynamicDataSource defaultDynamicDataSource = (DefaultDynamicDataSource)primaryDataSource;
+            //DefaultDynamicDataSource defaultDynamicDataSource = (DefaultDynamicDataSource)primaryDataSource;
 
             /*if(!dynamicDataSource.contains(dataSourceName)) {
                 logger.debug("Create DataSource [{}]", dataSourceName);
@@ -94,7 +91,7 @@ public class DynamicDataSourceAspect implements Ordered {
     }
 
     @After("@annotation(com.alili.datasource.routing.annotation.DynamicSource) || @within(com.alili.datasource.routing.annotation.DynamicSource)")
-    public void afterSwitchDataSource(JoinPoint point){
+    public void afterSwitchDataSource(){
         DataSourceContextHolder.clearDataSource();
     }
 

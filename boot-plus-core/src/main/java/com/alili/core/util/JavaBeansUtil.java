@@ -28,13 +28,7 @@ public class JavaBeansUtil {
      * @return
      */
     public static String getGetterMethodName(String property, String javaType) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(property);
-        if (Character.isLowerCase(sb.charAt(0))) {
-            if (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1))) {
-                sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-            }
-        }
+        StringBuilder sb = covertMethodPost(property);
         if ("boolean".equals(javaType)) {
             sb.insert(0, "is");
         } else {
@@ -42,12 +36,19 @@ public class JavaBeansUtil {
         }
         return sb.toString();
     }
+
     /**
      * 根据属性名称获取对应的setter方法名称
      * @param property
      * @return
      */
     public static String getSetterMethodName(String property) {
+        StringBuilder sb = covertMethodPost(property);
+        sb.insert(0, "set");
+        return sb.toString();
+    }
+
+    private static StringBuilder covertMethodPost(String property) {
         StringBuilder sb = new StringBuilder();
         sb.append(property);
         if (Character.isLowerCase(sb.charAt(0))) {
@@ -55,8 +56,7 @@ public class JavaBeansUtil {
                 sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
             }
         }
-        sb.insert(0, "set");
-        return sb.toString();
+        return sb;
     }
 
 }
