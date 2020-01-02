@@ -1,4 +1,4 @@
 # Failure Analyzers
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-com.alili.diagnostics.analyzer.PropertyNotFoundFailureAnalyzer
+com.alilitech.diagnostics.analyzer.PropertyNotFoundFailureAnalyzer
 

@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.alili</groupId>
+    <groupId>com.alilitech</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.0.8</version>
+    <version>1.1.0</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-core-datasource</module>
@@ -23,7 +23,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <project.version>1.0.7</project.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <activatedProperties>dev</activatedProperties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,7 +30,7 @@
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-boot.version>2.1.2.RELEASE</spring-boot.version>
+        <spring-boot.version>2.2.1.RELEASE</spring-boot.version>
         <springfox.version>2.8.0</springfox.version>
         <vue.version>2.5.16</vue.version>
         <axios.version>0.18.0</axios.version>

@@ -1,5 +1,5 @@
 /**
- *    Copyright 2017-2019 the original author or authors.
+ *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,16 +15,13 @@
  */
 package com;
 
-import com.alili.core.constants.Profiles;
-import com.alili.core.util.DefaultProfileUtil;
+import com.alilitech.core.constants.Profiles;
+import com.alilitech.core.util.DefaultProfileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -36,12 +33,9 @@ import java.util.Optional;
 
 /**
  * Spring boot main class
- * @author ZhouXiaoxiang
+ * @author Zhou Xiaoxiang
  */
-@ComponentScan
-@EnableAutoConfiguration
-@EnableConfigurationProperties
-@EnableScheduling
+@SpringBootApplication
 public class AppStart {
 
     private static final Logger log = LoggerFactory.getLogger(AppStart.class);

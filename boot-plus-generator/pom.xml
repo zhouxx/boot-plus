@@ -2,8 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <artifactId>boot-plus</artifactId>
-        <groupId>com.alili</groupId>
-        <version>1.0.8</version>
+        <groupId>com.alilitech</groupId>
+        <version>1.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>boot-plus-generator</artifactId>
@@ -31,19 +31,19 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-integration-jpa</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-web</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-web-log</artifactId>
             <version>${parent.version}</version>
         </dependency>
