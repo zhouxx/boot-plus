@@ -28,7 +28,7 @@ public enum MethodType {
     findAllById("findAllById", ParameterType.IDS),
     /*findPage("findPage"),*/
     insert("insert", ParameterType.ENTITY),
-    insertSelective("insertSelective", ParameterType.ENTITIES),
+    insertSelective("insertSelective", ParameterType.ENTITY),
     update("update", ParameterType.ENTITY),
     updateSelective("updateSelective", ParameterType.ENTITY),
     deleteById("deleteById", ParameterType.ID),

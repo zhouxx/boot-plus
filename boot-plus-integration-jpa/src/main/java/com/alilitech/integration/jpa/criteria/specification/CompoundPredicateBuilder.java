@@ -37,6 +37,7 @@ public class CompoundPredicateBuilder<T> extends PredicateBuilder<T> {
     }
 
     public CompoundPredicateBuilder() {
+        super(new EmptySpecificationBuilder());
         this.operator = PredicateExpression.BooleanOperator.AND;
     }
 

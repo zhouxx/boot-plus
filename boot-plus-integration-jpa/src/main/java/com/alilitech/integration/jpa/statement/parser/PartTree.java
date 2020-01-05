@@ -60,14 +60,14 @@ public class PartTree {
     private static final String COUNT_PATTERN = "count";
     private static final String EXISTS_PATTERN = "exists";
     private static final String DELETE_PATTERN = "delete|remove";
-    public static final Pattern QUERY_PREFIX_TEMPLATE = Pattern.compile( //
+    public static final Pattern QUERY_PREFIX_TEMPLATE = Pattern.compile(
             "^(" + QUERY_PATTERN + ")((\\p{Lu}.*?))??");
-    private static final Pattern PREFIX_TEMPLATE = Pattern.compile( //
+    private static final Pattern PREFIX_TEMPLATE = Pattern.compile(
             "^(" + QUERY_PATTERN + "|" + COUNT_PATTERN + "|" + EXISTS_PATTERN + "|" + DELETE_PATTERN + ")((\\p{Lu}.*?))??By");
-    private static final Pattern PREFIX_TEMPLATE_VIRTUAL = Pattern.compile( //
-            "^(" + QUERY_PATTERN + ")((\\p{Lu}.*?))??With");
-    private static final Pattern PREFIX_TEMPLATE_VIRTUAL_JOIN = Pattern.compile( //
-            "^(" + QUERY_PATTERN + ")((\\p{Lu}.*?))??JoinWith");
+    private static final Pattern PREFIX_TEMPLATE_VIRTUAL = Pattern.compile(
+            "^(" + QUERY_PATTERN + ")With");
+    private static final Pattern PREFIX_TEMPLATE_VIRTUAL_JOIN = Pattern.compile(
+            "^(" + QUERY_PATTERN + ")JoinWith");
 
 
     /**
@@ -449,7 +449,7 @@ public class PartTree {
         @Override
         public String toString() {
             OrderBySource orderBySource = this.getOrderBySource();
-            return String.format("%s %s", getWhere(this.nodes), orderBySource);
+            return String.format("%s %s", getWhere(this.nodes), orderBySource == null ? "" : orderBySource.toString());
         }
 
         private String getWhere(List<OrPart> nodes) {

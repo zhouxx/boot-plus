@@ -18,7 +18,6 @@ package com.alilitech.integration.jpa.criteria.specification;
 import com.alilitech.integration.jpa.criteria.CriteriaBuilder;
 import com.alilitech.integration.jpa.criteria.CriteriaQuery;
 import com.alilitech.integration.jpa.criteria.expression.OrderExpression;
-import com.alilitech.integration.jpa.criteria.expression.PredicateExpression;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -28,15 +27,15 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class PredicateOrderBuilder<T> extends PredicateBuilder<T> {
+public class OrderBuilder<T> extends AbstractSpecificationBuilder<T> {
 
     private List<OrderExpression<T>> orders = new ArrayList<>();
 
-    public PredicateOrderBuilder(PredicateExpression.BooleanOperator operator) {
-        super(operator);
+    public OrderBuilder(SpecificationBuilder<T> specificationBuilder) {
+        super(specificationBuilder);
     }
 
-    public PredicateBuilder<T> asc(String property) {
+    public OrderBuilder<T> asc(String property) {
         specifications.add((cb, query) -> {
             orders.add(cb.asc(property));
             return null;
@@ -44,7 +43,7 @@ public class PredicateOrderBuilder<T> extends PredicateBuilder<T> {
         return this;
     }
 
-    public PredicateBuilder<T> desc(String property) {
+    public OrderBuilder<T> desc(String property) {
         specifications.add((cb, query) -> {
             orders.add(cb.desc(property));
             return null;
@@ -52,10 +51,15 @@ public class PredicateOrderBuilder<T> extends PredicateBuilder<T> {
         return this;
     }
 
-    protected void buildSpecification(CriteriaBuilder cb, CriteriaQuery query) {
-        super.buildSpecification(cb, query);
+    @Override
+    public void build(CriteriaBuilder cb, CriteriaQuery query) {
+        specificationBuilder.build(cb, query);
+        for (int i = 0; i < specifications.size(); i++) {
+            specifications.get(i).toPredicate(cb, query);
+        }
         if (!CollectionUtils.isEmpty(orders)) {
             query.orderBy(orders.toArray(new OrderExpression[orders.size()]));
         }
     }
+
 }

@@ -15,28 +15,23 @@
  */
 package com.alilitech.integration.jpa.criteria.specification;
 
-import static com.alilitech.integration.jpa.criteria.expression.PredicateExpression.BooleanOperator.*;
+import com.alilitech.integration.jpa.criteria.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class Specifications {
+public abstract class AbstractSpecificationBuilder<T> implements SpecificationBuilder<T> {
 
-    static EmptySpecificationBuilder emptySpecificationBuilder = new EmptySpecificationBuilder();
+    protected List<Specification<T>> specifications = new ArrayList<>();
 
-    private Specifications() {
-    }
+    protected SpecificationBuilder<T> specificationBuilder;
 
-    public static <T> PredicateBuilder<T> and() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, AND);
-    }
-    public static <T> PredicateBuilder<T> or() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, OR);
-    }
-
-    public static <T> OrderBuilder<T> order() {
-        return new OrderBuilder<>(emptySpecificationBuilder);
+    public AbstractSpecificationBuilder(SpecificationBuilder<T> specificationBuilder) {
+        this.specificationBuilder = specificationBuilder;
     }
 
 }

@@ -41,7 +41,13 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
 
     @Override
     protected void buildPreMapperStatementExtend(PreMapperStatement preMapperStatement, GenericType genericType) {
-        preMapperStatement.setSqlCommandType(SqlCommandType.SELECT);
+
+        if(delete) {
+            preMapperStatement.setSqlCommandType(SqlCommandType.DELETE);
+        } else {
+            preMapperStatement.setSqlCommandType(SqlCommandType.SELECT);
+        }
+
         setNoKeyGenerator(preMapperStatement);
         setFindResultIdOrType(preMapperStatement, genericType);
     }
@@ -61,6 +67,7 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
             operation = "DELETE";
             selectPart = "";
             resultType = methodDefinition.getReturnType();
+            delete = true;
         } else if(partTree.isExistsProjection()) {
             selectPart = "count(1)";
             resultType = methodDefinition.getReturnType();

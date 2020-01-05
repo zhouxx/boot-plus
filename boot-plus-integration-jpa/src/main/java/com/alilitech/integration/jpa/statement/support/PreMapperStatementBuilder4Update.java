@@ -15,13 +15,12 @@
  */
 package com.alilitech.integration.jpa.statement.support;
 
+import com.alilitech.integration.jpa.definition.GenericType;
 import com.alilitech.integration.jpa.meta.ColumnMetaData;
 import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.StatementAssistant;
-import com.alilitech.integration.jpa.definition.GenericType;
-import com.alilitech.integration.jpa.statement.parser.PartTree;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.jdbc.SQL;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -50,8 +49,6 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
     @Override
     protected String buildSQL() {
 
-        PartTree partTree = buildPartTree();
-
         return new SQL() {
             {
                 UPDATE(entityMetaData.getTableName());
@@ -61,8 +58,9 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
                     }
                     SET(columnMetaData.getColumnName() + " = " + StatementAssistant.resolveSqlParameterBySysFunction(columnMetaData, SqlCommandType.UPDATE));
                 }
+                WHERE(StatementAssistant.buildPrimaryKeyCondition(entityMetaData));
             }
-        }.toString() + partTree.toString();
+        }.toString();
     }
 
     protected Class<?> getParameterTypeClass() {

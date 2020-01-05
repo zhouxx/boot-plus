@@ -15,28 +15,27 @@
  */
 package com.alilitech.integration.jpa.criteria.specification;
 
-import static com.alilitech.integration.jpa.criteria.expression.PredicateExpression.BooleanOperator.*;
+import com.alilitech.integration.jpa.criteria.CriteriaBuilder;
+import com.alilitech.integration.jpa.criteria.CriteriaQuery;
+import com.alilitech.integration.jpa.criteria.Specification;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class Specifications {
 
-    static EmptySpecificationBuilder emptySpecificationBuilder = new EmptySpecificationBuilder();
+public interface SpecificationBuilder<T> {
 
-    private Specifications() {
+    default OrderBuilder<T> order() {
+        return new OrderBuilder(this);
     }
 
-    public static <T> PredicateBuilder<T> and() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, AND);
-    }
-    public static <T> PredicateBuilder<T> or() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, OR);
-    }
+    void build(CriteriaBuilder cb, CriteriaQuery query);
 
-    public static <T> OrderBuilder<T> order() {
-        return new OrderBuilder<>(emptySpecificationBuilder);
+    default Specification<T> build() {
+        return (cb, query) -> {
+            this.build(cb, query);
+            return null;
+        };
     }
-
 }

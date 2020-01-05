@@ -16,14 +16,13 @@
 package com.alilitech.integration.jpa.statement.support;
 
 import com.alilitech.integration.jpa.anotation.Trigger;
+import com.alilitech.integration.jpa.definition.GenericType;
 import com.alilitech.integration.jpa.meta.ColumnMetaData;
 import com.alilitech.integration.jpa.parameter.TriggerValueType;
 import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.StatementAssistant;
-import com.alilitech.integration.jpa.definition.GenericType;
-import com.alilitech.integration.jpa.statement.parser.PartTree;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -85,14 +84,13 @@ public class PreMapperStatementBuilder4UpdateSelective extends PreMapperStatemen
         sets.append("</trim>");
 
         //since 1.1
-        PartTree partTree = buildPartTree();
-
         List<String> sqlParts = Arrays.asList(
                 "UPDATE",
                 entityMetaData.getTableName(),
                 "SET",
                 sets.toString(),
-                partTree.toString()
+                "WHERE",
+                StatementAssistant.buildPrimaryKeyCondition(entityMetaData)
         );
 
         return buildScript(sqlParts);

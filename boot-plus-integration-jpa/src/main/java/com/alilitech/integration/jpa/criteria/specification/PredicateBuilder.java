@@ -29,18 +29,20 @@ import java.util.function.Consumer;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class PredicateBuilder<T> {
-
-    protected PredicateExpression.BooleanOperator operator;
+public class PredicateBuilder<T> extends AbstractSpecificationBuilder<T> {
 
     protected List<Specification<T>> specifications = new ArrayList<>();
 
+    protected PredicateExpression.BooleanOperator operator;
+
     protected List<PredicateExpression<T>> predicates = new ArrayList<>();
 
-    public PredicateBuilder() {
+    public PredicateBuilder(SpecificationBuilder<T> specificationBuilder) {
+        super(specificationBuilder);
     }
 
-    public PredicateBuilder(PredicateExpression.BooleanOperator operator) {
+    public PredicateBuilder(SpecificationBuilder specificationBuilder, PredicateExpression.BooleanOperator operator) {
+        super(specificationBuilder);
         this.operator = operator;
     }
 
@@ -243,7 +245,14 @@ public class PredicateBuilder<T> {
         return this;
     }
 
-    protected void buildSpecification(CriteriaBuilder cb, CriteriaQuery query) {
+    @Override
+    public void build(CriteriaBuilder cb, CriteriaQuery query) {
+        for (int i = 0; i < specifications.size(); i++) {
+            PredicateExpression predicateExpression = specifications.get(i).toPredicate(cb, query);
+            if(predicateExpression != null) {
+                this.predicates.add(predicateExpression);
+            }
+        }
         if (!CollectionUtils.isEmpty(predicates)) {
             if(PredicateExpression.BooleanOperator.OR.equals(operator)) {
                 query.where(cb.or(predicates.toArray(new PredicateExpression[predicates.size()])));
@@ -252,18 +261,4 @@ public class PredicateBuilder<T> {
             }
         }
     }
-
-    public Specification<T> build() {
-        return (cb, query) -> {
-            for (int i = 0; i < specifications.size(); i++) {
-                PredicateExpression predicateExpression = specifications.get(i).toPredicate(cb, query);
-                if(predicateExpression != null) {
-                    this.predicates.add(predicateExpression);
-                }
-            }
-            buildSpecification(cb, query);
-            return null;
-        };
-    }
-
 }

@@ -127,10 +127,6 @@ public class CriteriaBuilder<T> {
         }
     }
 
-    private PredicateExpression<T> buildPredicate(VariableExpression<T> variable, OperatorExpression<T> operator, ParameterExpression<T> ...parameters) {
-        return new SinglePredicateExpression<>(variable, operator, parameters);
-    }
-
     public OrderExpression<T> desc(String property) {
         VariableExpression variable = new VariableExpression<T>(domainClass, property);
         return new OrderExpression<>(variable, Direction.DESC);

@@ -17,6 +17,7 @@ package com.alilitech.integration.jpa.statement;
 
 import com.alilitech.integration.jpa.anotation.Trigger;
 import com.alilitech.integration.jpa.meta.ColumnMetaData;
+import com.alilitech.integration.jpa.meta.EntityMetaData;
 import com.alilitech.integration.jpa.parameter.TriggerValueType;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.springframework.util.StringUtils;
@@ -196,14 +197,14 @@ public class StatementAssistant {
 	/**
 	 * 装配sql中动态参数的占位符
 	 */
-	public final static String resolveSqlParameter(ColumnMetaData columnMetaData) {
+	public static String resolveSqlParameter(ColumnMetaData columnMetaData) {
 		return resolveSqlParameter(columnMetaData, "");
 	}
 
 	/**
 	 * 装配sql中动态参数的占位符 #{alias.propertyName,jdbcType=,}
 	 */
-	public final static String resolveSqlParameter(ColumnMetaData columnMetaData, String alias) {
+	public static String resolveSqlParameter(ColumnMetaData columnMetaData, String alias) {
 
 		StringBuilder stringBuilder = new StringBuilder()
 				.append("#{")
@@ -213,6 +214,14 @@ public class StatementAssistant {
 				.append("}");
 
 		return stringBuilder.toString();
+	}
+
+	public static String buildPrimaryKeyCondition(EntityMetaData entityMetaData) {
+		return entityMetaData.getPrimaryColumnMetaData().getColumnName() + " = " + resolveSqlParameter(entityMetaData.getPrimaryColumnMetaData());
+	}
+
+	public static String buildPrimaryKeyCondition(EntityMetaData entityMetaData, String alias) {
+		return entityMetaData.getPrimaryColumnMetaData().getColumnName() + " = " + resolveSqlParameter(entityMetaData.getPrimaryColumnMetaData(), alias);
 	}
 
 }
