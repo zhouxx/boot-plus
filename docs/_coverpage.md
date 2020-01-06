@@ -1,13 +1,8 @@
-![logo](_media/icon.svg)
+# Boot Plus <small>1.1.x</small>
 
-# bootplus <small>1.1.x</small>
-
-> A magical documentation site generator.
-
-- Simple and lightweight (~12kb gzipped)
-- Multiple themes
-- Not build static html files
-
+> 让开发只关注业务
 
 [GitHub](https://github.com/zhouxx/boot-plus)
 [Get Started](#quick-start)
+
+
