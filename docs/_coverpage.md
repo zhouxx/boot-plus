@@ -3,6 +3,6 @@
 > 让开发只关注业务
 
 [GitHub](https://github.com/zhouxx/boot-plus)
-[Get Started](#quick-start)
+[Get Started](#part2-起步)
 
 
