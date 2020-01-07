@@ -23,11 +23,11 @@
 
 # Part2 : 起步
 
-## 系统要求
+## 2.1 系统要求
 
-Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
+Boot Plus 1.1.0 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
-## Maven 依赖
+## 2.2 Maven 依赖
 
 ```xml
 <dependencyManagement>
@@ -35,7 +35,7 @@ Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
         <dependency>
             <groupId>com.alili</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.x</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -43,9 +43,9 @@ Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
 </dependencyManagement>
 ```
 
-## 开发第一个应用
+## 2.3 开发第一个应用
 
-### 创建pom
+### 2.3.1 创建pom
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -74,7 +74,7 @@ Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
             <dependency>
                 <groupId>com.alili</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.x</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -86,7 +86,7 @@ Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
 
 你可以通过IDE指定启动类：`com.AppStart`来启动项目，也可以通过自定义启动类启动项目。
 
-### 创建一个可执行的jar
+### 2.3.2 创建一个可执行的jar
 
 需要添加 spring-boot-maven-plugin 至 pom.xml :
 
@@ -115,11 +115,11 @@ Boot Plus 1.0.0 至少要求java1.8，Spring Boot 2.1.2.RELEASE.
 
 
 
-# Part3 : boot-plus-core
+# Part3 : core
 
 核心层是基于spring的。基于核心层扩展了组件：
 
-## boot-plus-core-datasource
+## 3.1 boot-plus-core-datasource
 
 动态数据源是指在项目里可以配置多个数据源，并且可以在不同的地方指定使用不同的数据源。
 
@@ -143,30 +143,35 @@ spring:
 代码里动态使用数据源的方式采用注解，一般在service层。比如：
 
 ```java
-@DynamicSource("default")
+@DynamicSource("second")
 public void exeService() {
     
 }
 ```
 
-* 动态添加数据源
+* 动态添加/移除数据源
 
 代码里可以动态地创建数据源，并添加到多数据源里。
 
 我们可以拿到数据源对象，判断是否是`DefaultDynamicDataSource`此类，可以调用此类的`addDataSource`方法。
 
+```java
+//add datasource
+defaultDynamicDataSource.addDataSource(datasourceName, datasourceUrl, datasourceUsername, datasourcePassword);
 
+//remove datasource
+defaultDynamicDataSource.remove(datasourceName);
+```
 
-## boot-plus-core-quartz
+## 3.2 boot-plus-core-quartz
 
 定时任务是指可以在项目里的任意时间段里添加或修改定时任务。使用方法如下：
-
 ```java
  //定义jop，或其子类
 QuartzJob quartzJob = new QuartzJob();
 quartzJob.setClassName("com.alili.service.MyJobService");
 quartzJob.setMethodName("start");
-quartzJob.setEnabled(1);
+quartzJob.setEnabled(true);
 quartzJob.setCronExpression("* * * * * ? *");
 quartzJob.setSpringInstantiated(1);
 
@@ -177,15 +182,17 @@ e.printStackTrace();
 }
 ```
 
-> 当把Job的enabled定义为0，即job失效。
+> 当把Job的enabled定义为false，即job失效。
 
 
 
-# Part4 : boot-plus-web
+# Part4 : web
 
 web层是基于spring mvc 的框架，但他提供了更多的支持。
 
-### 跨域支持
+### 4.1 boot-plus-web
+
+#### 4.1.1 跨域支持
 
 跨域只需要在application.yml里配置：
 
@@ -198,6 +205,7 @@ mvc:
     allowedMethods: "*"
     allowCredentials: true
     maxAge: 3600
+    exposedHeaders: message
 ```
 
 * enabled： 是否启用跨域
@@ -206,22 +214,18 @@ mvc:
 * allowedMethods： 哪些方法可以跨域 POST, GET, PUT, DELETE, OPTIONS
 * allowCredentials
 * maxAge
+* exposedHeaders：跨域时哪个头部信息返回
 
-### json序列化之null值处理
+#### 4.1.2 json序列化之null值处理
 
 对于部分null值，前端展示不友好，又不能直接去掉，若在业务里处理量大且麻烦，通过配置或注解可以解决此问题。
 
 ```yaml
 mvc:
   json:
-    filterNull: false 
     defaultNull: true
     defaultNullValue: "-"
-    dateFormat: yyyy-MM-dd HH:mm:ss
-    timezone: GMT+8
 ```
-
-* filterNull： 是否过滤空字段
 
 * defaultNull: 是否空字段（null）返回默认值，默认值如下：
 
@@ -238,34 +242,35 @@ mvc:
 
 * defaultNullValue： 若配置了这个，则全部用此代替空字段（null）的返回默认值
 
-* dateFormat： 默认时间的序列化和反序列化格式
-
-* timezone： 序列化的时区
 
 以上都是对json的全局配置，我们对空值的默认值可以部分定义，如定义在某个需要序列化的类上：
 
 ```java
 @NullFormat(defaultNull = true, defaultNullValue = "-")
-
 ```
 
 >所有对null值默认值的处理不能对map等非常规bean起作用。如果是部分定义，只对当前类有效，其聚合的类无效。
 
-### json序列化之数字格式化
+若是对于同一个对象需要在不同线程里实现不同的效果，比如查看详情和修改详情对于null值处理不一样，可以通过以下
+
+```java
+DefaultNullContextHolder.set(false);   //关闭此次请求/线程对null值序列化的处理
+```
+
+#### 4.1.3 json序列化之数字格式化
 
 业务上有很多逻辑运算，运算完了会产生结果，往往不同类型(如int、double)的数据返回的格式不一样，但实际上展示的时候需要统一保留两位或统一格式化。使用`@NumberFormat`注解：
 
 ```java
 @NumberFormat(pattern = "#,###,##0.00")
 private BigDecimal amount;
-
 ```
 
 * pattern: 格式化格式，若使用了此样式，通过`DecimalFormat.format(pattern)`去格式化
 * scale: 保留位数，默认是2
 * round: 取舍模式，默认4舍五入，参考`BigDecimal`里的常量
 
-### json序列化之字典
+#### 4.1.4 json序列化之字典
 
 字典在数据库里表示不同的含义，从数据库里查出的是字典的key，与显示的值有一一对应关系。在实际展示给用户时必须是用户能理解的含义。以往的解决方式是通过在业务里单独处理或数据库查询的时候关联查询，若有新的字典含义可能还需要改代码，给项目带来了风险与不便。
 
@@ -283,7 +288,7 @@ Boot Plus提供了解决方法：
 
 > 以上对json的扩展是基于jackson（spring mvc默认序列化）的，若在项目里未使用jackson序列化，无法扩展。
 
-### 流处理
+#### 4.1.5 流处理
 
 springmvc为我们提供了很好的文件上传的支持。但文件返回未实现。
 
@@ -297,7 +302,6 @@ public ResponseEntity<AbstractStreamingResponseBody> fileDownload() {
         .mediaType(MediaType.APPLICATION_PDF)
         .toResponseEntity();
 }
-
 ```
 
 文件查看：
@@ -308,36 +312,33 @@ public ResponseEntity<AbstractStreamingResponseBody> fileView() {
     return new FileViewStreamingResponseBody(new File("xx.pdf"))
             .toResponseEntity();
 }
-
 ```
 
-### 校验
+#### 4.1.6 校验
 
 校验可以自定义校验结果字段，和根据校验校验结果返回给客户端的不同信息。校验分两种：
-
 - 手工校验
 
   手工校验是指在代码里的业务校验。校验不通过可以抛出校验异常。如：`throws new ValidateException("名称已存在")`
-
   - 自定义校验处理器
-
-    通过实现`ValidateHandler`接口，并实现处理验证异常。此处理器只能有一个，并暴露给spring。
+    
+      通过实现`ValidateHandler`接口，并实现处理验证异常。此处理器只能有一个，并暴露给spring。
 
 - 自动校验
 
   在自动映射的字段上，加上相关的注解，从而实现自动校验。如：`@NotEmpty(message="名称不能为空")`
 
-### 系统异常处理
+#### 4.1.7 系统异常处理
 
 提供了系统异常处理，也可以自定义异常处理，实现`ExceptionHandler`接口。
 
-## boot-plus-web-log
+## 4.2 boot-plus-web-log
 
 集成了spring-boot-starter-actuator。
 
 对开发环境提供了基于controller层的切面日志打印，同时提供了在线日志级别管理，访问`/log.html`
 
-## boot-plus-web-swagger
+## 4.3 boot-plus-web-swagger
 
 实现了在线API，主要实现以下功能：
 
@@ -373,7 +374,6 @@ swagger :
     - name: Authorization
       in: header
   authorizedIncludePattern:                    #哪些URL需要权限
-
 ```
 
 defaultIncludePattern： 哪些url的API会在在线文档里显示，逗号隔开
@@ -386,11 +386,9 @@ authorized：统一授权，会在需要授权的API上加锁，显示需要授�
 
 authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 
+# Part5 : biz
 
-
-# Part5 : boot-plus-biz
-
-## boot-plus-biz-security
+## 5.1 boot-plus-biz-security
 
 集成了spring scurity，但由于spring scurity比较复杂，使用起来比较繁琐，故做了一些减法，对常用的保留，对不常用的暂时去除。若需要其它功能的，请自行集成。
 
@@ -400,7 +398,7 @@ authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 * 集成JWT
 * 实现Stateful Token
 
-### JWT
+### 5.1.1 JWT
 
 在Spring Scurity基本上实现无状态的JWT Token。主要实现以下功能：
 
@@ -426,7 +424,6 @@ security:
       secret:                    # 加密串
       timeoutMin:                # Token超时, 单位：分钟
       refreshSeconds:            # Token还有多久失败时刷新Token， 单位：秒
-
 ```
 
 type：目前支持JWT，ST
@@ -445,7 +442,7 @@ jwt.timeoutMin:  Token超时, 单位：分钟
 
 jwt.refreshSeconds: Token还有多久失败时刷新Token， 单位：秒
 
-### Stateful Token
+### 5.1.2 Stateful Token
 
 在spring Scurity 基本上实现了有状态的token, token对应的用户信息在缓存里存储。
 
@@ -459,12 +456,11 @@ security:
     permitAllPatterns: 
     permitAllUserNames: admin
     bizUserClassName: 
-
 ```
 
 > 两种风格只需要切换配置即可。
 
-### devlepement
+### 5.1.3 devlepement
 
 * 登录url:/authentication/login
 
@@ -491,7 +487,6 @@ security:
         BizUser bizUser = new BizUser(user.getUserName(), user.getPassword(), roleCodes);
         return bizUser;
     }
-    
     ```
 
   * resolveToken 解析Token
@@ -502,7 +497,9 @@ security:
 
 
 
-# Part6 : boot-plus-integration
+# Part6 : integration
+
+## 6.1 boot-plus-integration
 
 集成层是使用Mybatis实现对数据库访问。引入的mysql数据库驱动。
 除了常规配置，可以自定义mapper扫描，无需额外的java配置。
@@ -513,62 +510,94 @@ mybatis:
   type-aliases-package: com.**.domain
   mapper-scan:
     basePackages: com.**mapper
-
 ```
 
 mapper-scan.basePackages 多个路径，逗号隔开
 
-## boot-plus-integration-jpa
+## 6.2 boot-plus-integration-jpa
 
 base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式添加自己的sql。
 
-### CrudMapper自动加载SQL
+### 6.2.1 CrudMapper自动加载SQL
 
 传统虽然有增删改查的代码生成器，但在添加或删除字段或修改字段特别麻烦，需要把所有的sql都需要修改。有些已经生成的代码也需要手动修改，容易出错。
 
 实现了`Mapper`的接口或实现了`Mapper`的子接口(如`CrudMapper`等)的接口可以自动了生成对应的sql statement，无需重复编写。
 
-### jpa查询，自定义findBy接口
+### 6.2.2 接口定义查询条件
 
 如果需要根据条件进行查询，可根据jpa规范实现，无需编写sql。如：
 
 ```java
+// 
 List<User> findByNameAndAgeOrderByNameDesc(String name, Integer age)
-
 ```
 
 目前提供了以下几种查询：
 
-| 关键字                                      | 查询效果          |
-| ------------------------------------------- | ----------------- |
-| IsNotNull; NotNull                          | xx is not null    |
-| IsNull; Null                                | xx is null        |
-| IsLessThan; LessThan                        | xx < val          |
-| IsLessThanEqual; LessThanEqual              | xx <= val         |
-| IsGreaterThan; GreaterThan                  | xx > val          |
-| IsGreaterThanEqual; GreaterThanEqual        | xx >= val         |
-| IsBefore; Before                            | xx < val          |
-| IsAfter; After                              | xx > val          |
-| IsNotLike; NotLike                          | xx not like %val% |
-| IsLike; Like                                | xx like %val%     |
-| IsStartingWith; StartingWith; StartsWith    | xx like val%      |
-| IsEndingWith; EndingWith; EndsWith          | xx like %val      |
-| IsNotContaining; NotContaining; NotContains | xx not like %val% |
-| IsContaining; Containing; Contains          | xx like %val%     |
-| IsTrue; True                                | xx is true        |
-| IsFalse; False                              | xx is false       |
-| IsNot; Not                                  | xx <> val         |
-| Is; Equals                                  | xx = val          |
+| 关键字                                      | 查询效果                     |
+| ------------------------------------------- | ---------------------------- |
+| IsBetween;Between                           | xx between val1 and val2     |
+| IsNotBetween;NotBetween                     | xx not between val1 and val2 |
+| IsNotNull; NotNull                          | xx is not null               |
+| IsNull; Null                                | xx is null                   |
+| IsLessThan; LessThan                        | xx < val                     |
+| IsLessThanEqual; LessThanEqual              | xx <= val                    |
+| IsGreaterThan; GreaterThan                  | xx > val                     |
+| IsGreaterThanEqual; GreaterThanEqual        | xx >= val                    |
+| IsBefore; Before                            | xx < val                     |
+| IsAfter; After                              | xx > val                     |
+| IsNotLike; NotLike                          | xx not like %val%            |
+| IsLike; Like                                | xx like %val%                |
+| IsStartingWith; StartingWith; StartsWith    | xx like val%                 |
+| IsEndingWith; EndingWith; EndsWith          | xx like %val                 |
+| IsNotContaining; NotContaining; NotContains | xx not like %val%            |
+| IsContaining; Containing; Contains          | xx like %val%                |
+| IsTrue; True                                | xx is true                   |
+| IsFalse; False                              | xx is false                  |
+| IsNot; Not                                  | xx <> val                    |
+| Is; Equals                                  | xx = val                     |
 
 排序：
 
 ```java
 findByXXOrderByXXXAsc
-findByXXOrderByXXXDesc
-
+findByXXOrderByXXXDescAndXXX
 ```
 
-### Jpa查询扩展
+条件查询扩展
+
+* ```
+  find..By..
+  findByNameOrDeptNo
+  ```
+
+* ```
+  get..By..
+  getByNameOrDeptNo
+  ```
+
+* ```
+  query..By..
+  queryByNameOrDeptNo
+  ```
+
+* ```
+  count..By..   //查询数量
+  countByNameOrDeptNo
+  ```
+
+* ```
+  exists..By.. //判断是否存在
+  existsByNameOrDeptNo
+  ```
+
+* ```
+  delete..By..  //根据条件查询
+  deleteByNameOrDeptNo
+  ```
+
+### 6.2.3 接口定义查询条件过滤
 
 在传统jpa里，若是实用jpa规范的接口，不能根据条件不同自定义不同条件的查询。但实际使用过程中，经常有若条件是空的，则查全部的。这个时候如果还是用条件匹配是不适合的。
 
@@ -577,12 +606,11 @@ findByXXOrderByXXXDesc
 ```java
 @IfTest(notEmpty = true)
 List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true, conditions = {"> 0"})Integer age, String DeptNo);
-
 ```
 
 > 参数上定义了注解，则使用参数定义的注解。参数上没有定义的，则使用方法上的注解。
 
-### 面向对象关联查询
+### 6.2.4 面向对象关联查询
 
 在查询时，往往会关联多表查询。但在使用jpa的时候，可以定义关联关系。通过自定义关联关系，可自动关联查询。
 
@@ -594,10 +622,9 @@ public class User {
     //...
 
     @ManyToOne
-    @JoinColumn(name = "deptNo")
+    @JoinColumn(name = "deptNo", referencedColumnName = "userId")
     private Dept dept;
 }
-
 ```
 
 目前提供三种关联
@@ -624,7 +651,6 @@ public class User {
       //...
   	
   }
-  
   ```
 
 * ManyToOne
@@ -651,7 +677,6 @@ public class User {
      	@ManyToOne
   	private Dict dict;
   }
-  
   ```
 
 * ManyToMany
@@ -664,8 +689,9 @@ public class User {
       //...
   
       @ManyToMany
-  	@JoinTable(name = "user_role")
-      @JoinColumn(name = "userId"， referencedColumnName = "roleId")
+  	@JoinTable(name = "user_role",
+              joinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"),
+              inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "roleId"))
       List<Role> roles;
   }
   
@@ -679,16 +705,15 @@ public class User {
   	private List<User> users;
   }
   
-  
   ```
+  
+  > 目前只有一层关联，则只是做查询关联，并未做更新关联。
+  
+  > 通过JoinColumn可定义关联字段
+  
+  > 当时ManyToMany的时候，可定义关联表JoinTable
 
-> 目前只有一层关联，则只是做查询关联，并未做更新关联。
->
-> 通过JoinColumn可定义关联字段
->
-> 当时ManyToMany的时候，可定义关联表JoinTable
-
-### 关联查询优化
+### 6.2.5 关联查询优化
 
 若每次查询都需要关联查询，有时候消耗较大，会影响性能（N+1问题）。我们可以通过注解来实现，哪些需要，哪些不需要从而优化部分性能。如：
 
@@ -699,17 +724,53 @@ public class User {
 	
 	//...
 	
-	@MappedStatement(exclude = {"findOne"})     //findOne方法时不查询dept
+	@MappedStatement(exclude = {"findById"})     //findById方法时不查询dept
 	@ManyToOne
 	@JoinColumn(name = "deptNo")
 	private Dept dept;
 }
-
 ```
 
 MappedStatement有include(哪些需要关联)，exclude(哪些不需要关联)。若同时存在exclude，include。以exclude为准。
 
-### 主键支持
+### 6.2.6 代码构建复杂查询
+
+通过实现SpecificationMapper接口，可以利用Specification构建复杂条件查询
+
+```java
+// WHERE ( dept_no = ? AND ( age > ? AND name like ?) ) order by name ASC
+testUserMapper.findSpecification(Specifications.and()
+                .equal("deptNo", "002")
+                .nested(builder -> {
+                    builder.and()
+                            .greaterThan("age", 18)
+                            .like("name", "Jack");
+                })
+                .order().asc("name").build());
+```
+
+```java
+//page and order
+testUserMapper.findPageSpecification(page, Specifications.and()
+                .equal("deptNo", "002")
+                .order().asc("name").build());
+```
+
+或者自定义构建
+
+```java
+testUserMapper.findSpecification((cb, query) -> {
+    PredicateExpression expression = cb.and(cb.in("deptNo", "002", "003"), cb.isNull("createTime"));
+            PredicateExpression expression1 = cb.or(cb.lessThan("age", 18), expression);
+            query.where(cb.equal("name", "Jackson"), expression1);
+            query.orderBy(cb.asc("deptNo"), cb.desc("id"));
+            return null;
+        });
+```
+
+
+
+### 6.2.7 主键支持
 
 目前支持三种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位）。可如下定义：
 
@@ -722,25 +783,23 @@ public class TestUser {
 
     //...
 }
-
 ```
 
-### 分页排序支持
+### 6.2.8 分页排序支持
 
 已经实现了自动物理分页。但对orderBy没有做优化（数据库本身会优化）。
 
 在方法里传`Pagination`即可。如：
 
 ```java
-List<TestUser> findPageByName(Pagination pagination, Sort sort， String name);
-
+List<TestUser> findPageByName(Page page, Sort sort， String name);
 ```
 
 返回的total也在此对象里，拿到即可。
 
 > 若使用传入参数排序，则不要用接口定义的方式定义排序。只会选一种。
 
-### 默认值触发
+### 6.2.9 默认值触发
 
 默认值触发是指类似于触发器，在我们插入或更新时候指定某些字段的默认值。而不需要我们每次处理的时候去设置值。
 
@@ -756,11 +815,11 @@ private Date createTime;
 private Date updateTime;
 ```
 
-### Pageable入参解析。
+### 6.2.10 Pageable入参解析。
 
 让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
 
-### 自定义数据库扩展
+### 6.2.11 自定义数据库扩展
 
 不可能实现所有的关系型数据库，故将数据库的扩展功能交给使用者。
 
@@ -775,7 +834,7 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 }
 ```
 
-### 自定义id生成器
+### 6.2.12 自定义id生成器
 
 现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
 
