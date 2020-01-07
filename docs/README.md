@@ -2,7 +2,7 @@
 
 # Part1 : 简介
 
-​	Boot Plus 是基于spring boot 的增强，但并未修改原来的功能。让spring boot的使用者更好地关注于业务。主要增强以下几个方面：
+​	Boot Plus 是基于spring boot 的增强，但并未修改SpringBoot已有的功能，也就是说完全可以兼容使用SpringBoot的项目。让spring boot的使用者更好地关注于业务。主要增强以下几个方面：
 
 * dynamic datasource
 * quartz
@@ -25,7 +25,7 @@
 
 ## 2.1 系统要求
 
-Boot Plus 1.1.0 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
+Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 ## 2.2 Maven 依赖
 
@@ -169,7 +169,7 @@ defaultDynamicDataSource.remove(datasourceName);
 ```java
  //定义jop，或其子类
 QuartzJob quartzJob = new QuartzJob();
-quartzJob.setClassName("com.alili.service.MyJobService");
+quartzJob.setClassName("com.alilitech.service.MyJobService");
 quartzJob.setMethodName("start");
 quartzJob.setEnabled(true);
 quartzJob.setCronExpression("* * * * * ? *");
@@ -214,7 +214,7 @@ mvc:
 * allowedMethods： 哪些方法可以跨域 POST, GET, PUT, DELETE, OPTIONS
 * allowCredentials
 * maxAge
-* exposedHeaders：跨域时哪个头部信息返回
+* exposedHeaders：跨域时哪些头部信息返回
 
 #### 4.1.2 json序列化之null值处理
 
@@ -251,7 +251,7 @@ mvc:
 
 >所有对null值默认值的处理不能对map等非常规bean起作用。如果是部分定义，只对当前类有效，其聚合的类无效。
 
-若是对于同一个对象需要在不同线程里实现不同的效果，比如查看详情和修改详情对于null值处理不一样，可以通过以下
+若是对于同一个对象需要在不同线程里实现不同的效果，比如查看详情和修改详情对于null值处理不一样，使用如下：
 
 ```java
 DefaultNullContextHolder.set(false);   //关闭此次请求/线程对null值序列化的处理
@@ -565,7 +565,7 @@ findByXXOrderByXXXAsc
 findByXXOrderByXXXDescAndXXX
 ```
 
-条件查询扩展
+查询条件扩展
 
 * ```
   find..By..
@@ -735,7 +735,7 @@ MappedStatement有include(哪些需要关联)，exclude(哪些不需要关联)�
 
 ### 6.2.6 代码构建复杂查询
 
-通过实现SpecificationMapper接口，可以利用Specification构建复杂条件查询
+通过继承`SpecificationMapper`接口，可以利用`Specification`构建复杂条件查询
 
 ```java
 // WHERE ( dept_no = ? AND ( age > ? AND name like ?) ) order by name ASC
@@ -762,7 +762,7 @@ testUserMapper.findPageSpecification(page, Specifications.and()
 testUserMapper.findSpecification((cb, query) -> {
     PredicateExpression expression = cb.and(cb.in("deptNo", "002", "003"), cb.isNull("createTime"));
             PredicateExpression expression1 = cb.or(cb.lessThan("age", 18), expression);
-            query.where(cb.equal("name", "Jackson"), expression1);
+            query.where(cb.equal("name", "Jack"), expression1);
             query.orderBy(cb.asc("deptNo"), cb.desc("id"));
             return null;
         });
@@ -789,13 +789,15 @@ public class TestUser {
 
 已经实现了自动物理分页。但对orderBy没有做优化（数据库本身会优化）。
 
-在方法里传`Pagination`即可。如：
+在方法里传`Page`即可。如：
 
 ```java
 List<TestUser> findPageByName(Page page, Sort sort， String name);
 ```
 
 返回的total也在此对象里，拿到即可。
+
+排序传入`Sort`对象，`Sort`对象可以构造多个排序
 
 > 若使用传入参数排序，则不要用接口定义的方式定义排序。只会选一种。
 
