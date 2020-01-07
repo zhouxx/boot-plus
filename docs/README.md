@@ -33,9 +33,9 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.1.x</version>
+            <version>1.1.1</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -60,11 +60,11 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
     <dependencies>
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.alili</groupId>
+            <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-web</artifactId>
         </dependency>
     </dependencies>
@@ -72,9 +72,9 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.alili</groupId>
+                <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.1.x</version>
+                <version>1.1.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -115,7 +115,7 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 
 
-# Part3 : core
+# Part3 : core(核心层)
 
 核心层是基于spring的。基于核心层扩展了组件：
 
@@ -186,7 +186,7 @@ e.printStackTrace();
 
 
 
-# Part4 : web
+# Part4 : web(web层)
 
 web层是基于spring mvc 的框架，但他提供了更多的支持。
 
@@ -386,7 +386,7 @@ authorized：统一授权，会在需要授权的API上加锁，显示需要授�
 
 authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 
-# Part5 : biz
+# Part5 : biz(业务层)
 
 ## 5.1 boot-plus-biz-security
 
@@ -497,7 +497,7 @@ security:
 
 
 
-# Part6 : integration
+# Part6 : integration(集成层)
 
 ## 6.1 boot-plus-integration
 
@@ -514,7 +514,7 @@ mybatis:
 
 mapper-scan.basePackages 多个路径，逗号隔开
 
-## 6.2 boot-plus-integration-jpa
+## 6.2 boot-plus-integration-jpa(基于Mybatis)
 
 base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式添加自己的sql。
 
