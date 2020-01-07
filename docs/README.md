@@ -336,7 +336,32 @@ public ResponseEntity<AbstractStreamingResponseBody> fileView() {
 
 集成了spring-boot-starter-actuator。
 
-对开发环境提供了基于controller层的切面日志打印，同时提供了在线日志级别管理，访问`/log.html`
+### 4.2.1 对Controller进行切面控制
+
+```yaml
+logging:
+  aspect: true
+```
+
+可以控制开启切面是否开启，同时提供了切面控制扩展，可以打印日志或记录日志。
+
+```java
+@Service
+public class LogOptService implements LogExtension {
+    @Override
+    public void beforeEnter(Signature signature, Object[] objects) {
+        //....
+    }
+    @Override
+    public Object afterExit(Signature signature, Object result) {
+        //....
+    }
+}
+```
+
+### 4.2.2 管理日志级别
+
+生产环境或测试环境有时候需要debug日志，等调试完后又关闭。访问`/log.html`在线管理日志级别。
 
 ## 4.3 boot-plus-web-swagger
 
@@ -817,11 +842,7 @@ private Date createTime;
 private Date updateTime;
 ```
 
-### 6.2.10 Pageable入参解析。
-
-让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
-
-### 6.2.11 自定义数据库扩展
+### 6.2.10 自定义数据库扩展
 
 不可能实现所有的关系型数据库，故将数据库的扩展功能交给使用者。
 
@@ -836,14 +857,23 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 }
 ```
 
-### 6.2.12 自定义id生成器
+### 6.2.11 自定义id生成器
 
 现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
 
-通过实现`KeyGenerator#generate`，然后在定义id的时候可以如下定义：
+通过实现`KeyGenerator#generate`，然后在定义id生成规则的时候指定generatorClass：
 
 ```java
 @GeneratedValue(generatorClass = MyGenerator.class)
 @Id
 private String id;
 ```
+
+### 6.2.12 Pageable入参解析
+
+让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
+
+### 6.2.13 MybatisJpaStartedEvent
+
+提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
+
