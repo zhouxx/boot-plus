@@ -113,17 +113,19 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 至此，你已成功搭建和部署一个项目了。
 
-
-
 # Part3 : core(核心层)
 
 核心层是基于spring的。基于核心层扩展了组件：
 
-## 3.1 boot-plus-core-datasource
+## 3.1 boot-plus-core
+
+提供了基于spring的依赖（没有web）。提供了启动类`com.AppStart`，工具类：`BeanUtils`（高效率的深度拷贝）等。
+
+## 3.2 boot-plus-core-datasource
 
 动态数据源是指在项目里可以配置多个数据源，并且可以在不同的地方指定使用不同的数据源。
 
-* 配置多个数据源
+### 3.2.1 配置多数据源
 
 主数据源还和原来的方式一样，当未指定数据源或找不到指定的数据源时使用主数据源。
 其它数据源名称要以`ds`开头，否则无法识别。配置方式和spring boot的方式一样。    
@@ -149,7 +151,7 @@ public void exeService() {
 }
 ```
 
-* 动态添加/移除数据源
+### 3.2.2 动态添加/移除数据源
 
 代码里可以动态地创建数据源，并添加到多数据源里。
 
@@ -163,7 +165,7 @@ defaultDynamicDataSource.addDataSource(datasourceName, datasourceUrl, datasource
 defaultDynamicDataSource.remove(datasourceName);
 ```
 
-## 3.2 boot-plus-core-quartz
+## 3.3 boot-plus-core-quartz
 
 定时任务是指可以在项目里的任意时间段里添加或修改定时任务。使用方法如下：
 ```java
@@ -469,7 +471,7 @@ jwt.refreshSeconds: Token还有多久失败时刷新Token， 单位：秒
 
 ### 5.1.2 Stateful Token
 
-在spring Scurity 基本上实现了有状态的token, token对应的用户信息在缓存里存储。
+在spring Scurity 基础上实现了有状态的token, token对应的用户信息在缓存里存储。
 
 配置如下：
 
@@ -526,7 +528,7 @@ security:
 
 ## 6.1 boot-plus-integration
 
-集成层是使用Mybatis实现对数据库访问。引入的mysql数据库驱动。
+集成层是使用Mybatis实现对数据库访问。
 除了常规配置，可以自定义mapper扫描，无需额外的java配置。
 
 ```yaml
@@ -541,11 +543,11 @@ mapper-scan.basePackages 多个路径，逗号隔开
 
 ## 6.2 boot-plus-integration-jpa(基于Mybatis)
 
-base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式添加自己的sql。
+base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式自己写sql。
 
 ### 6.2.1 CrudMapper自动加载SQL
 
-传统虽然有增删改查的代码生成器，但在添加或删除字段或修改字段特别麻烦，需要把所有的sql都需要修改。有些已经生成的代码也需要手动修改，容易出错。
+虽然有增删改查的代码生成器，但在添加或删除字段或修改字段特别麻烦，需要把所有的sql都需要修改。有些已经生成的代码也需要手动修改，容易出错。
 
 实现了`Mapper`的接口或实现了`Mapper`的子接口(如`CrudMapper`等)的接口可以自动了生成对应的sql statement，无需重复编写。
 
