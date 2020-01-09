@@ -34,7 +34,7 @@ public class LikeContainer {
 
     private LikeContainer() {}
 
-    public static final LikeContainer getInstance() {
+    public static LikeContainer getInstance() {
         return likeContainer;
     }
 

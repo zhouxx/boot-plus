@@ -20,6 +20,7 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -34,6 +35,11 @@ import java.util.List;
  * @since 1.0
  */
 public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
+
+    /**
+     * 是否是 {@link SqlCommandType#DELETE}
+     */
+    protected boolean delete = false;
 
     public PreMapperStatementBuilder4Find(Configuration configuration, MapperBuilderAssistant builderAssistant, MethodType methodType) {
         super(configuration, builderAssistant, methodType);
@@ -54,6 +60,7 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
 
     @Override
     protected String buildSQL() {
+
 
         PartTree partTree = buildPartTree();
 
@@ -77,12 +84,15 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
 
         }
 
+        RenderContext context = new RenderContext();
+        partTree.render(context);
+
         List<String> sqlParts = Arrays.asList(
                 operation,
                 selectPart,
                 "FROM",
                 entityMetaData.getTableName(),
-                partTree.toString(),
+                context.getScriptBuilder().toString(),
                 buildSort()
         );
 
@@ -91,11 +101,6 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
 
     @Override
     protected Class<?> getParameterTypeClass() {
-        /*if (methodDefinition.getParameterDefinitions().size() > 0) {
-            // Mybatis mapper 方法最多支持一个参数,先设置成Object.class,mybatis会在sql中解析
-            return (Object.class);
-        }
-        return void.class;*/
         return entityMetaData.getEntityType();
     }
 

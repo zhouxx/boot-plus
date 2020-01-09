@@ -13,19 +13,35 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.integration.jpa.primary.key;
-
+package com.alilitech.integration.jpa.exception;
 /**
- * primary key generator
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.1
  */
-public interface KeyGenerator {
+public class StatementNotSupportException extends RuntimeException {
 
-    /**
-     * generate key
-     * @return
-     */
-    Object generate();
+    private String namespace;
 
+    private String statement;
+
+    public StatementNotSupportException(String namespace, String statement) {
+        this.namespace = namespace;
+        this.statement = statement;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
+    }
 }

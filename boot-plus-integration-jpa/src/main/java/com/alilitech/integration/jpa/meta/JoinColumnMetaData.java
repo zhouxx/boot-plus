@@ -75,9 +75,6 @@ public class JoinColumnMetaData {
 
     private List<Order> orders;
 
-    //是否已经初始化  property;referencedProperty;columnName;等属性
-    private boolean ready;
-
     public JoinType getJoinType() {
         return joinType;
     }
@@ -214,11 +211,11 @@ public class JoinColumnMetaData {
         this.mappedProperty = mappedProperty;
     }
 
-    public javax.persistence.JoinColumn getJoinColumn() {
+    public JoinColumn getJoinColumn() {
         return joinColumn;
     }
 
-    public void setJoinColumn(javax.persistence.JoinColumn joinColumn) {
+    public void setJoinColumn(JoinColumn joinColumn) {
         this.joinColumn = joinColumn;
     }
 
@@ -236,14 +233,6 @@ public class JoinColumnMetaData {
 
     public void setIncludes(List<String> includes) {
         this.includes = includes;
-    }
-
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
     }
 
     public List<Order> getOrders() {

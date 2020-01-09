@@ -15,20 +15,17 @@
  */
 package com.alilitech.integration.jpa.statement.parser;
 
-import com.alilitech.integration.jpa.LikeContainer;
-import com.alilitech.integration.jpa.anotation.IfTest;
 import com.alilitech.integration.jpa.definition.MethodDefinition;
 import com.alilitech.integration.jpa.domain.Sort;
-import org.apache.ibatis.session.RowBounds;
+import com.alilitech.integration.jpa.exception.StatementNotSupportException;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +40,7 @@ import java.util.regex.Pattern;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class PartTree {
+public class PartTree implements Render {
 
     /*
      * We look for a pattern of: keyword followed by
@@ -87,7 +84,7 @@ public class PartTree {
      * @param domainClass the domain class to check individual parts against to ensure they refer to a property of the
      *          class
      */
-    public PartTree(String source, Class<?> domainClass, MethodDefinition methodDefinition, String alias) {
+    public PartTree(String source, Class<?> domainClass, MethodDefinition methodDefinition) {
 
         Assert.notNull(source, "Source must not be null");
         // Assert.notNull(domainClass, "Domain class must not be null");
@@ -100,17 +97,19 @@ public class PartTree {
                 || PREFIX_TEMPLATE_VIRTUAL.matcher(source).find()
                 || PREFIX_TEMPLATE_VIRTUAL_JOIN.matcher(source).find())
         ) {
-            this.subject = new Subject(Optional.empty());
-            this.predicate = new Predicate(source, domainClass, methodDefinition, alias);
+            //this.subject = new Subject(Optional.empty());
+            //this.predicate = new Predicate(source, domainClass, methodDefinition);
+            // when can not resolve the source, throw the exception
+            throw new StatementNotSupportException(methodDefinition.getNameSpace(), methodDefinition.getMethodName());
         } else if(matcherVirtual.find()) {
             this.subject = new Subject(Optional.of(matcherVirtual.group(0)));
-            this.predicate = new Predicate(source.substring(matcherVirtual.group().length()), domainClass, methodDefinition, alias);
+            this.predicate = new Predicate(source.substring(matcherVirtual.group().length()), domainClass, methodDefinition);
         } else if(matcherVirtualJoin.find()) {
             this.subject = new Subject(Optional.of(matcherVirtualJoin.group(0)));
-            this.predicate = new Predicate(source.substring(matcherVirtualJoin.group().length()), domainClass, methodDefinition, alias);
+            this.predicate = new Predicate(source.substring(matcherVirtualJoin.group().length()), domainClass, methodDefinition);
         } else {
             this.subject = new Subject(Optional.of(matcher.group(0)));
-            this.predicate = new Predicate(source.substring(matcher.group().length()), domainClass, methodDefinition, alias);
+            this.predicate = new Predicate(source.substring(matcher.group().length()), domainClass, methodDefinition);
         }
     }
 
@@ -182,18 +181,6 @@ public class PartTree {
         return subject.getMaxResults().orElse(null);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-
-        /*return String.format("%s %s", StringUtils.collectionToDelimitedString(predicate.nodes, " or "),
-                predicate.getOrderBySource().toString()).trim();*/
-        return predicate.toString();
-    }
-
     /**
      * Splits the given text at the given keywords. Expects camel-case style to only match concrete keywords and not
      * derivatives of it.
@@ -203,44 +190,44 @@ public class PartTree {
      * @return an array of split items
      */
     private static String[] split(String text, String keyword) {
-
         Pattern pattern = Pattern.compile(String.format(KEYWORD_TEMPLATE, keyword));
         return pattern.split(text);
+    }
+
+    @Override
+    public void render(RenderContext context) {
+        predicate.render(context);
     }
 
     /**
      * A part of the parsed source that results from splitting up the resource around {@literal Or} keywords. Consists of
      * {@link Part}s that have to be concatenated by {@literal And}.
      */
-    static class OrPart {
+    static class OrPart implements Render {
 
         private final List<Part> children = new ArrayList<>();
 
-        private MethodDefinition methodDefinition;
+        // private MethodDefinition methodDefinition;
 
         /**
          * Creates a new {@link OrPart}.
          * @param source the source to split up into {@literal And} parts in turn.
          * @param domainClass the domain class to check the resulting {@link Part}s against.
+         * @param argumentIndex
          */
-        OrPart(String source, Optional<Class> domainClass, MethodDefinition methodDefinition, String alias) {
-            this.methodDefinition = methodDefinition;
+        OrPart(String source, Optional<Class> domainClass, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
             String[] split = split(source, "And");
             for (String part : split) {
                 if (StringUtils.hasText(part)) {
-                    children.add(new Part(part, domainClass, methodDefinition, alias));
+                    children.add(new Part(part, domainClass, methodDefinition, argumentIndex));
                 }
             }
         }
 
-        public Iterator<Part> iterator() {
-            return children.iterator();
-        }
-
         @Override
-        public String toString() {
+        public void render(RenderContext context) {
 
-            for(int i=0; i<children.size(); i++) {
+            /*for(int i=0; i<children.size(); i++) {
                 Part part = children.get(i);
                 if(part.getNumberOfArguments() <=0 ) {  //没有参数，不处理
                     continue;
@@ -252,13 +239,19 @@ public class PartTree {
                         String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + "._parameter";
                         LikeContainer.getInstance().put(key, part.getLikeType());
                     } else {
-                        String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + ".arg" + part.getIndex();
+                        String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + ".arg" + part.getArgumentIndex();
                         LikeContainer.getInstance().put(key, part.getLikeType());
                     }
                 }
+            }*/
 
+            String delim = "";
+            for(Part part : children) {
+                context.renderString(delim);
+                part.render(context);
+                delim = " ";
             }
-            return StringUtils.collectionToDelimitedString(children, " ");
+
         }
     }
 
@@ -355,7 +348,7 @@ public class PartTree {
      * @author Oliver Gierke
      * @author Phil Webb
      */
-    private static class Predicate {
+    private static class Predicate implements Render {
 
         private static final String KEYWORD_TEMPLATE = "(%s)(?=(\\p{Lu}|\\P{InBASIC_LATIN}))";
 
@@ -365,17 +358,11 @@ public class PartTree {
 
         private OrderBySource orderBySource;
 
-        private int orderIndex = -1;
-
         private MethodDefinition methodDefinition;
 
-        private String alias;
-
-        public Predicate(String predicate, Class<?> domainClass, MethodDefinition methodDefinition, String alias) {
+        public Predicate(String predicate, Class<?> domainClass, MethodDefinition methodDefinition) {
 
             this.methodDefinition = methodDefinition;
-
-            this.alias = alias;
 
             String[] parts = split(predicate, ORDER_BY);
 
@@ -389,7 +376,7 @@ public class PartTree {
             this.orderBySource = (parts.length == 2 ? new OrderBySource(parts[1], domainClassOptional) : OrderBySource.EMPTY);
 
             //设置参数index
-            int index = 0;
+            /*int index = 0;
             for(OrPart orPart : nodes) {
                 for(int i=0; i<orPart.children.size(); i++) {
                     Part part = orPart.children.get(i);
@@ -398,21 +385,20 @@ public class PartTree {
                     }
 
                     //跳过RowBounds
-                    if(RowBounds.class.isAssignableFrom(methodDefinition.getParameterDefinitions().get(index).getParameterClass())) {
+                    if(methodDefinition.getParameterDefinitions().get(index).isPage()) {
                         index ++;
                         i --;
                         continue;
                     }
                     //跳过Sort
-                    if(Sort.class.isAssignableFrom(methodDefinition.getParameterDefinitions().get(index).getParameterClass())) {
-                        orderIndex = index ++;
+                    if(methodDefinition.getParameterDefinitions().get(index).isSort()) {
                         this.orderBySource = null;
+                        index ++;
                         i --;
                         continue;
                     }
 
-                    part.setIndex(index);
-                    part.setOneParameter(methodDefinition.isOneParameter());
+                    part.setArgumentIndex(index);
 
                     //看看有没有ifTest
                     Part.TestCondition testCondition = getCondition(index, methodDefinition);
@@ -420,24 +406,23 @@ public class PartTree {
                         part.setTestCondition(testCondition);
                     }
                     index = index + part.getType().getNumberOfArguments();
+
+                    part.setLikeCache(methodDefinition);
                 }
-            }
+            }*/
 
         }
 
         private void buildTree(String source, Optional<Class> domainClassOptional) {
+            AtomicInteger argumentIndex = new AtomicInteger();
             String[] split = split(source, "Or");
             for (String part : split) {
-                nodes.add(new OrPart(part, domainClassOptional, methodDefinition, alias));
+                nodes.add(new OrPart(part, domainClassOptional, methodDefinition, argumentIndex));
             }
         }
 
         public OrderBySource getOrderBySource() {
             return orderBySource;
-        }
-
-        public int getOrderIndex() {
-            return orderIndex;
         }
 
         private static String[] split(String text, String keyword) {
@@ -447,50 +432,22 @@ public class PartTree {
         }
 
         @Override
-        public String toString() {
-            OrderBySource orderBySource = this.getOrderBySource();
-            return String.format("%s %s", getWhere(this.nodes), orderBySource == null ? "" : orderBySource.toString());
+        public void render(RenderContext context) {
+            if(this.nodes.size() > 0) {
+                context.renderString("<where>");
+
+                this.nodes.forEach(orPart -> {
+                    context.renderString("<trim prefix=\" OR \" prefixOverrides=\"AND\" suffixOverrides=\"AND\">");
+                    orPart.render(context);
+                    context.renderString("</trim>");
+                });
+
+                context.renderString("</where>");
+            }
+
+            if(this.getOrderBySource() != null) {
+                this.getOrderBySource().render(context);
+            }
         }
-
-        private String getWhere(List<OrPart> nodes) {
-            if(this.nodes.size() <= 0) {
-                return "";
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("<where>");
-            sb.append(StringUtils.collectionToDelimitedString(this.nodes, "", "<trim prefix=\" OR \" prefixOverrides=\"AND\" suffixOverrides=\"AND\">", "</trim>"));
-            sb.append("</where>");
-
-            return sb.toString();
-        }
-
-        //根据参数索引获得IfCondition
-        private Part.TestCondition getCondition(int index, MethodDefinition methodDesc) {
-            //先读取方法的IfTest
-            boolean methodIfTest = methodDesc.isMethodIfTest();
-            List<Annotation> annotationList = methodDesc.getParameterDefinitions().get(index).getAnnotations();
-            if(annotationList.size() <= 0 && !methodIfTest) {
-                return null;
-            }
-
-            Part.TestCondition testCondition = null;
-
-            for(Annotation annotation : annotationList) {
-                //若参数有注解，则以参数注解为准
-                if(annotation instanceof IfTest) {
-                    IfTest ifTest = (IfTest) annotation;
-                    testCondition = new Part.TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
-                    return testCondition;
-                }
-            }
-            //否则默认方法的注解
-            if(methodIfTest) {
-                IfTest ifTest = methodDesc.getIfTest();
-                testCondition = new Part.TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
-            }
-
-            return testCondition;
-        }
-
     }
 }

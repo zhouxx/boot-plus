@@ -15,6 +15,7 @@
  */
 package com.alilitech.integration.jpa.primary.key;
 
+import com.alilitech.integration.jpa.exception.MybatisJpaException;
 import com.alilitech.integration.jpa.parameter.GenerationType;
 
 import java.util.Map;
@@ -33,9 +34,9 @@ public class GeneratorRegistry {
      * key is {@link GenerationType } or class extends from {@link KeyGenerator},
      * value is a {@link KeyGenerator} instance
      */
-    private Map<Object, KeyGenerator> classMap = new ConcurrentHashMap<>();
+    private Map<Object, KeyGenerator> cacheMap = new ConcurrentHashMap<>();
 
-    private static final GeneratorRegistry generatorRegistry = new GeneratorRegistry();
+    private static GeneratorRegistry generatorRegistry = new GeneratorRegistry();
 
     private GeneratorRegistry() {
         register(GenerationType.UUID, new KeyGenerator4UUID());
@@ -46,11 +47,33 @@ public class GeneratorRegistry {
     }
 
     public void register(Object key, KeyGenerator value) {
-        classMap.put(key, value);
+        cacheMap.put(key, value);
     }
 
     public KeyGenerator get(Object key) {
-        return classMap.get(key);
+        return cacheMap.get(key);
     }
 
+    public KeyGenerator getOrRegister(Class generatorClass) {
+        if(!cacheMap.containsKey(generatorClass)) {
+
+            if(KeyGenerator.class.isAssignableFrom(generatorClass)) {
+                throw new MybatisJpaException("The generate class of primary key must implement from KeyGenerator.");
+            }
+
+            try {
+                Object instance = generatorClass.getConstructor().newInstance();
+                if (instance instanceof KeyGenerator) {
+                    KeyGenerator keyGenerator = (KeyGenerator) instance;
+                    // put generator in registry
+                    register(generatorClass, keyGenerator);
+                }
+
+            } catch (Exception e) {
+                throw new MybatisJpaException("occurs errors when try to init primary key generator: " + e.getMessage());
+            }
+        }
+
+        return cacheMap.get(generatorClass);
+    }
 }

@@ -26,7 +26,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * Pageable is a abstract class, define the resolver
+ * {@link Pageable} is a abstract class, define the resolver
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
@@ -53,8 +53,6 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
     public Page resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         String pageString = webRequest.getParameter(DEFAULT_PAGE_PARAMETER);
         String pageSizeString = webRequest.getParameter(DEFAULT_SIZE_PARAMETER);
-
-        boolean pageAndSizeGiven = StringUtils.hasText(pageString) && StringUtils.hasText(pageSizeString);
 
         //默认分页
         Pageable pageable = new Page();

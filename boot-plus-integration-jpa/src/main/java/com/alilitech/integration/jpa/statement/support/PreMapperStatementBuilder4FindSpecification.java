@@ -70,14 +70,7 @@ public class PreMapperStatementBuilder4FindSpecification extends PreMapperStatem
 
     @Override
     protected Class<?> getParameterTypeClass() {
-        /*if (methodDefinition.getParameterDefinitions().size() > 0) {
-            // Mybatis mapper 方法最多支持一个参数,先设置成Object.class,mybatis会在sql中解析
-            return (Object.class);
-        }
-        return void.class;*/
         return entityMetaData.getEntityType();
     }
-
-
 
 }

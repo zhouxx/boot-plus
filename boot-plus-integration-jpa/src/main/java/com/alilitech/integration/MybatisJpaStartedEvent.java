@@ -24,7 +24,7 @@ import org.springframework.context.event.ApplicationContextEvent;
  */
 public class MybatisJpaStartedEvent extends ApplicationContextEvent {
     /**
-     * Create a new ContextStartedEvent.
+     * Create a new MybatisJpaStartedEvent.
      *
      * @param source the {@code ApplicationContext} that the event is raised for
      *               (must not be {@code null})

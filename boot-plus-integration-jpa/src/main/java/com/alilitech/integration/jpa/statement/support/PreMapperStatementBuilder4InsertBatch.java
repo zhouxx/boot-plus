@@ -132,6 +132,4 @@ public class PreMapperStatementBuilder4InsertBatch extends PreMapperStatementBui
         return Collection.class;
     }
 
-
-
 }

@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class OrderBySource {
+public class OrderBySource implements Render {
 
     static OrderBySource EMPTY = new OrderBySource("");
 
@@ -102,14 +102,12 @@ public class OrderBySource {
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
-    public String toString() {
-        return CollectionUtils.isEmpty(orders) ? "" : "order by " + StringUtils.collectionToDelimitedString(orders, ", ");
-    }
+    public void render(RenderContext context) {
+        if(!CollectionUtils.isEmpty(orders)) {
+            context.renderString("order by ");
+            context.renderString(StringUtils.collectionToDelimitedString(orders, ", "));
+        }
 
+    }
 }

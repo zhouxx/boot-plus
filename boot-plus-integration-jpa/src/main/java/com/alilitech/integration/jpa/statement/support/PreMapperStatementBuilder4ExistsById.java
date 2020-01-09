@@ -20,6 +20,7 @@ import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.definition.GenericType;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -48,14 +49,17 @@ public class PreMapperStatementBuilder4ExistsById extends PreMapperStatementBuil
 
     @Override
     protected String buildSQL() {
-        PartTree partTree = buildPartTree();
+
+        RenderContext context = new RenderContext();
+        buildPartTree().render(context);
+
         //sql parts
         List<String> sqlParts = Arrays.asList(
                 "SELECT",
                 "count(1)",
                 "FROM",
                 entityMetaData.getTableName(),
-                partTree.toString()
+                context.getScriptBuilder().toString()
         );
 
         return buildScript(sqlParts);

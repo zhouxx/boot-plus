@@ -13,19 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.integration.jpa.primary.key;
-
+package com.alilitech.integration.jpa.statement.parser;
 /**
- * primary key generator
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.1
  */
-public interface KeyGenerator {
+public class RenderContext {
 
-    /**
-     * generate key
-     * @return
-     */
-    Object generate();
+    private StringBuilder scriptBuilder = new StringBuilder();
 
+    public StringBuilder getScriptBuilder() {
+        return scriptBuilder;
+    }
+
+    public void clearScript() {
+        scriptBuilder = new StringBuilder();
+    }
+
+    public void renderString(String render) {
+        scriptBuilder.append(render);
+    }
+
+    public void renderBlank() {
+        scriptBuilder.append(" ");
+    }
 }

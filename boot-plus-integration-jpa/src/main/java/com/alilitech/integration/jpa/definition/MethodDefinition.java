@@ -16,15 +16,12 @@
 package com.alilitech.integration.jpa.definition;
 
 import com.alilitech.integration.jpa.anotation.IfTest;
-import com.alilitech.integration.jpa.domain.Sort;
-import com.alilitech.integration.jpa.criteria.CriteriaQuery;
+import com.alilitech.integration.jpa.exception.ParameterNumberNotMatchException;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
-import org.apache.ibatis.session.RowBounds;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -41,9 +38,6 @@ public class MethodDefinition {
 
     //是否是一个参数
     private boolean oneParameter;
-
-    //是否是条件查询
-    private boolean criteriaQuery;
 
     //是否有if test
     private boolean methodIfTest = false;
@@ -63,6 +57,9 @@ public class MethodDefinition {
 
     //传入的Sort对象index
     private int sortIndex = -1;
+
+    //是否是specification查询
+    private boolean specification;
 
     //此方法需要关联查询的部分，可以有多个关联
     private List<JoinStatementDefinition> joinStatementDefinitions = new ArrayList<>();
@@ -94,26 +91,22 @@ public class MethodDefinition {
 
     public MethodDefinition(Method method) {
         this.methodName = method.getName();
-        this.oneParameter = calculateOneParameter(method);
-        this.criteriaQuery = calculateCriteriaQuery(method);
         methodIfTest = method.isAnnotationPresent(IfTest.class);
         if(methodIfTest) {
             ifTest = method.getAnnotation(IfTest.class);
         }
 
-        Annotation[][] annotations = method.getParameterAnnotations();
-        Class<?>[] classes = method.getParameterTypes();
-        for(int index = 0; index < classes.length; index ++) {
+        Parameter[] parameters = method.getParameters();
+        for(int index = 0; index < parameters.length; index ++) {
+            parameterDefinitions.add(new ParameterDefinition(index, parameters[index]));
+        }
+        int size = calculate(parameterDefinitions);
 
-            Class parameterClass = classes[index];
-
-            parameterDefinitions.add(new ParameterDefinition(index, parameterClass, Arrays.asList(annotations[index])));
-
-            if(parameterClass.equals(Sort.class)) {
-                sortIndex = index;
-            }
+        if(specification && size != 1) {
+            throw new ParameterNumberNotMatchException(this.getNameSpace(), this.methodName, 1, size);
         }
 
+        this.oneParameter = size == 1;
         returnType = method.getReturnType();
 
         if(PartTree.QUERY_PREFIX_TEMPLATE.matcher(methodName).find()
@@ -145,14 +138,6 @@ public class MethodDefinition {
 
     public void setOneParameter(boolean oneParameter) {
         this.oneParameter = oneParameter;
-    }
-
-    public boolean isCriteriaQuery() {
-        return criteriaQuery;
-    }
-
-    public void setCriteriaQuery(boolean criteriaQuery) {
-        this.criteriaQuery = criteriaQuery;
     }
 
     public boolean isMethodIfTest() {
@@ -203,6 +188,14 @@ public class MethodDefinition {
         return sortIndex;
     }
 
+    public boolean isSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(boolean specification) {
+        this.specification = specification;
+    }
+
     public List<JoinStatementDefinition> getJoinStatementDefinitions() {
         return joinStatementDefinitions;
     }
@@ -243,45 +236,24 @@ public class MethodDefinition {
         this.inverseReferencedColumnName = inverseReferencedColumnName;
     }
 
-    private boolean calculateOneParameter(Method method) {
-        Class<?>[] classes = method.getParameterTypes();
+    private int calculate(List<ParameterDefinition> parameterDefinitions) {
         int count = 0;
-        if(classes.length > 0) {
-            for(Class clazz : classes) {
-                if(RowBounds.class.isAssignableFrom(clazz)) {
-                    continue;
-                }
-                count ++;
+        for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+            if (parameterDefinition.isPage()) {
+                continue;
             }
-        }
-        return count == 1;
-    }
 
-    private boolean calculateCriteriaQuery(Method method) {
-        Class<?>[] classes = method.getParameterTypes();
-        if(classes.length > 0) {
-            for(Class clazz : classes) {
-                if(CriteriaQuery.class.isAssignableFrom(clazz)) {
-                    return true;
-                }
+            if(parameterDefinition.isSort()) {
+                sortIndex = parameterDefinition.getIndex();
             }
+
+            if(parameterDefinition.isSpecification()) {
+                specification = true;
+            }
+
+            count++;
         }
-
-        return false;
+        return count;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MethodDefinition)) return false;
-
-        MethodDefinition that = (MethodDefinition) o;
-
-        return methodName != null ? methodName.equals(that.methodName) : that.methodName == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return methodName != null ? methodName.hashCode() : 0;
-    }
 }

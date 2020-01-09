@@ -16,6 +16,7 @@
 package com.alilitech.integration.jpa.statement;
 
 import com.alilitech.integration.jpa.anotation.Trigger;
+import com.alilitech.integration.jpa.definition.MethodDefinition;
 import com.alilitech.integration.jpa.meta.ColumnMetaData;
 import com.alilitech.integration.jpa.meta.EntityMetaData;
 import com.alilitech.integration.jpa.parameter.TriggerValueType;
@@ -23,9 +24,8 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.springframework.util.StringUtils;
 
 
-
 /**
- * Statement助手
+ * Statement assistant
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
@@ -35,72 +35,13 @@ public class StatementAssistant {
 	private StatementAssistant() {
 	}
 
-	/*public static String buildSort(MethodDefinition methodDefinition) {
-		if(methodDefinition.getSortIndex() > -1) {
-			StringBuffer orderString = new StringBuffer();
-
-			String paramName = methodDefinition.isOneParameter() ? "_parameter" : ("arg" + methodDefinition.getSortIndex());
-			orderString.append("<if test=\"" + paramName + "!= null\">");
-			orderString.append("<foreach item=\"item\" index=\"index\" open=\"order by\" separator=\",\" close=\"\" collection=\"" + paramName + ".orders\">");
-			orderString.append("${item.property} ${item.direction} ");
-			orderString.append("</foreach>");
-			orderString.append("</if>");
-			return orderString.toString();
-		} else {
-			return "";
-		}
-	}*/
-
-	/*public static String buildCondition(MethodDefinition methodDefinition, EntityMetaData entityMetaData) {
-		return buildCondition(methodDefinition, entityMetaData, "");
-	}*/
-
 	/**
-	 *  解析method的where条件,如果没有where语句,返回空字符串""
-	 */
-	/*public static String buildCondition(MethodDefinition methodDefinition, EntityMetaData entityMetaData, String alias ) {
-		MethodType methodType = resolveMethodType(methodDefinition.getMethodName());
-		String expression = null;
-
-		//这些都是byPrimaryKey的
-		if(methodDefinition.getMethodName().equals("findById")
-				|| methodDefinition.getMethodName().equals("update")
-				|| methodDefinition.getMethodName().equals("updateSelective")
-				|| methodDefinition.getMethodName().equals("updateBatch")
-				|| methodDefinition.getMethodName().equals("deleteById")
-				|| methodDefinition.getMethodName().equals("existsById"))
-		{
-			expression = "WHERE "
-					+ entityMetaData.getPrimaryColumnMetaData().getColumnName()
-					+ " = #{" + (StringUtils.isEmpty(alias) ? "" : (alias + ".")) + entityMetaData.getPrimaryColumnMetaData().getProperty() + "}" ;
-			return expression;
-		} else if(!methodDefinition.getMethodName().contains("By") && !methodDefinition.getMethodName().contains("With")) {
-			return "";
-		} else {
-			if(methodDefinition.getMethodName().contains("By")) {
-				expression = methodDefinition.getMethodName().substring(methodType.getType().length() + 2);
-			} else {
-				expression = methodDefinition.getMethodName().substring(methodType.getType().length() + 4);
-			}
-
-		}
-		Predicate predicate = null;
-		if(methodType.equals(MethodType.findJoin)) {   //多对多关联查询，没有类型
-			predicate = new Predicate(expression, null, methodDefinition);
-		} else {   //自定义查询
-			predicate = new Predicate(expression, entityMetaData.getEntityType(), methodDefinition);
-		}
-
-		return predicate.toString();
-	}*/
-
-	/**
-	 * 判断走哪个解析器
-	 * @param methodName
+	 * resolve the {@link MethodType} by {@link MethodDefinition}
+	 * @param definition
 	 * @return
 	 */
-	public static MethodType resolveMethodType(String methodName) {
-		// 注意顺序 insert insertSelective,insert应放在后面判断
+	public static MethodType resolveMethodType(MethodDefinition definition) {
+		String methodName = definition.getMethodName();
 		if (methodName.equals(MethodType.insertBatch.getType())) {
 			return MethodType.insertBatch;
 		}
@@ -125,21 +66,15 @@ public class StatementAssistant {
 			return MethodType.update;
 		}
 
-		if (methodName.startsWith(MethodType.findAllPage.getType())) {
-			return MethodType.findAllPage;
+		// findAllPage, findAllPageSort, findAll
+		if (methodName.startsWith(MethodType.findAllPage.getType())
+				|| methodName.equals(MethodType.findAll.getType())) {
+			return MethodType.findAll;
 		}
 
 		if (methodName.equals(MethodType.findAllById.getType())) {
 			return MethodType.findAllById;
 		}
-
-		if (methodName.equals(MethodType.findAll.getType())) {
-			return MethodType.findAll;
-		}
-
-		/*if (methodName.startsWith(MethodType.findPage.getType())) {
-			return MethodType.findPage;
-		}*/
 
 		if (methodName.equals(MethodType.deleteBatch.getType())) {
 			return MethodType.deleteBatch;
@@ -161,13 +96,9 @@ public class StatementAssistant {
 			return MethodType.existsById;
 		}
 
-		if (methodName.equals(MethodType.findSpecification.getType()) || methodName.equals(MethodType.findPageSpecification.getType())) {
+		if (definition.isSpecification()) {
 			return MethodType.findSpecification;
 		}
-
-		/*if (methodName.startsWith(MethodType.find.getType())) {
-			return MethodType.find;
-		}*/
 
 		// 其它
 		return MethodType.other;

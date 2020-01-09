@@ -17,7 +17,7 @@ package com.alilitech.integration.jpa.statement;
 
 import com.alilitech.integration.jpa.definition.GenericType;
 import com.alilitech.integration.jpa.definition.MethodDefinition;
-import com.alilitech.integration.jpa.exception.MybatisJpaException;
+import com.alilitech.integration.jpa.exception.StatementNotSupportException;
 import com.alilitech.integration.jpa.statement.support.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.session.Configuration;
@@ -55,14 +55,10 @@ public class PreMapperStatementFactory {
 
                     //注册相关类型的builder
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.other, PreMapperStatementBuilder4Find.class);
-
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findSpecification, PreMapperStatementBuilder4FindSpecification.class);
-
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findById, PreMapperStatementBuilder4FindById.class);
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findAll, PreMapperStatementBuilder4FindAll.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findAllPage, PreMapperStatementBuilder4FindAllPage.class);
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findAllById, PreMapperStatementBuilder4findAllById.class);
-                    //preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findPage, PreMapperStatementBuilder4FindPage.class);
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findJoin, PreMapperStatementBuilder4FindJoin.class);
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.insert, PreMapperStatementBuilder4Insert.class);
                     preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.insertSelective, PreMapperStatementBuilder4InsertSelective.class);
@@ -85,10 +81,10 @@ public class PreMapperStatementFactory {
     }
 
     public PreMapperStatement createPreMapperStatement(Configuration configuration, MapperBuilderAssistant builderAssistant, MethodDefinition methodDefinition, GenericType genericType) {
-        MethodType methodType = StatementAssistant.resolveMethodType(methodDefinition.getMethodName());
+        MethodType methodType = StatementAssistant.resolveMethodType(methodDefinition);
 
         if(!cacheMap.containsKey(methodType)) {
-            throw new MybatisJpaException("Can not find " + methodType.getType() + " for PreMapperStatementBuilder.class!");
+            throw new StatementNotSupportException(methodDefinition.getNameSpace(), methodDefinition.getMethodName());
         }
 
         Constructor constructor = null;
@@ -100,11 +96,7 @@ public class PreMapperStatementFactory {
         PreMapperStatementBuilder preMapperStatementBuilder = null;
         try {
             preMapperStatementBuilder = (PreMapperStatementBuilder) constructor.newInstance(configuration, builderAssistant, methodType);
-        } catch (InstantiationException e) {
-            logger.error(e.getMessage());
-        } catch (IllegalAccessException e) {
-            logger.error(e.getMessage());
-        } catch (InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             logger.error(e.getMessage());
         }
 

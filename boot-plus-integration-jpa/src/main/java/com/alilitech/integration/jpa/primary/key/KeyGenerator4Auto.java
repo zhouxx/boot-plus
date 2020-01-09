@@ -18,7 +18,7 @@ package com.alilitech.integration.jpa.primary.key;
 import com.alilitech.integration.jpa.parameter.GenerationType;
 
 /**
- * primary key generator of Auto {@link GenerationType}
+ * primary key generator of {@link GenerationType#AUTO}
  * @author Zhou Xiaoxiang
  * @since 1.0
  */

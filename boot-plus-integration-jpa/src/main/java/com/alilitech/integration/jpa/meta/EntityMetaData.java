@@ -41,26 +41,18 @@ public class EntityMetaData {
     /** 表名 */
     private String tableName;
 
-    private String entityName;
-
     /** 主键column元数据 */
     private ColumnMetaData primaryColumnMetaData;
-
-    /** 列名集 */
-    private List<String> columnNameList;
 
     /** column元数据集 {key-fieldName} */
     private Map<String, ColumnMetaData> columnMetaDataMap;
 
     private String columnNames;
 
-    private boolean hasTriggerValue;
-
     public EntityMetaData(Class clazz) {
         this.entityType = clazz;
 
         // 初始化集合
-        columnNameList = new ArrayList<>();
         columnMetaDataMap = new LinkedHashMap<>();
 
         init();
@@ -71,7 +63,6 @@ public class EntityMetaData {
         this.idType = (Class)genericType.getIdType();
 
         // 初始化集合
-        columnNameList = new ArrayList<>();
         columnMetaDataMap = new LinkedHashMap<>();
 
         init();
@@ -79,8 +70,6 @@ public class EntityMetaData {
 
     private void init() {
         this.tableName = EntityUtils.getTableName(entityType);
-        this.entityName = EntityUtils.getEntityName(entityType);
-        //primaryColumnMetaData = new ColumnMetaData(EntityUtils.getPrimaryField(entityType));
 
         // 持久化字段集
         List<Field> fields = EntityUtils.getPersistentFields(entityType);
@@ -92,9 +81,9 @@ public class EntityMetaData {
             if(columnMetaData.isPrimaryKey()) {
                 primaryColumnMetaData = columnMetaData;
             }
-            if(columnMetaData.getTriggers() != null) {
+            /*if(columnMetaData.getTriggers() != null) {
                 this.hasTriggerValue = true;
-            }
+            }*/
             columnMetaDataMap.put(field.getName(), columnMetaData);
             if(!columnMetaData.isJoin()) {
                 columnNamesTemp.append(", ").append(columnMetaData.getColumnName());
@@ -127,28 +116,12 @@ public class EntityMetaData {
         this.tableName = tableName;
     }
 
-    public String getEntityName() {
-        return entityName;
-    }
-
-    public void setEntityName(String entityName) {
-        this.entityName = entityName;
-    }
-
     public ColumnMetaData getPrimaryColumnMetaData() {
         return primaryColumnMetaData;
     }
 
     public void setPrimaryColumnMetaData(ColumnMetaData primaryColumnMetaData) {
         this.primaryColumnMetaData = primaryColumnMetaData;
-    }
-
-    public List<String> getColumnNameList() {
-        return columnNameList;
-    }
-
-    public void setColumnNameList(List<String> columnNameList) {
-        this.columnNameList = columnNameList;
     }
 
     public Map<String, ColumnMetaData> getColumnMetaDataMap() {
@@ -177,13 +150,4 @@ public class EntityMetaData {
 
         return columnNamesTemp.substring(1);
     }
-
-    public boolean isHasTriggerValue() {
-        return hasTriggerValue;
-    }
-
-    public void setHasTriggerValue(boolean hasTriggerValue) {
-        this.hasTriggerValue = hasTriggerValue;
-    }
-
 }

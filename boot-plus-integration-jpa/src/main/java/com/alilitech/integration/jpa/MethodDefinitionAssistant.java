@@ -82,9 +82,6 @@ public class MethodDefinitionAssistant {
         MapperDefinition mapperDefinition = mapperDefinitionRegistry.getMapperDefinition(joinColumnMetaData.getEntityType());
 
         for(MethodDefinition methodDefinition : mapperDefinition.getMethodDefinitions()) {
-            /*if(PartTree.QUERY_PREFIX_TEMPLATE.matcher(methodDefinition.getMethodName()).find()
-                    && !methodDefinition.getMethodName().startsWith("findWith")
-                    && !methodDefinition.getMethodName().startsWith("findJoinWith")) {*/
             if(methodDefinition.isCompositeResultMap()) {
 
                 //被排除的，和不在包含之内的都不需要查询

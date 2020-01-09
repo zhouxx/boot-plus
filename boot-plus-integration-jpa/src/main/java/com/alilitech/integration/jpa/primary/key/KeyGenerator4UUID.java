@@ -20,7 +20,7 @@ import com.alilitech.integration.jpa.parameter.GenerationType;
 import java.util.UUID;
 
 /**
- * primary key generator of UUID {@link GenerationType}
+ * primary key generator of {@link GenerationType#UUID}
  * @author Zhou Xiaoxiang
  * @since 1.0
  */

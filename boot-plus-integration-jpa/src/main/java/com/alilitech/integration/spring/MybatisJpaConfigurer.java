@@ -22,8 +22,6 @@ package com.alilitech.integration.spring;
  */
 public interface MybatisJpaConfigurer {
 
-    default void addDatabase(DatabaseRegistry databaseRegistry) {
-
-    }
+    void addDatabase(DatabaseRegistry databaseRegistry);
 
 }

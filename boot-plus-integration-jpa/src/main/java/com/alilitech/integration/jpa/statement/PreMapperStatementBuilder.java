@@ -62,8 +62,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
     //设置返回值，自定义查询的时候部分需要确定返回值
     protected Class<?> resultType;
 
-    protected boolean delete = false;
-
     public PreMapperStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, MethodType methodType) {
         super(configuration);
         this.methodType = methodType;
@@ -127,14 +125,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
      * @return
      */
     protected PartTree buildPartTree() {
-        return buildPartTree(null);
-    }
-
-    /**
-     * build part tree
-     * @return
-     */
-    protected PartTree buildPartTree(String alias) {
         String expression = methodDefinition.getMethodName();
 
         //将ById 转换成 ByPrimaryKey
@@ -144,8 +134,9 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
             expression = expression.replaceAll("ById", "By" + paramExpression);
         }
 
-        return new PartTree(expression, entityMetaData.getEntityType(), methodDefinition, alias);
+        return new PartTree(expression, entityMetaData.getEntityType(), methodDefinition);
     }
+
 
     /**
      * build sort sql part

@@ -20,6 +20,7 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -58,7 +59,11 @@ public class PreMapperStatementBuilder4FindJoin extends PreMapperStatementBuilde
         String tableNameAlias = "t1";
         String tableName = entityMetaData.getTableName();
 
-        PartTree partTree = new PartTree(methodDefinition.getMethodName(), null, methodDefinition, null);
+        PartTree partTree = new PartTree(methodDefinition.getMethodName(), null, methodDefinition);
+
+        RenderContext context = new RenderContext();
+
+        partTree.render(context);
 
         //sql parts
         List<String> sqlParts = Arrays.asList(
@@ -74,7 +79,7 @@ public class PreMapperStatementBuilder4FindJoin extends PreMapperStatementBuilde
                 joinTableNameAlias+ "." + methodDefinition.getInverseReferencedColumnName(),
                 "=",
                 tableNameAlias + "." + methodDefinition.getInverseColumnName(),
-                partTree.toString()
+                context.getScriptBuilder().toString()
         );
 
 

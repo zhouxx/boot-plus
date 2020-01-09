@@ -25,8 +25,6 @@ import java.io.Serializable;
  */
 public abstract class Pageable<T> extends RowBounds implements Serializable {
 
-
-
     /**
      * Returns the page to be returned.
      *

@@ -15,13 +15,9 @@
  */
 package com.alilitech.integration.jpa.domain;
 
-import com.alilitech.integration.jpa.EntityMetaDataRegistry;
-import com.alilitech.integration.jpa.meta.ColumnMetaData;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Zhou Xiaoxiang
@@ -73,24 +69,6 @@ public class Sort {
 
     public boolean hasOrders() {
         return orders != null && orders.size() != 0;
-    }
-
-    /**
-     * 转换成数据库需要的字段，不能用前台转的字段是order by
-     * @param clazz
-     */
-    public void convert(Class clazz) {
-
-        if(!this.hasOrders()) {
-           return;
-        }
-
-        Map<String, ColumnMetaData> columnMetaDataMapMap = EntityMetaDataRegistry.getInstance().get(clazz).getColumnMetaDataMap();
-
-        orders.forEach(order -> {
-            String columnName = columnMetaDataMapMap.get(order.getProperty()).getColumnName();
-            order.setProperty(columnName);
-        });
     }
 
 }

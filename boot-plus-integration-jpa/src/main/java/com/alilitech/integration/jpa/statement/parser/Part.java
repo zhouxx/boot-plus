@@ -15,13 +15,18 @@
  */
 package com.alilitech.integration.jpa.statement.parser;
 
+import com.alilitech.integration.jpa.LikeContainer;
+import com.alilitech.integration.jpa.anotation.IfTest;
 import com.alilitech.integration.jpa.definition.MethodDefinition;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A single part of a method name that has to be transformed into a query part. The actual transformation is defined by
@@ -32,7 +37,7 @@ import java.util.regex.Pattern;
  * @author Martin Baumgartner
  * @author zhouxiaoxiang
  */
-public class Part {
+public class Part implements Render {
 
 	private static final Pattern IGNORE_CASE = Pattern.compile("Ignor(ing|e)Case");
 
@@ -45,16 +50,17 @@ public class Part {
 
 	private LikeType likeType;
 
-	private int index;
+	private int argumentIndex;
 
 	private String alias;
 	/**
 	 * Creates a new {@link Part} from the given method name part, the {@link Class} the part originates from and the
-	 * start parameter index.
+	 * start parameter argumentIndex.
 	 * @param source must not be {@literal null}.
 	 * @param clazz
+	 * @param argumentIndex
 	 */
-	public Part(String source, Optional<Class> clazz, MethodDefinition methodDefinition, String alias) {
+	public Part(String source, Optional<Class> clazz, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
 
 		Assert.hasText(source, "Part source must not be null or emtpy!");
 		//Assert.notNull(clazz, "Type must not be null!");
@@ -63,11 +69,69 @@ public class Part {
 		this.type = Type.fromProperty(partToUse);
 		this.propertyPath = PropertyPath.from(type.extractProperty(partToUse), clazz, methodDefinition);
 		this.likeType = type.likeType;
-		this.alias = alias;
-	}
+		this.oneParameter = methodDefinition.isOneParameter();
 
-	public boolean getParameterRequired() {
-		return getNumberOfArguments() > 0;
+		//没有参数直接忽略
+		if(this.getNumberOfArguments() <= 0) {
+			return;
+		}
+
+		//跳过Page 和 Sort
+		if(methodDefinition.getParameterDefinitions().get(argumentIndex.get()).isPage()) {
+			argumentIndex.incrementAndGet();
+		}
+		if(methodDefinition.getParameterDefinitions().get(argumentIndex.get()).isSort()) {
+			argumentIndex.incrementAndGet();
+		}
+
+		//设置当前参数索引
+		this.argumentIndex = argumentIndex.get();
+
+		//拿到testCondition
+		this.testCondition = getCondition(this.argumentIndex, methodDefinition);
+
+		//将参数索引加上参数数量
+		argumentIndex.addAndGet(this.getNumberOfArguments());
+
+		// 将like的信息放入缓存中，后面需要改变其参数
+		if(this.getLikeType() != null) {
+			if(this.oneParameter) {
+				String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + "._parameter";
+				LikeContainer.getInstance().put(key, this.getLikeType());
+			} else {
+				String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + ".arg" + this.getArgumentIndex();
+				LikeContainer.getInstance().put(key, this.getLikeType());
+			}
+		}
+
+
+	}
+	//根据参数索引获得IfCondition
+	private TestCondition getCondition(int index, MethodDefinition methodDefinition) {
+		//先读取方法的IfTest
+		boolean methodIfTest = methodDefinition.isMethodIfTest();
+		List<Annotation> annotationList = methodDefinition.getParameterDefinitions().get(index).getAnnotations();
+		if(annotationList.size() <= 0 && !methodIfTest) {
+			return null;
+		}
+
+		TestCondition testCondition = null;
+
+		for(Annotation annotation : annotationList) {
+			//若参数有注解，则以参数注解为准
+			if(annotation instanceof IfTest) {
+				IfTest ifTest = (IfTest) annotation;
+				testCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
+				return testCondition;
+			}
+		}
+		//否则默认方法的注解
+		if(methodIfTest) {
+			IfTest ifTest = methodDefinition.getIfTest();
+			testCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
+		}
+
+		return testCondition;
 	}
 
 	private String detectAndSetIgnoreCase(String part) {
@@ -87,7 +151,6 @@ public class Part {
 	 * @return arguments count
 	 */
 	public int getNumberOfArguments() {
-
 		return type.getNumberOfArguments();
 	}
 
@@ -95,7 +158,6 @@ public class Part {
 	 * @return the propertyPath
 	 */
 	public PropertyPath getProperty() {
-
 		return propertyPath;
 	}
 
@@ -103,32 +165,16 @@ public class Part {
 	 * @return the type
 	 */
 	public Part.Type getType() {
-
 		return type;
-	}
-
-	public TestCondition getTestCondition() {
-		return testCondition;
-	}
-
-	public void setTestCondition(TestCondition testCondition) {
-		this.testCondition = testCondition;
 	}
 
 	public boolean isOneParameter() {
 		return oneParameter;
 	}
 
-	public void setOneParameter(boolean oneParameter) {
-		this.oneParameter = oneParameter;
-	}
 
-	public int getIndex() {
-		return index;
-	}
-
-	public void setIndex(int index) {
-		this.index = index;
+	public int getArgumentIndex() {
+		return argumentIndex;
 	}
 
 	public LikeType getLikeType() {
@@ -166,37 +212,39 @@ public class Part {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
-	public String toString() {
+	public void render(RenderContext context) {
+
+		String typeValue = type.toString();
 
 		//替换占位符为arg0，arg1...
-		String typeValue = type.toString();
 		if(type.getNumberOfArguments() > 0) {
-			for(int i=0; i<type.getNumberOfArguments(); i++) {
-				if(StringUtils.isEmpty(alias)) {
-					if(this.isOneParameter()) {
-						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{_parameter}");
-						typeValue = typeValue.replaceAll("@\\{" + i +  "\\}", "list");
+			if(this.isOneParameter()) {
+				typeValue = typeValue.replaceAll("#\\{0\\}", "#{_parameter}");
+				typeValue = typeValue.replaceAll("@\\{0\\}", "list");
+			} else {
+				for(int i=0; i<this.getNumberOfArguments(); i++) {
+					if(StringUtils.isEmpty(alias)) {
+						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{arg" + (argumentIndex +i) + "}");
+						typeValue = typeValue.replaceAll("@\\{" + i +  "\\}", "arg" + (argumentIndex +i));
 					} else {
-						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{arg" + (index+i) + "}");
-						typeValue = typeValue.replaceAll("@\\{" + i +  "\\}", "arg" + (index+i));
+						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{" + alias + "." + propertyPath.getName() + "}");
 					}
-				} else {
-					typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{" + alias + "." + propertyPath.getName() + "}");
 				}
 			}
 		}
 
 		if(testCondition == null) {
-			return String.format("And %s %s", propertyPath.getColumnName(), typeValue);
+			context.renderString("AND");
+			context.renderBlank();
+			context.renderString(propertyPath.getColumnName());
+			context.renderBlank();
+			context.renderString(typeValue);
+			// String.format("And %s %s", propertyPath.getColumnName(), typeValue);
+			return;
 		}
 
 		List<String> conditions = new ArrayList<>();
-
 
 		if(testCondition.isNotEmpty()) {
 			conditions.add("!= null");
@@ -206,24 +254,27 @@ public class Part {
 		}
 		conditions.addAll(Arrays.asList(testCondition.getConditions()));
 
-		//拼装最终条件
-		List<String> conditionWithArgs = new ArrayList<>();
+		String paraName = this.isOneParameter() ? "_parameter" : "arg" + this.getArgumentIndex();
 
-		String paraName = "arg" + this.getIndex();
-
-		//如果只有一个参数
-		if(this.isOneParameter()) {
-			paraName = "_parameter";
-		}
-
-		for(String str : conditions) {
-			conditionWithArgs.add(paraName + " " + str);
-		}
+		List<String> conditionWithArgs = conditions.stream().map(s -> paraName + " " + s).collect(Collectors.toList());
 
 		if(conditionWithArgs.size() > 0) {
-			return String.format("<if test='" + StringUtils.collectionToDelimitedString(conditionWithArgs," and ") + "'>AND %s %s</if>", propertyPath.getColumnName(), typeValue);
+			context.renderString("<if test='");
+			context.renderString(StringUtils.collectionToDelimitedString(conditionWithArgs," and "));
+			context.renderString("'>AND");
+			context.renderBlank();
+			context.renderString(propertyPath.getColumnName());
+			context.renderBlank();
+			context.renderString(typeValue);
+			context.renderString("</if>");
+			//String.format("<if test='" + StringUtils.collectionToDelimitedString(conditionWithArgs," and ") + "'>AND %s %s</if>", propertyPath.getColumnName(), typeValue);
 		} else {
-			return String.format("And %s %s", propertyPath.getColumnName(), typeValue);
+			context.renderString("AND");
+			context.renderBlank();
+			context.renderString(propertyPath.getColumnName());
+			context.renderBlank();
+			context.renderString(typeValue);
+			//String.format("AND %s %s", propertyPath.getColumnName(), typeValue);
 		}
 
 	}
@@ -421,8 +472,6 @@ public class Part {
 
 	static class TestCondition {
 
-		private boolean isOneParameter;
-
 		private boolean notNull;
 
 		private boolean notEmpty;
@@ -437,14 +486,6 @@ public class Part {
 			this.notNull = notNull;
 			this.notEmpty = notEmpty;
 			this.conditions = conditions;
-		}
-
-		public boolean isOneParameter() {
-			return isOneParameter;
-		}
-
-		public void setOneParameter(boolean oneParameter) {
-			isOneParameter = oneParameter;
 		}
 
 		public boolean isNotNull() {

@@ -16,14 +16,11 @@
 package com.alilitech.integration.jpa.parameter;
 
 import com.alilitech.integration.jpa.anotation.Trigger;
-import com.alilitech.integration.jpa.exception.MybatisJpaException;
 import com.alilitech.integration.jpa.meta.ColumnMetaData;
 import com.alilitech.integration.jpa.meta.EntityMetaData;
 import com.alilitech.integration.jpa.primary.key.GeneratorRegistry;
 import com.alilitech.integration.jpa.primary.key.KeyGenerator;
 import com.alilitech.integration.jpa.primary.key.KeyGenerator4Auto;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.reflection.MetaObject;
@@ -67,12 +64,12 @@ public class ParameterAssistant {
     public Object populateKeyAndTriggerValue(MappedStatement mappedStatement,
                                              Object parameterObject,
                                              EntityMetaData entityMetaData) {
-         /* 自定义元对象填充控制器 */
+        // MetaObject to operate the parameter object
         MetaObject metaObject = mappedStatement.getConfiguration().newMetaObject(parameterObject);
 
         if (mappedStatement.getSqlCommandType() == SqlCommandType.INSERT) {
 
-            //设置ID
+            //set the primary key
             /**
              * first: according to {@link GenerationType} to get {@link KeyGenerator}
              */
@@ -93,25 +90,10 @@ public class ParameterAssistant {
                 if(keyGenerator == null) {
 
                     /**
-                     *  get key {@link KeyGenerator} by generator Class
+                     *  get {@link KeyGenerator} by generator Class
                      */
-                    keyGenerator = GeneratorRegistry.getInstance().get(generatorClass);
+                    keyGenerator = GeneratorRegistry.getInstance().getOrRegister(generatorClass);
 
-                    //new key generator
-                    if(keyGenerator == null) {
-                        try {
-                            Object instance = generatorClass.getConstructor().newInstance();
-                            if (instance instanceof KeyGenerator) {
-                                keyGenerator = (KeyGenerator) instance;
-
-                                // put generator in registry
-                                GeneratorRegistry.getInstance().register(generatorClass, keyGenerator);
-                            }
-
-                        } catch (Exception e) {
-                            throw new MybatisJpaException("occurs errors when try to set id value: " + e.getMessage());
-                        }
-                    }
                 }
             }
 
@@ -121,36 +103,23 @@ public class ParameterAssistant {
             }
         }
 
-        //设置默认值
+        //set the trigger value
         for(ColumnMetaData columnMetaData : entityMetaData.getColumnMetaDataMap().values()) {
             if(CollectionUtils.isEmpty(columnMetaData.getTriggers())) {
                 continue;
             }
             for(Trigger trigger : columnMetaData.getTriggers()) {
                 if(trigger.triggerType() == mappedStatement.getSqlCommandType()
-                        && trigger.valueType() == TriggerValueType.JavaCode
-                        /*&& metaObject.getValue(columnMetaData.getProperty()) == null*/) {
-
-                    Object obj = null;
-
-                    if(!trigger.value().equals("")) {
-                        obj = new JexlEngine().createExpression(trigger.value()).evaluate(new MapContext());
-                    } else {
+                        && trigger.valueType() == TriggerValueType.JavaCode)
+                    if (metaObject.getValue(columnMetaData.getProperty()) == null || trigger.force()) {
+                        Object obj = null;
                         try {
                             obj = trigger.valueClass().getMethod(trigger.methodName()).invoke(trigger.valueClass().newInstance());
-                        } catch (IllegalAccessException e) {
-                            logger.error(e.getMessage());
-                        } catch (InvocationTargetException e) {
-                            logger.error(e.getMessage());
-                        } catch (NoSuchMethodException e) {
-                            logger.error(e.getMessage());
-                        } catch (InstantiationException e) {
+                        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                             logger.error(e.getMessage());
                         }
+                        metaObject.setValue(columnMetaData.getProperty(), obj);
                     }
-
-                    metaObject.setValue(columnMetaData.getProperty(), obj);
-                }
             }
         }
 

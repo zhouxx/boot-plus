@@ -73,6 +73,4 @@ public class PreMapperStatementBuilder4FindAll extends PreMapperStatementBuilder
         return entityMetaData.getEntityType();
     }
 
-
-
 }

@@ -78,7 +78,7 @@ public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEven
         watch.start();
 
         JpaInitializer jpaInitializer = new JpaInitializer(configuration);
-        jpaInitializer.buildJoinMetaDataAndRelationMethodDesc().invokeJpaMapperStatementBuilder();
+        jpaInitializer.buildJoinMetaDataAndRelationMethodDefinition().invokeJpaMapperStatementBuilder();
 
         // add custom database
         if(!CollectionUtils.isEmpty(mybatisJpaConfigurers)) {

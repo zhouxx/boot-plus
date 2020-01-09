@@ -68,7 +68,7 @@ public class JpaInitializer {
         }
     }
 
-    public JpaInitializer buildJoinMetaDataAndRelationMethodDesc() {
+    public JpaInitializer buildJoinMetaDataAndRelationMethodDefinition() {
         //哪些需要关联的方法
         List<JoinColumnMetaData> joinColumnList = new ArrayList<>();
         //遍历每个实体，找出对应的关联查询

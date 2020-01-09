@@ -42,7 +42,6 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
     protected void buildPreMapperStatementExtend(PreMapperStatement preMapperStatement, GenericType genericType) {
         preMapperStatement.setResultType(int.class);
         preMapperStatement.setSqlCommandType(SqlCommandType.UPDATE);
-
         setKeyGeneratorAndTriggerValue(preMapperStatement);
     }
 
@@ -66,7 +65,5 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
     protected Class<?> getParameterTypeClass() {
         return entityMetaData.getEntityType();
     }
-
-
 
 }

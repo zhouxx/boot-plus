@@ -22,10 +22,8 @@ import java.lang.annotation.Documented;
 
 
 /**
- * 默认值触发
- * 当是javaCode的时候，有两种方式，
- * 一种是直接javaCode，这种一般是这个字段永远是这个值的时候可以这样设置。相当于直接设置默认值，只是提供了哪些情况下提供默认值
- * 一种是通过调用方法，这样通过调用方法可以获得动态对象
+ * trigger with code
+ * 当是javaCode的时候通过调用方法，这样通过调用方法可以获得动态对象
  * 当是DatabaseFunction的时候，直接取value
  *
  * @author Zhou Xiaoxiang
@@ -43,5 +41,12 @@ public @interface Trigger {
     String methodName() default "";
 
     String value() default "";
+
+    /**
+     * force to set the value, whether the value is present or null
+     * only support {@link TriggerValueType#DatabaseFunction}
+     * @return
+     */
+    boolean force() default true;
 
 }

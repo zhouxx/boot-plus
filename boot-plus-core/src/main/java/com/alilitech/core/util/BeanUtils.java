@@ -40,9 +40,9 @@ public class BeanUtils {
 	private static Map<Class, List<FieldDesc>> cache = new ConcurrentHashMap<>();
 
 	/**
-	 * bean to map，只支持当前类的属性转换
+	 * bean to map，only support the fields of the current class
 	 * @param source
-	 * @return
+	 * @return map
 	 */
 	public static Map<String, Object> beanToMapCommon(Object source) throws Exception {
 		if(source == null) {
@@ -69,9 +69,9 @@ public class BeanUtils {
 	}
 
 	/**
-	 * bean to map，支持父类属性
-	 * @param source 源对象
-	 * @return
+	 * bean to map，also support the field of the parent class
+	 * @param source source object
+	 * @return map
 	 * @throws Exception
 	 */
 	public static Map<String, Object> beanToMap(Object source) throws Exception {

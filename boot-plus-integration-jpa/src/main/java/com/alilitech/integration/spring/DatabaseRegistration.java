@@ -26,7 +26,7 @@ import com.alilitech.integration.jpa.DatabaseType;
  */
 public class DatabaseRegistration {
 
-    private final DatabaseType databaseType;
+    private DatabaseType databaseType;
 
     private KeySqlGenerator keySqlGenerator;
 

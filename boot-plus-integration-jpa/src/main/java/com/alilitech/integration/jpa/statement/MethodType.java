@@ -23,10 +23,8 @@ package com.alilitech.integration.jpa.statement;
  */
 public enum MethodType {
 
-    /*find("find"),*/
     findById("findById", ParameterType.ID),
     findAllById("findAllById", ParameterType.IDS),
-    /*findPage("findPage"),*/
     insert("insert", ParameterType.ENTITY),
     insertSelective("insertSelective", ParameterType.ENTITY),
     update("update", ParameterType.ENTITY),
@@ -41,7 +39,6 @@ public enum MethodType {
     findAllPage("findAllPage"),
     findJoin("findJoin"),
     findSpecification("findSpecification"),
-    findPageSpecification("findPageSpecification"),
 
     other("other");
 

@@ -15,11 +15,16 @@
  */
 package com.alilitech.integration.jpa.definition;
 
+import com.alilitech.integration.jpa.criteria.Specification;
 import com.alilitech.integration.jpa.domain.Page;
 import com.alilitech.integration.jpa.domain.Pageable;
+import com.alilitech.integration.jpa.domain.Sort;
+import org.apache.ibatis.session.RowBounds;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -36,23 +41,23 @@ public class ParameterDefinition {
 
     private List<Annotation> annotations;
 
+    private String name;
+
     public ParameterDefinition() {
         annotations = new ArrayList<>();
+    }
+
+    public ParameterDefinition(int index, Parameter parameter) {
+        this.index = index;
+        parameterClass = parameter.getType();
+        annotations = Arrays.asList(parameter.getAnnotations());
+        this.name = parameter.getName();
     }
 
     public ParameterDefinition(int index, Class<?> parameterClass) {
         this();
         this.index = index;
-        if(Pageable.class.isAssignableFrom(parameterClass)) {
-            this.parameterClass = Page.class;
-        } else {
-            this.parameterClass = parameterClass;
-        }
-    }
-
-    public ParameterDefinition(int index, Class<?> parameterClass, List<Annotation> annotations) {
-        this(index, parameterClass);
-        this.annotations = annotations;
+        this.parameterClass = parameterClass;
     }
 
     public int getIndex() {
@@ -77,5 +82,34 @@ public class ParameterDefinition {
 
     public void setAnnotations(List<Annotation> annotations) {
         this.annotations = annotations;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isPage() {
+        if(RowBounds.class.isAssignableFrom(parameterClass)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSpecification() {
+        if(Specification.class.isAssignableFrom(parameterClass)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSort() {
+        if(parameterClass.equals(Sort.class)) {
+            return true;
+        }
+        return false;
     }
 }

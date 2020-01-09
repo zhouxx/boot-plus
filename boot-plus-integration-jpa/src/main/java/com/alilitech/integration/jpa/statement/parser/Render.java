@@ -13,19 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.integration.jpa.primary.key;
-
+package com.alilitech.integration.jpa.statement.parser;
 /**
- * primary key generator
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.1
  */
-public interface KeyGenerator {
+public interface Render {
 
     /**
-     * generate key
-     * @return
+     * render with context
+     * @param context
      */
-    Object generate();
+    void render(RenderContext context);
 
 }
