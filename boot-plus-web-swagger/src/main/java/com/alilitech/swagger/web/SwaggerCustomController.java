@@ -111,6 +111,13 @@ public class SwaggerCustomController {
         WordDocument wordDocument = new WordDocument();
         wordDocument.setTitle(swaggerEntity.getInfo().getTitle());
         wordDocument.setVersion(swaggerEntity.getInfo().getVersion());
+        wordDocument.setDescription(swaggerEntity.getInfo().getDescription());
+        if(swagger.getInfo().getContact() != null) {
+            wordDocument.setContactName(swagger.getInfo().getContact().getName());
+            wordDocument.setContactEmail(swagger.getInfo().getContact().getEmail());
+            wordDocument.setContactUrl(swagger.getInfo().getContact().getUrl());
+        }
+
         //设置接口列表
         List<DocInterface> docInterfaces = new ArrayList<>();
         wordDocument.setInterfaces(docInterfaces);

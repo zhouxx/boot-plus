@@ -25,6 +25,11 @@ import java.util.List;
 public class WordDocument {
     private String title;
     private String version;
+    private String description;
+
+    private String contactName;
+    private String contactUrl;
+    private String contactEmail;
 
     List<DocInterface> interfaces;
 
@@ -42,6 +47,38 @@ public class WordDocument {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getContactUrl() {
+        return contactUrl;
+    }
+
+    public void setContactUrl(String contactUrl) {
+        this.contactUrl = contactUrl;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
     }
 
     public List<DocInterface> getInterfaces() {

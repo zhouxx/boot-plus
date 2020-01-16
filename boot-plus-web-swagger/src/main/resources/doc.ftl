@@ -1,9 +1,9 @@
 # ${title}
 
-|   版本 | ${version} |
-| -----: | :--------- |
-|   描述 |            |
-| 联系人 |            |
+|   版本 | ${version}                                |
+| -----: | :---------------------------------------- |
+|   描述 | ${description}                            |
+| 联系人 | ${contactName!''} <#if contactEmail??> [Email:](mailto:${contactEmail}) </#if> |
 
 <#list interfaces as interface>
 
