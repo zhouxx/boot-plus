@@ -147,9 +147,18 @@ public class SwaggerCustomController {
                                 definitionRef = parameter.getSchema().getItems().get$ref();
                             }
 
+                            if(definitionRef == null) {
+                                return;
+                            }
+
                             definitionRef = definitionRef.replace("#/definitions/", "");
 
                             Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
+
+                            if(definition.getProperties() == null) {
+                                return;
+                            }
+
                             definition.getProperties().forEach(((propertyName, property) -> {
                                 DocParameter docParameter = new DocParameter();
                                 docParameter.setName(propertyName);
@@ -184,6 +193,10 @@ public class SwaggerCustomController {
                                 definitionRef = response.getSchema().getItems().get$ref();
                             }
 
+                            if(definitionRef == null) {
+                                return;
+                            }
+
                             definitionRef = definitionRef.replace("#/definitions/", "");
 
                             if ("ResponseEntity".equals(definitionRef)) {
@@ -192,6 +205,10 @@ public class SwaggerCustomController {
 
                             Definition definition = swaggerEntity.getDefinitions().get(definitionRef);
                             docInterface.setResponseType(definition.getType());
+
+                            if(definition.getProperties() == null) {
+                                return;
+                            }
 
                             definition.getProperties().forEach(((propertyName, property) -> {
                                 DocResponse docResponse = new DocResponse();
@@ -227,7 +244,7 @@ public class SwaggerCustomController {
         // 将outputstream转成inputstream
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
-        return new FileDownloadStreamingResponseBody(in).fileName(wordDocument.getTitle() + ".doc").toResponseEntity();
+        return new FileDownloadStreamingResponseBody(in).fileName(wordDocument.getTitle() + ".md").toResponseEntity();
 
     }
 

@@ -99,7 +99,7 @@ public class MybatisJpaPageableParameterBuilder implements OperationBuilderPlugi
                         .name("sort")
                         .modelRef(stringModel)
                         .allowMultiple(true)
-                        .description("Sorting criteria in the format: property(,asc|desc). "
+                        .description("Sorting criteria in the format: property(,asc or desc). "
                                 + "Default sort order is ascending. "
                                 + "Multiple sort criteria are supported.")
                         .build());
