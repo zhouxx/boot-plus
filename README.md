@@ -37,6 +37,14 @@ Bootplus是基于Spring Boot构建的框架，使其开发更方便，更简单�
 
 [中文文档](https://zhouxx.github.io/boot-plus/#/README) 
 
+# 加入我们
+
+BootPlus是完全免费的项目，旨在帮助开发者更方便、更快速地开发，同时也是提供了交流群，提供在线答疑。
+
+QQ群：924076759
+
+![Image] (https://raw.githubusercontent.com/zhouxx/boot-plus/master/docs/images/qq.png)
+
 # License
 
 Boot Plus is under the Apache 2.0 license. See the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) file for details.
