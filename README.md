@@ -43,7 +43,7 @@ BootPlus是完全免费的项目，旨在帮助开发者更方便、更快速地
 
 QQ群：924076759
 
-![Image] (https://raw.githubusercontent.com/zhouxx/boot-plus/master/docs/images/qq.png)
+![Image](https://raw.githubusercontent.com/zhouxx/boot-plus/master/docs/images/qq.png)
 
 # License
 
