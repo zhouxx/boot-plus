@@ -26,6 +26,9 @@ public class NotInExpression<T> extends ComparisonExpression<T> {
 
     @Override
     public void render(RenderContext renderContext, Expression<T>...expressions) {
+        //valid args quantity
+        validArgsQuantity(expressions);
+
         renderContext.renderString("not in");
         renderContext.renderBlank();
         renderContext.renderString("(");

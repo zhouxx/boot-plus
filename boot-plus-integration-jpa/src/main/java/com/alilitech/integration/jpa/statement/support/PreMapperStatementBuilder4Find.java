@@ -61,7 +61,6 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
     @Override
     protected String buildSQL() {
 
-
         PartTree partTree = buildPartTree();
 
         String operation = "SELECT";
@@ -81,7 +80,7 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
         }
         //剩下的就是常规查询了
         else {
-
+            // default select
         }
 
         RenderContext context = new RenderContext();
@@ -92,7 +91,7 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
                 selectPart,
                 "FROM",
                 entityMetaData.getTableName(),
-                context.getScriptBuilder().toString(),
+                context.getScript(),
                 buildSort()
         );
 
@@ -103,7 +102,5 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
     protected Class<?> getParameterTypeClass() {
         return entityMetaData.getEntityType();
     }
-
-
 
 }

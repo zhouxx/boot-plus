@@ -57,10 +57,19 @@ public class TriggerValue4SelectKeyGenerator extends SelectKeyGenerator {
             return;
         }
 
-        //批量插入的
         Collection<Object> parameters = parameterAssistant.getParameters(parameterObject);
+        //trigger auto set value
+        if (parameters != null) {
+            for (Object parameter : parameters) {
+                EntityMetaData entityMetaData = EntityMetaDataRegistry.getInstance().get(parameter.getClass());
+                parameterAssistant.populateKeyAndTriggerValue(mappedStatement, parameter, entityMetaData);
+            }
+        } else {
+            EntityMetaData entityMetaData = EntityMetaDataRegistry.getInstance().get(parameterObject.getClass());
+            parameterAssistant.populateKeyAndTriggerValue(mappedStatement, parameterObject, entityMetaData);
+        }
 
-        //主键处理
+        //id select and set
         if(mappedStatement.getSqlCommandType() == SqlCommandType.INSERT) {
             if (executeBefore) {
                 if (parameters != null) {
@@ -72,16 +81,6 @@ public class TriggerValue4SelectKeyGenerator extends SelectKeyGenerator {
                 }
 
             }
-        }
-
-        if (parameters != null) {
-            for (Object parameter : parameters) {
-                EntityMetaData entityMetaData = EntityMetaDataRegistry.getInstance().get(parameter.getClass());
-                parameterAssistant.populateKeyAndTriggerValue(mappedStatement, parameter, entityMetaData);
-            }
-        } else {
-            EntityMetaData entityMetaData = EntityMetaDataRegistry.getInstance().get(parameterObject.getClass());
-            parameterAssistant.populateKeyAndTriggerValue(mappedStatement, parameterObject, entityMetaData);
         }
     }
 

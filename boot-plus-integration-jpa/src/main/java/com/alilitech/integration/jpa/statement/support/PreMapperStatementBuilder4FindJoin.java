@@ -59,10 +59,9 @@ public class PreMapperStatementBuilder4FindJoin extends PreMapperStatementBuilde
         String tableNameAlias = "t1";
         String tableName = entityMetaData.getTableName();
 
-        PartTree partTree = new PartTree(methodDefinition.getMethodName(), null, methodDefinition);
+        PartTree partTree = new PartTree(null, methodDefinition);
 
-        RenderContext context = new RenderContext();
-
+        RenderContext context = new RenderContext(joinTableNameAlias, null);
         partTree.render(context);
 
         //sql parts
@@ -79,15 +78,10 @@ public class PreMapperStatementBuilder4FindJoin extends PreMapperStatementBuilde
                 joinTableNameAlias+ "." + methodDefinition.getInverseReferencedColumnName(),
                 "=",
                 tableNameAlias + "." + methodDefinition.getInverseColumnName(),
-                context.getScriptBuilder().toString()
+                context.getScript()
         );
 
-
-        //predicate = new Predicate(expression, null, methodDefinition);
-
         return buildScript(sqlParts);
-
-        //return "<script>" + script + buildWhere(joinTableNameAlias) + "</script>";
     }
 
     @Override

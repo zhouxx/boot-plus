@@ -24,9 +24,11 @@ import com.alilitech.integration.jpa.meta.ColumnMetaData;
 import com.alilitech.integration.jpa.meta.EntityMetaData;
 import com.alilitech.integration.jpa.parameter.GenerationType;
 import com.alilitech.integration.jpa.parameter.TriggerValue4Jdbc3KeyGenerator;
+import com.alilitech.integration.jpa.parameter.TriggerValue4NoKeyGenerator;
 import com.alilitech.integration.jpa.parameter.TriggerValue4SelectKeyGenerator;
 import com.alilitech.integration.jpa.primary.key.KeyGenerator4Auto;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
+import com.alilitech.integration.jpa.statement.parser.SimplePart;
 import com.alilitech.integration.jpa.util.ResultMapIdUtils;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -36,6 +38,8 @@ import org.apache.ibatis.executor.keygen.SelectKeyGenerator;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -48,6 +52,8 @@ import java.util.List;
  * @since 1.0
  */
 public abstract class PreMapperStatementBuilder extends BaseBuilder {
+
+    protected Logger logger = LoggerFactory.getLogger(PreMapperStatementBuilder.class);
 
     protected MapperBuilderAssistant builderAssistant;
 
@@ -77,7 +83,10 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
         String id = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName();
         LanguageDriver langDriver = getLanguageDriver(null);
-        SqlSource sqlSource = this.buildSqlSource(buildSQL(), langDriver);
+
+        String scriptString = buildSQL();
+        logger.trace("script==>" + scriptString);
+        SqlSource sqlSource = this.buildSqlSource(scriptString, langDriver);
 
         preMapperStatement.setId(id);
         preMapperStatement.setLang(langDriver);
@@ -86,7 +95,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
         // dynamic & has parameters
         preMapperStatement.setStatementType(StatementType.PREPARED);
-        // unknow
+        // unknown
         preMapperStatement.setResultSetType(ResultSetType.FORWARD_ONLY);
 
         buildPreMapperStatementExtend(preMapperStatement, genericType);
@@ -105,9 +114,11 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     protected abstract String buildSQL() ;
 
-    protected abstract Class<?> getParameterTypeClass() ;
+    protected abstract Class<?> getParameterTypeClass();
 
-    /** 创建mybatis SqlSource */
+    /**
+     * create mybatis SqlSource
+     */
     private SqlSource buildSqlSource(String sqlScript, LanguageDriver languageDriver) {
         return languageDriver.createSqlSource(configuration, sqlScript, getParameterTypeClass());
     }
@@ -137,17 +148,25 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         return new PartTree(expression, entityMetaData.getEntityType(), methodDefinition);
     }
 
+    /**
+     * build simple predicate part
+     * @param property
+     * @return
+     */
+    protected SimplePart buildSimplePart(String property) {
+        return new SimplePart(property, entityMetaData.getEntityType(), methodDefinition);
+    }
 
     /**
-     * build sort sql part
+     * build sort sql script
      */
     protected String buildSort() {
         if(methodDefinition.getSortIndex() > -1) {
             String paramName = methodDefinition.isOneParameter() ? "_parameter" : ("arg" + methodDefinition.getSortIndex());
             StringBuilder orderString = new StringBuilder()
                     .append("<if test=\"" + paramName + "!= null\">")
-                    .append("<foreach item=\"item\" index=\"index\" open=\"order by\" separator=\",\" close=\"\" collection=\"" + paramName + ".orders\">")
-                    .append("${item.property} ${item.direction} ")
+                    .append("<foreach item=\"item\" index=\"index\" open=\"order by\" separator=\", \" close=\"\" collection=\"" + paramName + ".orders\">")
+                    .append("${item.property} ${item.direction}")
                     .append("</foreach>")
                     .append("</if>");
             return orderString.toString();
@@ -167,57 +186,38 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         return script.toString();
     }
 
-
-
-    /*protected String buildWhere() {
-        String condition = StatementAssistant.buildCondition(methodDefinition, entityMetaData);
-        return " " + condition;
-    }*/
-
-    /*protected String buildSort() {
-        String orderBy = StatementAssistant.buildSort(methodDefinition);
-        return " " + orderBy;
-    }*/
-
-    /*protected String buildWhere(String alias) {
-        String condition = StatementAssistant.buildCondition(methodDefinition, entityMetaData, alias);
-        return " " + condition;
-    }*/
-
     /**
      * 设置无key生成器
      * @param preMapperStatement
      */
     protected void setNoKeyGenerator(PreMapperStatement preMapperStatement) {
-        preMapperStatement.setKeyGenerator(new NoKeyGenerator());
+        preMapperStatement.setKeyGenerator(new TriggerValue4NoKeyGenerator());
         preMapperStatement.setKeyColumn(null);
         preMapperStatement.setKeyProperty(null);
     }
 
     /**
-     * 设置JDBC类型key生成器，
+     * set jdbc key generator
      * @param preMapperStatement
      */
     protected void setTriggerValue4Jdbc3KeyGenerator(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
-        //jdbc
         preMapperStatement.setKeyColumn(entityMetaData.getPrimaryColumnMetaData().getColumnName());
         preMapperStatement.setKeyProperty(entityMetaData.getPrimaryColumnMetaData().getProperty());
     }
 
     /**
-     * 设置JDBC类型key生成器，
+     * set jdbc key generator, but not callback
      * @param preMapperStatement
      */
     protected void setTriggerValue4Jdbc3KeyGeneratorButNotCallBack(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
-        //jdbc
         preMapperStatement.setKeyColumn(null);
         preMapperStatement.setKeyProperty(null);
     }
 
     /**
-     * 设置Select类型key生成器，需要执行一次sql，得到key
+     * set select(sequence) key generator, need execute the sql
      * @param preMapperStatement
      */
     protected void setTriggerValue4SelectKeyGenerator(PreMapperStatement preMapperStatement) {

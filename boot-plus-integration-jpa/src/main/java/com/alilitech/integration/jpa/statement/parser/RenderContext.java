@@ -14,16 +14,48 @@
  *    limitations under the License.
  */
 package com.alilitech.integration.jpa.statement.parser;
+
 /**
+ * render context
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
 public class RenderContext {
 
+    /**
+     * the builder to build script
+     */
     private StringBuilder scriptBuilder = new StringBuilder();
 
-    public StringBuilder getScriptBuilder() {
-        return scriptBuilder;
+    /**
+     * variable alias
+     */
+    private String variableAlias;
+
+    /**
+     * argument alias
+     */
+    private String argAlias;
+
+    public RenderContext() {
+    }
+
+
+    public RenderContext(String variableAlias, String argAlias) {
+        this.variableAlias = variableAlias;
+        this.argAlias = argAlias;
+    }
+
+    public String getVariableAlias() {
+        return variableAlias;
+    }
+
+    public String getArgAlias() {
+        return argAlias;
+    }
+
+    public String getScript() {
+        return scriptBuilder.toString();
     }
 
     public void clearScript() {

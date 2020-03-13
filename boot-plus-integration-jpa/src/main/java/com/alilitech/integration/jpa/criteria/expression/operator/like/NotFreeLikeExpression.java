@@ -31,6 +31,9 @@ public class NotFreeLikeExpression<T> extends OperatorExpression<T> {
 
     @Override
     public void render(RenderContext renderContext, Expression<T>...expressions) {
+        //valid args quantity
+        validArgsQuantity(expressions);
+
         renderContext.renderString("not like");
         renderContext.renderBlank();
         expressions[0].render(renderContext);

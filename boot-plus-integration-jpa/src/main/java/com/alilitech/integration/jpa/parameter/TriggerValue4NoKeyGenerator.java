@@ -18,7 +18,7 @@ package com.alilitech.integration.jpa.parameter;
 import com.alilitech.integration.jpa.EntityMetaDataRegistry;
 import com.alilitech.integration.jpa.meta.EntityMetaData;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
+import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 
@@ -27,14 +27,12 @@ import java.util.Collection;
 
 
 /**
- * 两个功能：
- * 一个是为UUID，设置主键，还有主键回显。
- * 一个是设置默认值
+ * 设置默认值
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class TriggerValue4Jdbc3KeyGenerator extends Jdbc3KeyGenerator {
+public class TriggerValue4NoKeyGenerator extends NoKeyGenerator {
 
     private ParameterAssistant parameterAssistant = new ParameterAssistant();
 
@@ -46,7 +44,7 @@ public class TriggerValue4Jdbc3KeyGenerator extends Jdbc3KeyGenerator {
         }
 
         Collection<Object> parameters = parameterAssistant.getParameters(parameterObject);
-        //trigger auto set value and id auto set
+        //trigger auto set value
         if (parameters != null) {
             for (Object parameter : parameters) {
                 EntityMetaData entityMetaData = EntityMetaDataRegistry.getInstance().get(parameter.getClass());

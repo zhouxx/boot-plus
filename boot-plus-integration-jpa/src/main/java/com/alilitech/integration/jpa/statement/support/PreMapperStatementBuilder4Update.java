@@ -21,6 +21,7 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.StatementAssistant;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.jdbc.SQL;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -47,6 +48,8 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
 
     @Override
     protected String buildSQL() {
+        RenderContext renderContext = new RenderContext();
+        buildSimplePart(entityMetaData.getPrimaryColumnMetaData().getProperty()).render(renderContext);
 
         return new SQL() {
             {
@@ -57,7 +60,7 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
                     }
                     SET(columnMetaData.getColumnName() + " = " + StatementAssistant.resolveSqlParameterBySysFunction(columnMetaData, SqlCommandType.UPDATE));
                 }
-                WHERE(StatementAssistant.buildPrimaryKeyCondition(entityMetaData));
+                WHERE(renderContext.getScript());
             }
         }.toString();
     }

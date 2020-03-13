@@ -30,6 +30,9 @@ public class IsNullExpression<T> extends ComparisonExpression<T> {
 
     @Override
     public void render(RenderContext renderContext, Expression<T>...expressions) {
+        //valid args quantity
+        validArgsQuantity(expressions);
+
         renderContext.renderString("is null");
     }
 

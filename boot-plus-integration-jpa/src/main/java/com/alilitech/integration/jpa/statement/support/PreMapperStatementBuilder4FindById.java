@@ -19,7 +19,6 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.definition.GenericType;
-import com.alilitech.integration.jpa.statement.parser.PartTree;
 import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -62,7 +61,7 @@ public class PreMapperStatementBuilder4FindById extends PreMapperStatementBuilde
                 entityMetaData.getColumnNames(),
                 "FROM",
                 entityMetaData.getTableName(),
-                context.getScriptBuilder().toString()
+                context.getScript()
         );
 
         return buildScript(sqlParts);

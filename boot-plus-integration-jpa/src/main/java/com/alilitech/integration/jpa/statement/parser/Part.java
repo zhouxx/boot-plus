@@ -52,17 +52,16 @@ public class Part implements Render {
 
 	private int argumentIndex;
 
-	private String alias;
 	/**
 	 * Creates a new {@link Part} from the given method name part, the {@link Class} the part originates from and the
 	 * start parameter argumentIndex.
 	 * @param source must not be {@literal null}.
-	 * @param clazz
+	 * @param clazz domain Class
 	 * @param argumentIndex
 	 */
 	public Part(String source, Optional<Class> clazz, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
 
-		Assert.hasText(source, "Part source must not be null or emtpy!");
+		Assert.hasText(source, "Part source must not be null or empty!");
 		//Assert.notNull(clazz, "Type must not be null!");
 
 		String partToUse = detectAndSetIgnoreCase(source);
@@ -219,25 +218,25 @@ public class Part implements Render {
 
 		//替换占位符为arg0，arg1...
 		if(type.getNumberOfArguments() > 0) {
+
 			if(this.isOneParameter()) {
 				typeValue = typeValue.replaceAll("#\\{0\\}", "#{_parameter}");
 				typeValue = typeValue.replaceAll("@\\{0\\}", "list");
 			} else {
 				for(int i=0; i<this.getNumberOfArguments(); i++) {
-					if(StringUtils.isEmpty(alias)) {
+					if(StringUtils.isEmpty(context.getArgAlias())) {
 						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{arg" + (argumentIndex +i) + "}");
 						typeValue = typeValue.replaceAll("@\\{" + i +  "\\}", "arg" + (argumentIndex +i));
 					} else {
-						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{" + alias + "." + propertyPath.getName() + "}");
+						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{" + context.getArgAlias() + "." + propertyPath.getName() + "}");
 					}
 				}
 			}
 		}
 
 		if(testCondition == null) {
-			context.renderString("AND");
-			context.renderBlank();
-			context.renderString(propertyPath.getColumnName());
+			context.renderString(" AND ");
+			context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? propertyPath.getColumnName() : context.getVariableAlias() + "." + propertyPath.getColumnName());
 			context.renderBlank();
 			context.renderString(typeValue);
 			// String.format("And %s %s", propertyPath.getColumnName(), typeValue);
@@ -258,20 +257,20 @@ public class Part implements Render {
 
 		List<String> conditionWithArgs = conditions.stream().map(s -> paraName + " " + s).collect(Collectors.toList());
 
+		//表示有条件
 		if(conditionWithArgs.size() > 0) {
 			context.renderString("<if test='");
 			context.renderString(StringUtils.collectionToDelimitedString(conditionWithArgs," and "));
-			context.renderString("'>AND");
-			context.renderBlank();
-			context.renderString(propertyPath.getColumnName());
+			context.renderString("'>");
+			context.renderString(" AND ");
+			context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? propertyPath.getColumnName() : context.getVariableAlias() + "." + propertyPath.getColumnName());
 			context.renderBlank();
 			context.renderString(typeValue);
 			context.renderString("</if>");
 			//String.format("<if test='" + StringUtils.collectionToDelimitedString(conditionWithArgs," and ") + "'>AND %s %s</if>", propertyPath.getColumnName(), typeValue);
 		} else {
-			context.renderString("AND");
-			context.renderBlank();
-			context.renderString(propertyPath.getColumnName());
+			context.renderString(" AND ");
+			context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? propertyPath.getColumnName() : context.getVariableAlias() + "." + propertyPath.getColumnName());
 			context.renderBlank();
 			context.renderString(typeValue);
 			//String.format("AND %s %s", propertyPath.getColumnName(), typeValue);
@@ -478,8 +477,6 @@ public class Part implements Render {
 
 		private String[] conditions;
 
-		private int index;
-
 		public TestCondition() {}
 
 		public TestCondition(boolean notNull, boolean notEmpty, String[] conditions) {
@@ -512,12 +509,5 @@ public class Part implements Render {
 			this.conditions = conditions;
 		}
 
-		public int getIndex() {
-			return index;
-		}
-
-		public void setIndex(int index) {
-			this.index = index;
-		}
 	}
 }

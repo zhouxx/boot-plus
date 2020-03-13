@@ -50,7 +50,7 @@ public class CriteriaQuery<T> {
 
     public CriteriaQuery where(PredicateExpression ... predicateExpressions) {
         new CompoundPredicateExpression<T>(booleanOperator, predicateExpressions).render(renderContext);
-        whereScript = renderContext.getScriptBuilder().toString();
+        whereScript = renderContext.getScript();
         paramValues = renderContext.getParamValues();
         renderContext.clearScript();
         return this;
@@ -65,14 +65,10 @@ public class CriteriaQuery<T> {
                 orderExpression.render(renderContext);
                 split = ", ";
             }
-            orderByScript = renderContext.getScriptBuilder().toString();
+            orderByScript = renderContext.getScript();
         }
         return this;
     }
-
-    /*public RenderContext getRenderContext() {
-        return renderContext;
-    }*/
 
     public String getWhereScript() {
         return whereScript;

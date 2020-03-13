@@ -50,8 +50,8 @@ public class RenderContext {
         return paramIndex.getAndIncrement();
     }
 
-    public StringBuilder getScriptBuilder() {
-        return scriptBuilder;
+    public String getScript() {
+        return scriptBuilder.toString();
     }
 
     public String getParamPrefixPrefix() {

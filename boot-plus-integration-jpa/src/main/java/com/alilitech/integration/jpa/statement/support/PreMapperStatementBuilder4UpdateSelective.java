@@ -23,6 +23,7 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.StatementAssistant;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -83,6 +84,9 @@ public class PreMapperStatementBuilder4UpdateSelective extends PreMapperStatemen
 
         sets.append("</trim>");
 
+        RenderContext renderContext = new RenderContext();
+        buildSimplePart(entityMetaData.getPrimaryColumnMetaData().getProperty()).render(renderContext);
+
         //since 1.1
         List<String> sqlParts = Arrays.asList(
                 "UPDATE",
@@ -90,7 +94,7 @@ public class PreMapperStatementBuilder4UpdateSelective extends PreMapperStatemen
                 "SET",
                 sets.toString(),
                 "WHERE",
-                StatementAssistant.buildPrimaryKeyCondition(entityMetaData)
+                renderContext.getScript()
         );
 
         return buildScript(sqlParts);

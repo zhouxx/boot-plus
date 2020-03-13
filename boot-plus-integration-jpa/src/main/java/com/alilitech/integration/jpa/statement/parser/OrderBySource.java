@@ -92,7 +92,7 @@ public class OrderBySource implements Render {
             Direction direction = StringUtils.hasText(directionString) ? Direction.fromString(directionString) : Direction.ASC;
             //转换排序字段
             String propertyName = StringUtils.uncapitalize(propertyString);
-            String columnName = null;
+            String columnName;
             if(!domainClass.isPresent()) {
                 columnName = CommonUtils.camelToUnderline(propertyName);
             } else {
@@ -106,7 +106,15 @@ public class OrderBySource implements Render {
     public void render(RenderContext context) {
         if(!CollectionUtils.isEmpty(orders)) {
             context.renderString("order by ");
-            context.renderString(StringUtils.collectionToDelimitedString(orders, ", "));
+            String delim = "";
+            for(Order order : orders) {
+                context.renderString(delim);
+                context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? order.getProperty() : context.getVariableAlias() + "." + order.getProperty());
+                context.renderBlank();
+                context.renderString(order.getDirection().toString());
+                delim = ", ";
+            }
+            //context.renderString(StringUtils.collectionToDelimitedString(orders, ", "));
         }
 
     }

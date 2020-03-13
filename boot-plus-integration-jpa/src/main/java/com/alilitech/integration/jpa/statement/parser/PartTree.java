@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  * @author Thomas Darimont
  * @author Christoph Strobl
  * @author Mark Paluch
+ * @author Zhou Xiaoxiang
  */
 public class PartTree implements Render {
 
@@ -77,12 +78,19 @@ public class PartTree implements Render {
      */
     private final Predicate predicate;
 
+
+    public PartTree(Class<?> domainClass, MethodDefinition methodDefinition) {
+        this(methodDefinition.getMethodName(), domainClass, methodDefinition);
+    }
+
     /**
      * Creates a new {@link PartTree} by parsing the given {@link String}.
      *
      * @param source the {@link String} to parse
      * @param domainClass the domain class to check individual parts against to ensure they refer to a property of the
      *          class
+     * @param methodDefinition method and statement definition
+     *
      */
     public PartTree(String source, Class<?> domainClass, MethodDefinition methodDefinition) {
 
@@ -97,8 +105,6 @@ public class PartTree implements Render {
                 || PREFIX_TEMPLATE_VIRTUAL.matcher(source).find()
                 || PREFIX_TEMPLATE_VIRTUAL_JOIN.matcher(source).find())
         ) {
-            //this.subject = new Subject(Optional.empty());
-            //this.predicate = new Predicate(source, domainClass, methodDefinition);
             // when can not resolve the source, throw the exception
             throw new StatementNotSupportException(methodDefinition.getNameSpace(), methodDefinition.getMethodName());
         } else if(matcherVirtual.find()) {
@@ -213,7 +219,7 @@ public class PartTree implements Render {
          * Creates a new {@link OrPart}.
          * @param source the source to split up into {@literal And} parts in turn.
          * @param domainClass the domain class to check the resulting {@link Part}s against.
-         * @param argumentIndex
+         * @param argumentIndex part index is not equal argument index
          */
         OrPart(String source, Optional<Class> domainClass, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
             String[] split = split(source, "And");
@@ -226,30 +232,11 @@ public class PartTree implements Render {
 
         @Override
         public void render(RenderContext context) {
-
-            /*for(int i=0; i<children.size(); i++) {
-                Part part = children.get(i);
-                if(part.getNumberOfArguments() <=0 ) {  //没有参数，不处理
-                    continue;
-                }
-
-                // 将like的信息放入缓存中，后面需要改变其参数
-                if(part.getLikeType() != null) {
-                    if(part.isOneParameter()) {
-                        String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + "._parameter";
-                        LikeContainer.getInstance().put(key, part.getLikeType());
-                    } else {
-                        String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + ".arg" + part.getArgumentIndex();
-                        LikeContainer.getInstance().put(key, part.getLikeType());
-                    }
-                }
-            }*/
-
-            String delim = "";
+            // String delim = "";
             for(Part part : children) {
-                context.renderString(delim);
+                // context.renderString(delim);
                 part.render(context);
-                delim = " ";
+                // delim = " AND ";
             }
 
         }
@@ -309,7 +296,6 @@ public class PartTree implements Render {
          * Returns {@literal true} if {@link Subject} matches {@link #DELETE_BY_TEMPLATE}.
          *
          * @return
-         * @since 1.8
          */
         public boolean isDelete() {
             return delete;
@@ -323,7 +309,6 @@ public class PartTree implements Render {
          * Returns {@literal true} if {@link Subject} matches {@link #EXISTS_BY_TEMPLATE}.
          *
          * @return
-         * @since 1.13
          */
         public boolean isExistsProjection() {
             return exists;
@@ -367,50 +352,13 @@ public class PartTree implements Render {
             String[] parts = split(predicate, ORDER_BY);
 
             if (parts.length > 2) {
-                throw new IllegalArgumentException("OrderBy must not be used more than once in a methodDefinition name!");
+                throw new IllegalArgumentException("OrderBy must not be used more than once in a method name!");
             }
 
             Optional<Class> domainClassOptional = Optional.ofNullable(domainClass);
 
             buildTree(parts[0], domainClassOptional);
             this.orderBySource = (parts.length == 2 ? new OrderBySource(parts[1], domainClassOptional) : OrderBySource.EMPTY);
-
-            //设置参数index
-            /*int index = 0;
-            for(OrPart orPart : nodes) {
-                for(int i=0; i<orPart.children.size(); i++) {
-                    Part part = orPart.children.get(i);
-                    if(part.getNumberOfArguments() <= 0) {  //没有参数，不处理
-                        continue;
-                    }
-
-                    //跳过RowBounds
-                    if(methodDefinition.getParameterDefinitions().get(index).isPage()) {
-                        index ++;
-                        i --;
-                        continue;
-                    }
-                    //跳过Sort
-                    if(methodDefinition.getParameterDefinitions().get(index).isSort()) {
-                        this.orderBySource = null;
-                        index ++;
-                        i --;
-                        continue;
-                    }
-
-                    part.setArgumentIndex(index);
-
-                    //看看有没有ifTest
-                    Part.TestCondition testCondition = getCondition(index, methodDefinition);
-                    if(testCondition != null) {
-                        part.setTestCondition(testCondition);
-                    }
-                    index = index + part.getType().getNumberOfArguments();
-
-                    part.setLikeCache(methodDefinition);
-                }
-            }*/
-
         }
 
         private void buildTree(String source, Optional<Class> domainClassOptional) {
@@ -433,19 +381,17 @@ public class PartTree implements Render {
 
         @Override
         public void render(RenderContext context) {
-            if(this.nodes.size() > 0) {
+            if (this.nodes.size() > 0) {
                 context.renderString("<where>");
-
                 this.nodes.forEach(orPart -> {
                     context.renderString("<trim prefix=\" OR \" prefixOverrides=\"AND\" suffixOverrides=\"AND\">");
                     orPart.render(context);
                     context.renderString("</trim>");
                 });
-
                 context.renderString("</where>");
             }
 
-            if(this.getOrderBySource() != null) {
+            if (this.getOrderBySource() != null) {
                 this.getOrderBySource().render(context);
             }
         }

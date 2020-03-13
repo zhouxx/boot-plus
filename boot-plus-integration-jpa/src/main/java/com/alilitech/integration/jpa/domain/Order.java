@@ -15,8 +15,6 @@
  */
 package com.alilitech.integration.jpa.domain;
 
-import com.alilitech.integration.jpa.util.CommonUtils;
-
 /**
  *
  * @author Zhou Xiaoxiang
@@ -55,14 +53,6 @@ public class Order {
 
     public void setProperty(String property) {
         this.property = property;
-    }
-
-    private String convertProperty(String property) {
-        if(!property.contains("_")) {
-            return CommonUtils.camelToUnderline(property);
-        } else {
-            return property;
-        }
     }
 
     @Override

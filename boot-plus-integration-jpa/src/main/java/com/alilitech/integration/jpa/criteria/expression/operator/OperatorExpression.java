@@ -16,6 +16,8 @@
 package com.alilitech.integration.jpa.criteria.expression.operator;
 
 import com.alilitech.integration.jpa.criteria.expression.AtomicExpression;
+import com.alilitech.integration.jpa.criteria.expression.Expression;
+import com.alilitech.integration.jpa.exception.MybatisJpaException;
 
 /**
  * @author Zhou Xiaoxiang
@@ -30,6 +32,12 @@ public abstract class OperatorExpression<T> implements AtomicExpression<T> {
 
     public int getArgsQuantity() {
         return argsQuantity;
+    }
+
+    protected void validArgsQuantity(Expression<T>...expressions) {
+        if(argsQuantity >= 0 && expressions.length != argsQuantity) {
+            throw new MybatisJpaException("Argument count not match, argument count must be " + argsQuantity + ", but you support " + expressions.length);
+        }
     }
 
 }

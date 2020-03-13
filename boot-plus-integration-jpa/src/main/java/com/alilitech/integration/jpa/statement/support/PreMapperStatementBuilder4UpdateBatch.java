@@ -21,7 +21,7 @@ import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.StatementAssistant;
-import com.alilitech.integration.jpa.statement.parser.PartTree;
+import com.alilitech.integration.jpa.statement.parser.RenderContext;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -52,6 +52,8 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
 
     @Override
     protected String buildSQL() {
+
+
         StringBuilder sets = new StringBuilder();
         for (ColumnMetaData columnMetaData : entityMetaData.getColumnMetaDataMap().values()) {
             if(columnMetaData.isPrimaryKey() || columnMetaData.isJoin()) {
@@ -64,6 +66,8 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
         }
 
         //since 1.1
+        RenderContext renderContext = new RenderContext(null, "rowData");
+        buildSimplePart(entityMetaData.getPrimaryColumnMetaData().getProperty()).render(renderContext);
 
         List<String> sqlParts = Arrays.asList(
                 "<if test=\"_databaseId != 'Oracle'\">",
@@ -74,7 +78,7 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
                 sets.toString(),
                 "</set>",
                 "WHERE",
-                StatementAssistant.buildPrimaryKeyCondition(entityMetaData, "rowData"),
+                renderContext.getScript(),
                 "</foreach>",
                 "</if>",
                 "<if test=\"_databaseId == 'Oracle'\">",
@@ -85,7 +89,7 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
                 sets.toString(),
                 "</set>",
                 "WHERE",
-                StatementAssistant.buildPrimaryKeyCondition(entityMetaData, "rowData"),
+                renderContext.getScript(),
                 "</foreach>",
                 "</if>"
         );

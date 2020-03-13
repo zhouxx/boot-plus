@@ -25,6 +25,6 @@ import com.alilitech.integration.jpa.criteria.CriteriaQuery;
 public class EmptySpecificationBuilder<T> implements SpecificationBuilder<T> {
     @Override
     public void build(CriteriaBuilder cb, CriteriaQuery query) {
-
+        //Do nothing, end the chain
     }
 }
