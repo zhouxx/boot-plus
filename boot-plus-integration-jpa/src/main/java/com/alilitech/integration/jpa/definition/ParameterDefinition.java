@@ -16,8 +16,6 @@
 package com.alilitech.integration.jpa.definition;
 
 import com.alilitech.integration.jpa.criteria.Specification;
-import com.alilitech.integration.jpa.domain.Page;
-import com.alilitech.integration.jpa.domain.Pageable;
 import com.alilitech.integration.jpa.domain.Sort;
 import org.apache.ibatis.session.RowBounds;
 

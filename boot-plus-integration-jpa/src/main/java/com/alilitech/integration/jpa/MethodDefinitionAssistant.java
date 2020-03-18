@@ -19,7 +19,6 @@ import com.alilitech.integration.jpa.definition.JoinStatementDefinition;
 import com.alilitech.integration.jpa.definition.MapperDefinition;
 import com.alilitech.integration.jpa.definition.MethodDefinition;
 import com.alilitech.integration.jpa.definition.ParameterDefinition;
-import com.alilitech.integration.jpa.domain.Order;
 import com.alilitech.integration.jpa.meta.JoinColumnMetaData;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -48,20 +47,16 @@ public class MethodDefinitionAssistant {
         //直接关联，适用于OneToOne or OneToMany
         if(StringUtils.isEmpty(joinColumnMetaData.getJoinTableName())) {
             methodName = "findWith" + joinColumnMetaData.getReferencedProperty().substring(0, 1).toUpperCase() + joinColumnMetaData.getReferencedProperty().substring(1);
-
-            //子查询排序
-            if(!CollectionUtils.isEmpty(joinColumnMetaData.getOrders())) {
-                methodName += "OrderBy";
-                for(Order order : joinColumnMetaData.getOrders()) {
-                    methodName += (order.getProperty().substring(0, 1).toUpperCase() + order.getProperty().substring(1) + order.getDirection().toMethodNameString());
-                }
-            }
-
         } else {
             methodName = "findJoinWith" + joinColumnMetaData.getReferencedProperty().substring(0, 1).toUpperCase() + joinColumnMetaData.getReferencedProperty().substring(1);
         }
 
         MethodDefinition referencedMethodDefinition = new MethodDefinition(referencedMapperDefinition.getNameSpace(), methodName);
+
+        //设置子查询容器
+        if(joinColumnMetaData.getSubQuery() != null) {
+            SubQueryContainer.getInstance().put(referencedMethodDefinition.getStatementId(), joinColumnMetaData.getSubQuery());
+        }
 
         //多对多要提供中间表相关
         if(!StringUtils.isEmpty(joinColumnMetaData.getJoinTableName())) {

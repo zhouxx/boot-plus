@@ -19,7 +19,7 @@ package com.alilitech.integration.jpa.anotation;
 import java.lang.annotation.*;
 
 /**
- * The interfaces include the annotation indicate that the mapper is not parsed by jpa
+ * The interfaces include the annotation indicate that the mapper will be not parsed by jpa
  *
  * @author Zhou Xiaoxiang
  * @since 1.0

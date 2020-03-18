@@ -23,8 +23,8 @@ import java.lang.annotation.Documented;
 
 /**
  * trigger with code
- * 当是javaCode的时候通过调用方法，这样通过调用方法可以获得动态对象
- * 当是DatabaseFunction的时候，直接取value
+ * when {@link TriggerValueType#JavaCode} ,invoke the methodName of valueClass to generate the value
+ * otherwise {@link TriggerValueType#DatabaseFunction}, just replace the placeholder with supported value
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
@@ -43,7 +43,7 @@ public @interface Trigger {
     String value() default "";
 
     /**
-     * force to set the value, whether the value is present or null
+     * force to set the value, whether the value of domain's field is present or null
      * only support {@link TriggerValueType#DatabaseFunction}
      * @return
      */

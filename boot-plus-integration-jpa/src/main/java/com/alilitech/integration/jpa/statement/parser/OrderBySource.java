@@ -15,10 +15,9 @@
  */
 package com.alilitech.integration.jpa.statement.parser;
 
-import com.alilitech.integration.jpa.EntityMetaDataRegistry;
+import com.alilitech.integration.jpa.definition.MethodDefinition;
 import com.alilitech.integration.jpa.domain.Direction;
 import com.alilitech.integration.jpa.domain.Order;
-import com.alilitech.integration.jpa.util.CommonUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -51,7 +50,7 @@ public class OrderBySource implements Render {
      * @param clause must not be {@literal null}.
      */
     public OrderBySource(String clause) {
-        this(clause, null);
+        this(clause, null, null);
     }
 
     public OrderBySource(List<Order> orders) {
@@ -65,7 +64,7 @@ public class OrderBySource implements Render {
      * @param clause must not be {@literal null}.
      * @param domainClass can be {@literal null}.
      */
-    public OrderBySource(String clause, Optional<Class> domainClass) {
+    public OrderBySource(String clause, Optional<Class> domainClass, MethodDefinition methodDefinition) {
 
         this.orders = new ArrayList<>();
 
@@ -92,12 +91,9 @@ public class OrderBySource implements Render {
             Direction direction = StringUtils.hasText(directionString) ? Direction.fromString(directionString) : Direction.ASC;
             //转换排序字段
             String propertyName = StringUtils.uncapitalize(propertyString);
-            String columnName;
-            if(!domainClass.isPresent()) {
-                columnName = CommonUtils.camelToUnderline(propertyName);
-            } else {
-                columnName = EntityMetaDataRegistry.getInstance().get(domainClass.get()).getColumnMetaDataMap().get(propertyName).getColumnName();
-            }
+            //生成PropertyPath
+            PropertyPath propertyPath = PropertyPath.from(propertyName, domainClass, methodDefinition);
+            String columnName = propertyPath.getColumnName();
             this.orders.add(new Order(direction, columnName));
         }
     }

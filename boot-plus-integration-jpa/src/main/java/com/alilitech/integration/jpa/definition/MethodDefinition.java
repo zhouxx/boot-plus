@@ -256,4 +256,8 @@ public class MethodDefinition {
         return count;
     }
 
+    public String getStatementId() {
+        return nameSpace + "." + methodName;
+    }
+
 }

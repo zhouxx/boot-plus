@@ -29,7 +29,7 @@ import java.io.StringWriter;
 public class PropertyNotFoundFailureAnalyzer extends AbstractFailureAnalyzer<PropertyNotFoundException> {
     @Override
     protected FailureAnalysis analyze(Throwable rootFailure, PropertyNotFoundException cause) {
-        return new FailureAnalysis(getDescription(cause), "Check the statement: " + cause.getStatement(), cause);
+        return new FailureAnalysis(getDescription(cause), "Check the statement: " + cause.getStatement() + ", or check the SubQuery definition", cause);
     }
 
     private String getDescription(PropertyNotFoundException ex) {

@@ -35,6 +35,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface SubQuery {
 
+    Predicate[] predicates() default {};
+
     Order[] orders() default {};
 
     @interface Order {
@@ -42,6 +44,14 @@ public @interface SubQuery {
         String property();
 
         Direction direction() default Direction.ASC;
+
+    }
+
+    @interface Predicate {
+
+        String property();
+
+        String condition();
 
     }
 

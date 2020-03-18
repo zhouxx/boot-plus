@@ -358,7 +358,7 @@ public class PartTree implements Render {
             Optional<Class> domainClassOptional = Optional.ofNullable(domainClass);
 
             buildTree(parts[0], domainClassOptional);
-            this.orderBySource = (parts.length == 2 ? new OrderBySource(parts[1], domainClassOptional) : OrderBySource.EMPTY);
+            this.orderBySource = (parts.length == 2 ? new OrderBySource(parts[1], domainClassOptional, methodDefinition) : OrderBySource.EMPTY);
         }
 
         private void buildTree(String source, Optional<Class> domainClassOptional) {

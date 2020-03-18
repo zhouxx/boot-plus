@@ -15,12 +15,15 @@
  */
 package com.alilitech.integration.jpa.statement.support;
 
+import com.alilitech.integration.jpa.SubQueryContainer;
+import com.alilitech.integration.jpa.anotation.SubQuery;
 import com.alilitech.integration.jpa.definition.GenericType;
 import com.alilitech.integration.jpa.statement.MethodType;
 import com.alilitech.integration.jpa.statement.PreMapperStatement;
 import com.alilitech.integration.jpa.statement.PreMapperStatementBuilder;
 import com.alilitech.integration.jpa.statement.parser.PartTree;
 import com.alilitech.integration.jpa.statement.parser.RenderContext;
+import com.alilitech.integration.jpa.statement.parser.SubQueryPartTree;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.session.Configuration;
@@ -85,6 +88,15 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
 
         RenderContext context = new RenderContext();
         partTree.render(context);
+
+        /**
+         * if {@link SubQueryContainer} containers statementId, parse the predicates and orders
+         */
+        if(SubQueryContainer.getInstance().isExist(methodDefinition.getStatementId())) {
+            SubQuery subQuery = SubQueryContainer.getInstance().get(methodDefinition.getStatementId());
+            SubQueryPartTree subQueryPartTree = new SubQueryPartTree(subQuery, entityMetaData.getEntityType(), methodDefinition);
+            subQueryPartTree.render(context);
+        }
 
         List<String> sqlParts = Arrays.asList(
                 operation,

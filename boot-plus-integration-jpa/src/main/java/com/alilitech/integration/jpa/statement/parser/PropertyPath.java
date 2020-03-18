@@ -63,7 +63,7 @@ public class PropertyPath {
             columnName = CommonUtils.camelToUnderline(name);
         } else {
             if(!EntityMetaDataRegistry.getInstance().get(clazzOptional.get()).getColumnMetaDataMap().containsKey(name)) {
-                throw new PropertyNotFoundException(clazzOptional.get(), name, methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName(), "Can not found property!");
+                throw new PropertyNotFoundException(clazzOptional.get(), name, methodDefinition.getStatementId(), "Can not found property!");
             }
             columnName = EntityMetaDataRegistry.getInstance().get(clazzOptional.get()).getColumnMetaDataMap().get(name).getColumnName();
         }

@@ -191,16 +191,9 @@ public class ColumnMetaData {
                 }
             }
 
-            //设置子查询排序
+            //设置子查询条件和排序
             if(field.isAnnotationPresent(SubQuery.class)) {
-                if(field.getAnnotation(SubQuery.class).orders().length > 0) {
-                    List<Order> orders = new ArrayList<>();
-                    SubQuery.Order[] subOrders = field.getAnnotation(SubQuery.class).orders();
-                    for(SubQuery.Order order : subOrders) {
-                        orders.add(new Order(order.direction(), order.property()));
-                    }
-                    joinColumnMetaData.setOrders(orders);
-                }
+                joinColumnMetaData.setSubQuery(field.getAnnotation(SubQuery.class));
             }
         }
     }

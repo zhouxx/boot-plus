@@ -17,7 +17,7 @@ package com.alilitech.integration.jpa.meta;
 
 
 import com.alilitech.integration.jpa.JoinType;
-import com.alilitech.integration.jpa.domain.Order;
+import com.alilitech.integration.jpa.anotation.SubQuery;
 
 import javax.persistence.JoinColumn;
 import java.lang.reflect.Type;
@@ -73,7 +73,7 @@ public class JoinColumnMetaData {
 
     private List<String> includes;
 
-    private List<Order> orders;
+    private SubQuery subQuery;
 
     public JoinType getJoinType() {
         return joinType;
@@ -235,11 +235,11 @@ public class JoinColumnMetaData {
         this.includes = includes;
     }
 
-    public List<Order> getOrders() {
-        return orders;
+    public SubQuery getSubQuery() {
+        return subQuery;
     }
 
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
+    public void setSubQuery(SubQuery subQuery) {
+        this.subQuery = subQuery;
     }
 }
