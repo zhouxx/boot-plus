@@ -69,7 +69,6 @@ public class SecurityTokenUtils extends TokenUtils {
         user.setBizUser(bizUser);
 
         return new UsernamePasswordAuthenticationToken(user, "", authorities);
-
     }
 
     public void removeToken(String token) {

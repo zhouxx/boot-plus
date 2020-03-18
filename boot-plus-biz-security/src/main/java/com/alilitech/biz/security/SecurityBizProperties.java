@@ -17,11 +17,10 @@ package com.alilitech.biz.security;
 
 import com.alilitech.biz.security.domain.BizUser;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,17 +40,17 @@ public class SecurityBizProperties {
     /**
      * ignore url patterns that not managed by security
      */
-    private String ignorePatterns = "/*.js,/*.css,/*.html,/*.png,/webjars/**,/swagger-resources/**,/v2/**,/actuator,/actuator/**";
+    private List<RequestMatcher> ignorePatterns;
 
     /**
      * permit all url patterns that not authorization
      */
-    private String permitAllPatterns;
+    private List<RequestMatcher> permitAllPatterns;
 
     /**
      * permit all username s that not authorization
      */
-    private String permitAllUserNames;
+    private List<String> permitAllUserNames;
 
 
     /**
@@ -77,44 +76,34 @@ public class SecurityBizProperties {
         this.cors = cors;
     }
 
-    public String getIgnorePatterns() {
+    public List<RequestMatcher> getIgnorePatterns() {
         return ignorePatterns;
     }
 
-    public void setIgnorePatterns(String ignorePatterns) {
+    public void setIgnorePatterns(List<RequestMatcher> ignorePatterns) {
         this.ignorePatterns = ignorePatterns;
     }
 
-    public String getPermitAllPatterns() {
+    public List<RequestMatcher> getPermitAllPatterns() {
+        if(this.permitAllPatterns == null) {
+            return Collections.EMPTY_LIST;
+        }
         return permitAllPatterns;
     }
 
-    public void setPermitAllPatterns(String permitAllPatterns) {
+    public void setPermitAllPatterns(List<RequestMatcher> permitAllPatterns) {
         this.permitAllPatterns = permitAllPatterns;
     }
 
-    public List<String> getPermitAllUrls() {
-        if(StringUtils.isEmpty(this.permitAllPatterns)) {
-            return Collections.EMPTY_LIST;
-        }
-        String[] array = StringUtils.tokenizeToStringArray(this.permitAllPatterns, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-        return Arrays.asList(array);
-    }
-
-    public String getPermitAllUserNames() {
-        return permitAllUserNames;
-    }
-
-    public void setPermitAllUserNames(String permitAllUserNames) {
-        this.permitAllUserNames = permitAllUserNames;
-    }
-
-    public List<String> getMaxAuthUsers() {
+    public List<String> getPermitAllUserNames() {
         if(StringUtils.isEmpty(this.permitAllUserNames)) {
             return Collections.EMPTY_LIST;
         }
-        String[] array = StringUtils.tokenizeToStringArray(this.permitAllUserNames, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-        return Arrays.asList(array);
+        return permitAllUserNames;
+    }
+
+    public void setPermitAllUserNames(List<String> permitAllUserNames) {
+        this.permitAllUserNames = permitAllUserNames;
     }
 
     public String getBizUserClassName() {
@@ -139,6 +128,27 @@ public class SecurityBizProperties {
 
     public void setJwt(JWT jwt) {
         this.jwt = jwt;
+    }
+
+    public static class RequestMatcher {
+        private String pattern;
+        private HttpMethod method = HttpMethod.GET;
+
+        public String getPattern() {
+            return pattern;
+        }
+
+        public void setPattern(String pattern) {
+            this.pattern = pattern;
+        }
+
+        public HttpMethod getMethod() {
+            return method;
+        }
+
+        public void setMethod(HttpMethod method) {
+            this.method = method;
+        }
     }
 
     public static class JWT {

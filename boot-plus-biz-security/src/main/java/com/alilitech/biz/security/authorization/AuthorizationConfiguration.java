@@ -18,7 +18,6 @@ package com.alilitech.biz.security.authorization;
 import com.alilitech.biz.security.ExtensibleSecurity;
 import com.alilitech.biz.security.SecurityBizProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -52,8 +51,9 @@ public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAd
     public void configure(WebSecurity web) throws Exception {
         //ignore urls
         if(!StringUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
-            String patterns[] = StringUtils.tokenizeToStringArray(securityBizProperties.getIgnorePatterns(), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-            web.ignoring().antMatchers(patterns);
+            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> {
+                web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern());
+            });
         }
     }
 

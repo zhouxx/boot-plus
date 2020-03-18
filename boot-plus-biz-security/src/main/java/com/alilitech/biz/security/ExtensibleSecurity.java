@@ -97,7 +97,7 @@ public interface ExtensibleSecurity<T> {
      */
     default <T extends BizUser> T loadUserByUsername(String username, boolean maxAuthUser) {
         List<String> roles = new ArrayList<>(Arrays.asList("USER"));
-        BizUser bizUser = new BizUser(username, roles);
+        BizUser bizUser = new BizUser(username, username, roles);
         bizUser.setUserId("1");
         return (T) bizUser;
     }

@@ -47,7 +47,7 @@ public class UserAuthenticationService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        boolean maxAuth = securityBizProperties.getMaxAuthUsers().contains(username);
+        boolean maxAuth = securityBizProperties.getPermitAllUserNames().contains(username);
 
         BizUser bizUser = extensibleSecurity.loadUserByUsername(username, maxAuth);
 

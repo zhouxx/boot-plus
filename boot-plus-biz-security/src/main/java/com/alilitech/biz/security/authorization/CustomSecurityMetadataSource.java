@@ -79,7 +79,6 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         return FilterInvocation.class.isAssignableFrom(clazz);
     }
 
-
     private Map<RequestMatcher, Collection<ConfigAttribute>> getMetadataSource(HttpServletRequest request) {
 
         //拿到用户，判断是否是最大权限
@@ -94,7 +93,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         RequestMatcher requestMatcher = new AntPathRequestMatcher(request.getRequestURI(), request.getMethod());
 
         //有最大权限的用户
-        if(securityBizProperties.getMaxAuthUsers().contains(bizUser.getUsername())) {
+        if(securityBizProperties.getPermitAllUserNames().contains(bizUser.getUsername())) {
             roles.add("ROLE_ALL");   //添加全部资源的角色
         }
         //不需要鉴权的url
@@ -133,7 +132,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 
     public Map<RequestMatcher, Collection<ConfigAttribute>> getRequestMatchersPermitAllMap() {
         if(CollectionUtils.isEmpty(requestMatchersPermitAllMap)) {
-            List<AntPathRequestMatcher> requestMatchers = securityBizProperties.getPermitAllUrls().stream().map(s -> new AntPathRequestMatcher(s)).collect(Collectors.toList());
+            List<AntPathRequestMatcher> requestMatchers = securityBizProperties.getPermitAllPatterns().stream().map(requestMatcher -> new AntPathRequestMatcher(requestMatcher.getPattern(), requestMatcher.getMethod().toString())).collect(Collectors.toList());
             for(RequestMatcher requestMatcher : requestMatchers) {
                 ConfigAttribute configAttribute = new SecurityConfig("ROLE_PUBLIC");
                 requestMatchersPermitAllMap.put(requestMatcher, Arrays.asList(configAttribute));
