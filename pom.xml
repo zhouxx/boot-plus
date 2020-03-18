@@ -6,7 +6,7 @@
 
     <groupId>com.alilitech</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-core-datasource</module>
