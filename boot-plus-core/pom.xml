@@ -5,7 +5,7 @@
     <parent>
         <artifactId>boot-plus</artifactId>
         <groupId>com.alilitech</groupId>
-        <version>1.1.4</version>
+        <version>1.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -24,30 +24,6 @@
             <version>1.8.13</version>
         </dependency>
 
-        <!--<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <version>4.3.18.RELEASE</version>
-        </dependency>-->
-
-        <!--<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        &lt;!&ndash; 覆盖默认内嵌的tomcat &ndash;&gt;
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>runtime</scope>
-        </dependency>-->
     </dependencies>
 
 </project>

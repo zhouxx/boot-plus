@@ -5,7 +5,7 @@
     <parent>
         <artifactId>boot-plus</artifactId>
         <groupId>com.alilitech</groupId>
-        <version>1.1.4</version>
+        <version>1.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,43 +26,43 @@
             </dependency>
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-core-datasource</artifactId>
+                <artifactId>boot-plus-routing-datasource</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-core-quartz</artifactId>
+                <artifactId>boot-plus-quartz</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-integration</artifactId>
+                <artifactId>boot-plus-mybatis</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-integration-jpa</artifactId>
+                <artifactId>boot-plus-mybatis-jpa</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-web-log</artifactId>
+                <artifactId>boot-plus-log</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-web-swagger</artifactId>
+                <artifactId>boot-plus-swagger</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alilitech</groupId>
-                <artifactId>boot-plus-biz-security</artifactId>
+                <artifactId>boot-plus-security</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
         </dependencies>

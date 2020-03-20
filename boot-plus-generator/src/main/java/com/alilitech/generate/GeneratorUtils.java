@@ -22,15 +22,13 @@ import com.alilitech.generate.definition.AnnotationDefinition;
 import com.alilitech.generate.definition.ClassDefinition;
 import com.alilitech.generate.definition.ClassType;
 import com.alilitech.generate.definition.FieldDefinition;
-import com.alilitech.integration.jpa.anotation.GeneratedValue;
-import com.alilitech.integration.jpa.mapper.PageMapper;
-import com.alilitech.integration.jpa.parameter.GenerationType;
+import com.alilitech.mybatis.jpa.anotation.GeneratedValue;
+import com.alilitech.mybatis.jpa.mapper.PageMapper;
+import com.alilitech.mybatis.jpa.parameter.GenerationType;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 
 import javax.persistence.Id;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;

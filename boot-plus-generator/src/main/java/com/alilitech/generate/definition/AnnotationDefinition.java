@@ -15,7 +15,7 @@
  */
 package com.alilitech.generate.definition;
 
-import com.alilitech.integration.jpa.parameter.GenerationType;
+import com.alilitech.mybatis.jpa.parameter.GenerationType;
 
 import java.util.*;
 

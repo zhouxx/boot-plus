@@ -6,19 +6,19 @@
 
     <groupId>com.alilitech</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.1.4</version>
+    <version>1.2.0</version>
     <modules>
         <module>boot-plus-core</module>
-        <module>boot-plus-core-datasource</module>
-        <module>boot-plus-core-quartz</module>
+        <module>boot-plus-routing-datasource</module>
+        <module>boot-plus-quartz</module>
         <module>boot-plus-web</module>
-        <module>boot-plus-integration</module>
-        <module>boot-plus-integration-jpa</module>
-        <module>boot-plus-web-swagger</module>
-        <module>boot-plus-web-log</module>
+        <module>boot-plus-mybatis</module>
+        <module>boot-plus-mybatis-jpa</module>
+        <module>boot-plus-swagger</module>
+        <module>boot-plus-log</module>
         <module>boot-plus-dependencies</module>
         <module>boot-plus-generator</module>
-        <module>boot-plus-biz-security</module>
+        <module>boot-plus-security</module>
     </modules>
     <packaging>pom</packaging>
 
