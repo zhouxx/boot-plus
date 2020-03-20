@@ -1,23 +1,16 @@
-# Boot Plus Reference Guide 1.1.x
+# Boot Plus Reference Guide 1.2.x
 
 # Part1 : 简介
 
 ​	Boot Plus 是基于spring boot 的增强，但并未修改SpringBoot已有的功能，也就是说完全可以兼容使用SpringBoot的项目。让spring boot的使用者更好地关注于业务。主要增强以下几个方面：
 
 * dynamic datasource
-* quartz
+* quartz: add or remove cron job at runtime
 * web: json serialize, cros and so on
 * log management
 * swagger(api online)
-* mybatis extension
-* security integration
-
-​	**Boot Plus**  包含四部分:
-
-- **core** 
-- **web** 
-- **biz** 
-- **integration** 
+* mybatis extension：like jpa
+* security integration: more simple, support JWT & Stateful Token
 
 
 
@@ -35,7 +28,7 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
         <dependency>
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.1.1</version>
+            <version>1.2.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -74,7 +67,7 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.1.1</version>
+                <version>1.2.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -113,19 +106,18 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 至此，你已成功搭建和部署一个项目了。
 
-# Part3 : core(核心层)
+# Part3 : boot-plus-core
 
-核心层是基于spring的。基于核心层扩展了组件：
+提供了基于spring的依赖（没有web）。提供了以下功能：
 
-## 3.1 boot-plus-core
+* 启动类`com.AppStart`：启动时更优雅地打印更多信息
+* 工具类：`BeanUtils`：更高效的深度拷贝。父类属性，聚合属性都可一并拷贝。
 
-提供了基于spring的依赖（没有web）。提供了启动类`com.AppStart`，工具类：`BeanUtils`（高效率的深度拷贝）等。
-
-## 3.2 boot-plus-core-datasource
+# Part4 boot-plus-routing-datasource
 
 动态数据源是指在项目里可以配置多个数据源，并且可以在不同的地方指定使用不同的数据源。
 
-### 3.2.1 配置多数据源
+## 4.1 配置多数据源
 
 主数据源还和原来的方式一样，当未指定数据源或找不到指定的数据源时使用主数据源。
 其它数据源名称要以`ds`开头，否则无法识别。配置方式和spring boot的方式一样。    
@@ -151,7 +143,7 @@ public void exeService() {
 }
 ```
 
-### 3.2.2 动态添加/移除数据源
+## 4.2 动态添加/移除数据源
 
 代码里可以动态地创建数据源，并添加到多数据源里。
 
@@ -165,9 +157,9 @@ defaultDynamicDataSource.addDataSource(datasourceName, datasourceUrl, datasource
 defaultDynamicDataSource.remove(datasourceName);
 ```
 
-## 3.3 boot-plus-core-quartz
+# Part5 boot-plus-quartz
 
-定时任务是指可以在项目里的任意时间段里添加或修改定时任务。使用方法如下：
+运行时添加或移除定时任务：
 ```java
  //定义jop，或其子类
 QuartzJob quartzJob = new QuartzJob();
@@ -186,15 +178,9 @@ e.printStackTrace();
 
 > 当把Job的enabled定义为false，即job失效。
 
+# Part6 boot-plus-web
 
-
-# Part4 : web(web层)
-
-web层是基于spring mvc 的框架，但他提供了更多的支持。
-
-### 4.1 boot-plus-web
-
-#### 4.1.1 跨域支持
+## 6.1 跨域支持
 
 跨域只需要在application.yml里配置：
 
@@ -218,7 +204,7 @@ mvc:
 * maxAge
 * exposedHeaders：跨域时哪些头部信息返回
 
-#### 4.1.2 json序列化之null值处理
+## 6.2 json序列化之null值处理
 
 对于部分null值，前端展示不友好，又不能直接去掉，若在业务里处理量大且麻烦，通过配置或注解可以解决此问题。
 
@@ -259,7 +245,7 @@ mvc:
 DefaultNullContextHolder.set(false);   //关闭此次请求/线程对null值序列化的处理
 ```
 
-#### 4.1.3 json序列化之数字格式化
+## 6.3 json序列化之数字格式化
 
 业务上有很多逻辑运算，运算完了会产生结果，往往不同类型(如int、double)的数据返回的格式不一样，但实际上展示的时候需要统一保留两位或统一格式化。使用`@NumberFormat`注解：
 
@@ -272,7 +258,7 @@ private BigDecimal amount;
 * scale: 保留位数，默认是2
 * round: 取舍模式，默认4舍五入，参考`BigDecimal`里的常量
 
-#### 4.1.4 json序列化之字典
+## 6.4 json序列化之字典
 
 字典在数据库里表示不同的含义，从数据库里查出的是字典的key，与显示的值有一一对应关系。在实际展示给用户时必须是用户能理解的含义。以往的解决方式是通过在业务里单独处理或数据库查询的时候关联查询，若有新的字典含义可能还需要改代码，给项目带来了风险与不便。
 
@@ -290,7 +276,7 @@ Boot Plus提供了解决方法：
 
 > 以上对json的扩展是基于jackson（spring mvc默认序列化）的，若在项目里未使用jackson序列化，无法扩展。
 
-#### 4.1.5 流处理
+## 6.5 流处理
 
 springmvc为我们提供了很好的文件上传的支持。但文件返回未实现。
 
@@ -316,7 +302,7 @@ public ResponseEntity<AbstractStreamingResponseBody> fileView() {
 }
 ```
 
-#### 4.1.6 校验
+## 6.6 校验
 
 校验可以自定义校验结果字段，和根据校验校验结果返回给客户端的不同信息。校验分两种：
 - 手工校验
@@ -330,15 +316,15 @@ public ResponseEntity<AbstractStreamingResponseBody> fileView() {
 
   在自动映射的字段上，加上相关的注解，从而实现自动校验。如：`@NotEmpty(message="名称不能为空")`
 
-#### 4.1.7 系统异常处理
+## 6.7 系统异常处理
 
 提供了系统异常处理，也可以自定义异常处理，实现`ExceptionHandler`接口。
 
-## 4.2 boot-plus-web-log
+# Part7 boot-plus-log
 
 集成了spring-boot-starter-actuator。
 
-### 4.2.1 对Controller进行切面控制
+## 7.1 对Controller进行切面控制
 
 ```yaml
 logging:
@@ -361,11 +347,11 @@ public class LogOptService implements LogExtension {
 }
 ```
 
-### 4.2.2 管理日志级别
+## 7.2 管理日志级别
 
 生产环境或测试环境有时候需要debug日志，等调试完后又关闭。访问`/log.html`在线管理日志级别。
 
-## 4.3 boot-plus-web-swagger
+# Part8 boot-plus-swagger
 
 实现了在线API，主要实现以下功能：
 
@@ -379,17 +365,18 @@ public class LogOptService implements LogExtension {
 可以配置swagger相关配置，如：
 
 ```yaml
-swagger :
-  title : 接口文档
-  description : 这是在线生成的API文档
-  version : V1.0
-  termsOfServiceUrl :
+swagger:
+  title: 接口文档
+  description: 这是在线生成的API文档
+  version: V1.0
+  termsOfServiceUrl:
   contactName : David
-  contactUrl :
-  contactEmail :
-  license :
-  licenseUrl :
-  defaultIncludePattern : /swagger.*,/mvc.*    #/.* 全部url,多个URL用逗号隔开
+  contactUrl: 
+  contactEmail: 
+  license:
+  licenseUrl:
+  defaultIncludePattern: 
+    - "/api/.*"
   apiHost: localhost:8080                      #ui上测试操作的时候访问的实际url
   global:                                      #每个接口添加参数，在线API里，每个接口都会体现
     - name: Authorization
@@ -400,10 +387,11 @@ swagger :
   authorized:                                  #统一处理授权
     - name: Authorization
       in: header
-  authorizedIncludePattern:                    #哪些URL需要权限
+  authorizedIncludePattern:
+    - "/api/.*"
 ```
 
-defaultIncludePattern： 哪些url的API会在在线文档里显示，逗号隔开
+defaultIncludePattern： 哪些url的API会在在线文档里显示
 
 apiHost：在线测试api时实际访问的API。由于代理映射问题，有时候访问html的地址和访问API的地址是不一致的
 
@@ -413,9 +401,7 @@ authorized：统一授权，会在需要授权的API上加锁，显示需要授�
 
 authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 
-# Part5 : biz(业务层)
-
-## 5.1 boot-plus-biz-security
+# Part9 boot-plus-security
 
 集成了spring scurity，但由于spring scurity比较复杂，使用起来比较繁琐，故做了一些减法，对常用的保留，对不常用的暂时去除。若需要其它功能的，请自行集成。
 
@@ -425,7 +411,7 @@ authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 * 集成JWT
 * 实现Stateful Token
 
-### 5.1.1 JWT
+## 9.1 JWT
 
 在Spring Scurity基本上实现无状态的JWT Token。主要实现以下功能：
 
@@ -443,9 +429,14 @@ authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 security:
   token:
     type: JWT
-    ignorePatterns: "/*.ico,/css/**,/fonts/**"
+    ignorePatterns: 
+      - pattern: "/*.ico"
+        method: GET
+      - pattern: "/css/**"
+      - pattern: "/fonts/**"
     permitAllPatterns: 
-    permitAllUserNames: admin
+    permitAllUserNames: 
+      - admin
     bizUserClassName: 
     jwt:
       secret:                    # 加密串
@@ -469,7 +460,7 @@ jwt.timeoutMin:  Token超时, 单位：分钟
 
 jwt.refreshSeconds: Token还有多久失败时刷新Token， 单位：秒
 
-### 5.1.2 Stateful Token
+## 9.2 Stateful Token
 
 在spring Scurity 基础上实现了有状态的token, token对应的用户信息在缓存里存储。
 
@@ -479,15 +470,20 @@ jwt.refreshSeconds: Token还有多久失败时刷新Token， 单位：秒
 security:
   token:
     type: ST
-    ignorePatterns: "/*.ico,/css/**,/fonts/**"
+    ignorePatterns: 
+      - pattern: "/*.ico"
+        method: GET
+      - pattern: "/css/**"
+      - pattern: "/fonts/**"
     permitAllPatterns: 
-    permitAllUserNames: admin
+    permitAllUserNames: 
+      - admin
     bizUserClassName: 
 ```
 
 > 两种风格只需要切换配置即可。
 
-### 5.1.3 devlepement
+## 9.3 devlepement
 
 * 登录url:/authentication/login
 
@@ -524,9 +520,7 @@ security:
 
 
 
-# Part6 : integration(集成层)
-
-## 6.1 boot-plus-integration
+# Part10 boot-plus-mybatis
 
 集成层是使用Mybatis实现对数据库访问。
 除了常规配置，可以自定义mapper扫描，无需额外的java配置。
@@ -541,17 +535,17 @@ mybatis:
 
 mapper-scan.basePackages 多个路径，逗号隔开
 
-## 6.2 boot-plus-integration-jpa(基于Mybatis)
+# Part11 boot-plus-mybatis-jpa
 
 base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式自己写sql。
 
-### 6.2.1 CrudMapper自动加载SQL
+## 11.1 CrudMapper自动加载SQL
 
 虽然有增删改查的代码生成器，但在添加或删除字段或修改字段特别麻烦，需要把所有的sql都需要修改。有些已经生成的代码也需要手动修改，容易出错。
 
 实现了`Mapper`的接口或实现了`Mapper`的子接口(如`CrudMapper`等)的接口可以自动了生成对应的sql statement，无需重复编写。
 
-### 6.2.2 接口定义查询条件
+## 11.2 接口定义查询条件
 
 如果需要根据条件进行查询，可根据jpa规范实现，无需编写sql。如：
 
@@ -624,7 +618,7 @@ findByXXOrderByXXXDescAndXXX
   deleteByNameOrDeptNo
   ```
 
-### 6.2.3 接口定义查询条件过滤
+## 11.3 接口定义查询条件过滤
 
 在传统jpa里，若是实用jpa规范的接口，不能根据条件不同自定义不同条件的查询。但实际使用过程中，经常有若条件是空的，则查全部的。这个时候如果还是用条件匹配是不适合的。
 
@@ -637,7 +631,7 @@ List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true
 
 > 参数上定义了注解，则使用参数定义的注解。参数上没有定义的，则使用方法上的注解。
 
-### 6.2.4 面向对象关联查询
+## 11.4 面向对象关联查询
 
 在查询时，往往会关联多表查询。但在使用jpa的时候，可以定义关联关系。通过自定义关联关系，可自动关联查询。
 
@@ -740,7 +734,7 @@ public class User {
   
   > 当时ManyToMany的时候，可定义关联表JoinTable
 
-### 6.2.5 关联查询优化
+## 11.5 关联查询优化
 
 若每次查询都需要关联查询，有时候消耗较大，会影响性能（N+1问题）。我们可以通过注解来实现，哪些需要，哪些不需要从而优化部分性能。如：
 
@@ -760,9 +754,31 @@ public class User {
 
 MappedStatement有include(哪些需要关联)，exclude(哪些不需要关联)。若同时存在exclude，include。以exclude为准。
 
-### 6.2.6 代码构建复杂查询
+## 11.6 关联查询(子查询)自定义
 
-通过继承`SpecificationMapper`接口，可以利用`Specification`构建复杂条件查询
+子查询时有时候需要定义排序，或者需要自定义部分字段过滤，比如有些删除是逻辑删除，子查询的时候我们不希望把已经删除的查出来。参考：
+
+```java
+public class User {
+	@Id
+	private Long id;
+	
+	//...
+	
+	@ManyToOne
+	@JoinColumn(name = "deptNo")
+    @SubQuery(
+            predicates = @SubQuery.Predicate(property = "deleted",condition = "= 0"),
+            orders = @SubQuery.Order(property = "deptNo"))
+	private Dept dept;
+}
+```
+
+通过注解`@SubQuery` 可实现自定义子查询
+
+## 11.7 代码构建复杂查询
+
+如果一直通过Mapper的方法来直接定义查询条件和排序，有时候会让方法变地太长，这样对于维护其实是不利的，我们提供了代码级构造复杂查询，通过继承`SpecificationMapper`接口，可以利用`Specification`构建复杂条件查询。参考：
 
 ```java
 // WHERE ( dept_no = ? AND ( age > ? AND name like ?) ) order by name ASC
@@ -795,9 +811,7 @@ testUserMapper.findSpecification((cb, query) -> {
         });
 ```
 
-
-
-### 6.2.7 主键支持
+## 11.8 主键支持
 
 目前支持三种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位）。可如下定义：
 
@@ -812,7 +826,19 @@ public class TestUser {
 }
 ```
 
-### 6.2.8 分页排序支持
+## 11.9 自定义主键生成器
+
+现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
+
+通过实现`KeyGenerator#generate`，然后在定义id生成规则的时候指定generatorClass：
+
+```java
+@GeneratedValue(generatorClass = MyGenerator.class)
+@Id
+private String id;
+```
+
+## 11.10 分页排序支持
 
 已经实现了自动物理分页。但对orderBy没有做优化（数据库本身会优化）。
 
@@ -828,7 +854,7 @@ List<TestUser> findPageByName(Page page, Sort sort， String name);
 
 > 若使用传入参数排序，则不要用接口定义的方式定义排序。只会选一种。
 
-### 6.2.9 默认值触发
+## 11.11 默认值触发
 
 默认值触发是指类似于触发器，在我们插入或更新时候指定某些字段的默认值。而不需要我们每次处理的时候去设置值。
 
@@ -844,7 +870,7 @@ private Date createTime;
 private Date updateTime;
 ```
 
-### 6.2.10 自定义数据库扩展
+## 11.12 自定义数据库扩展
 
 不可能实现所有的关系型数据库，故将数据库的扩展功能交给使用者。
 
@@ -859,23 +885,11 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 }
 ```
 
-### 6.2.11 自定义id生成器
-
-现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
-
-通过实现`KeyGenerator#generate`，然后在定义id生成规则的时候指定generatorClass：
-
-```java
-@GeneratedValue(generatorClass = MyGenerator.class)
-@Id
-private String id;
-```
-
-### 6.2.12 Pageable入参解析
+## 11.13 Pageable入参解析
 
 让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
 
-### 6.2.13 MybatisJpaStartedEvent
+## 11.14 MybatisJpaStartedEvent
 
 提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
 
