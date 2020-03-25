@@ -33,17 +33,11 @@ Bootplus是基于Spring Boot构建的框架，使其开发更方便，更简单�
 * **Log：** 提供Log UI，在线修改Log级别，为调试提供优雅的定制
 * **安全框架集成：** 集成Spring Security，提供JWT和常规Token实现，让使用者更简单，更高效。
 
-# 文档
+# 链接
 
 [中文文档](https://zhouxx.github.io/boot-plus/#/README) 
 
-# 加入我们
-
-BootPlus是完全免费的项目，旨在帮助开发者更方便、更快速地开发，同时也是提供了交流群，提供在线答疑。
-
-QQ群：924076759
-
-![Image](https://raw.githubusercontent.com/zhouxx/boot-plus/master/docs/images/qq.png)
+[部分实例]( https://github.com/zhouxx/boot-plus-mybatis-jpa-samples) 
 
 # License
 
