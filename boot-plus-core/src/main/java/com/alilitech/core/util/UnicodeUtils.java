@@ -51,12 +51,13 @@ public class UnicodeUtils {
 
     /**
      * 为长度不足4位的unicode 值补零
-     * @param str
-     * @return
      */
     private static String format(String str) {
-        for (int i = 0, l = 4 - str.length(); i < l; i++)
-            str = "0" + str;
+        StringBuilder strBuilder = new StringBuilder(str);
+        for (int i = 0, l = 4 - strBuilder.length(); i < l; i++) {
+            strBuilder.insert(0, "0");
+        }
+        str = strBuilder.toString();
         return str;
     }
 

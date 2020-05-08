@@ -23,8 +23,6 @@ import com.alilitech.mybatis.jpa.criteria.RenderContext;
  */
 public class ParameterExpression<T> implements AtomicExpression<T> {
 
-    private String paramName;
-
     private Object paramValue;
 
     public ParameterExpression(Object paramValue) {
@@ -37,10 +35,10 @@ public class ParameterExpression<T> implements AtomicExpression<T> {
 
     @Override
     public void render(RenderContext renderContext, Expression<T> ...expressions) {
-        this.paramName = renderContext.getParamPrefix() + renderContext.getParamIndexAndIncrement();
-        renderContext.getParamValues().put(this.paramName, paramValue);
+        String paramName = renderContext.getParamPrefix() + renderContext.getParamIndexAndIncrement();
+        renderContext.getParamValues().put(paramName, paramValue);
         renderContext.renderString("#{");
-        renderContext.renderString(renderContext.getParamPrefixPrefix() + this.paramName);
+        renderContext.renderString(renderContext.getParamPrefixPrefix() + paramName);
         renderContext.renderString("}");
     }
 

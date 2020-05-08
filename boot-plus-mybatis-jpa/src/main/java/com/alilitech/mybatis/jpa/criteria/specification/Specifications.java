@@ -23,7 +23,7 @@ import static com.alilitech.mybatis.jpa.criteria.expression.PredicateExpression.
  */
 public class Specifications {
 
-    static EmptySpecificationBuilder emptySpecificationBuilder = new EmptySpecificationBuilder();
+    static EmptySpecificationBuilder<?> emptySpecificationBuilder = new EmptySpecificationBuilder<>();
 
     private Specifications() {
     }
@@ -36,7 +36,7 @@ public class Specifications {
     }
 
     public static <T> OrderBuilder<T> order() {
-        return new OrderBuilder<>(emptySpecificationBuilder);
+        return new OrderBuilder(emptySpecificationBuilder);
     }
 
 }

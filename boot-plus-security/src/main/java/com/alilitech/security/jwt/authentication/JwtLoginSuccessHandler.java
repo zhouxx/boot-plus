@@ -35,7 +35,7 @@ public class JwtLoginSuccessHandler extends SavedRequestAwareAuthenticationSucce
 
     private final JwtTokenUtils jwtTokenUtils;
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
     public JwtLoginSuccessHandler(JwtTokenUtils jwtTokenUtils, ExtensibleSecurity extensibleSecurity) {
         this.jwtTokenUtils = jwtTokenUtils;

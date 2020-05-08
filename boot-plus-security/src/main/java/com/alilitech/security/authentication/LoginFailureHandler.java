@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
     public LoginFailureHandler(ExtensibleSecurity extensibleSecurity) {
         this.extensibleSecurity = extensibleSecurity;

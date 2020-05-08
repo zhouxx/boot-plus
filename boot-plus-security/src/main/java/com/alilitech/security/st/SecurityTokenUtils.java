@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class SecurityTokenUtils extends TokenUtils {
 
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
 
     public SecurityTokenUtils(SecurityBizProperties securityBizProperties, CacheManager cacheManager) {
         super(securityBizProperties);
@@ -62,7 +62,7 @@ public class SecurityTokenUtils extends TokenUtils {
         Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 
         if(!CollectionUtils.isEmpty(bizUser.getRoles())) {
-            authorities = bizUser.getRoles().stream().map(authority -> new SimpleGrantedAuthority(authority)).collect(Collectors.toList());
+            authorities = bizUser.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         }
 
         SecurityUser user = new SecurityUser(bizUser.getUsername(), bizUser.getPassword(), authorities);

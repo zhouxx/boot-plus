@@ -36,7 +36,7 @@ public @interface Trigger {
 
     TriggerValueType valueType();
 
-    Class valueClass() default Object.class;
+    Class<?> valueClass() default Object.class;
 
     String methodName() default "";
 
@@ -45,7 +45,6 @@ public @interface Trigger {
     /**
      * force to set the value, whether the value of domain's field is present or null
      * only support {@link TriggerValueType#DatabaseFunction}
-     * @return
      */
     boolean force() default true;
 

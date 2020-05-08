@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class NullDefaultValueJsonSerializer extends NullJsonSerializer {
 
-    private String defaultNullValue;
+    private final String defaultNullValue;
 
     public NullDefaultValueJsonSerializer(String defaultNullValue) {
         this.defaultNullValue = defaultNullValue;

@@ -31,9 +31,9 @@ import org.springframework.util.StringUtils;
  */
 public class MethodDefinitionAssistant {
 
-    private JoinColumnMetaData joinColumnMetaData;
+    private final JoinColumnMetaData joinColumnMetaData;
 
-    private MapperDefinitionRegistry mapperDefinitionRegistry;
+    private final MapperDefinitionRegistry mapperDefinitionRegistry;
 
     public MethodDefinitionAssistant(MapperDefinitionRegistry mapperDefinitionRegistry, JoinColumnMetaData joinColumnMetaData) {
         this.mapperDefinitionRegistry = mapperDefinitionRegistry;
@@ -43,7 +43,7 @@ public class MethodDefinitionAssistant {
     public void addRelationMethodDefinition() {
         //给被关联方添加查询方法
         MapperDefinition referencedMapperDefinition = mapperDefinitionRegistry.getMapperDefinition(joinColumnMetaData.getJoinEntityType());
-        String methodName = "";
+        String methodName;
         //直接关联，适用于OneToOne or OneToMany
         if(StringUtils.isEmpty(joinColumnMetaData.getJoinTableName())) {
             methodName = "findWith" + joinColumnMetaData.getReferencedProperty().substring(0, 1).toUpperCase() + joinColumnMetaData.getReferencedProperty().substring(1);

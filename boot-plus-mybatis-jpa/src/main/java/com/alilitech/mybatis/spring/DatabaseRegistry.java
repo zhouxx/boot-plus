@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class DatabaseRegistry {
 
-    private List<DatabaseRegistration> databaseRegistrations = new ArrayList<>();
+    private final List<DatabaseRegistration> databaseRegistrations = new ArrayList<>();
 
     public DatabaseRegistration addDatabase(DatabaseType databaseType) {
         DatabaseRegistration databaseRegistration = new DatabaseRegistration(databaseType);

@@ -27,10 +27,10 @@ public interface PaginationDialect {
     /**
      * build pagination sql
      *
-     * @param originalSql
-     * @param offset
-     * @param limit
-     * @return
+     * @param originalSql originalSql
+     * @param offset offset
+     * @param limit limit
+     * @return pageable sql
      */
     String buildPaginationSql(String originalSql, int offset, int limit);
 }

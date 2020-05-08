@@ -36,13 +36,11 @@ public @interface DynamicSource {
 
     /**
      * 数据源名称
-     * @return
      */
     String value() default "default";
 
     /**
      * 是否在运行期间指定
-     * @return
      */
     boolean runtime() default false;
 

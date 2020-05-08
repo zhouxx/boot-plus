@@ -23,9 +23,6 @@ public class JavaBeansUtil {
 
     /**
      * 根据属性名称和java类型，获取对应的getter方法名
-     * @param property
-     * @param javaType
-     * @return
      */
     public static String getGetterMethodName(String property, String javaType) {
         StringBuilder sb = covertMethodPost(property);
@@ -39,8 +36,6 @@ public class JavaBeansUtil {
 
     /**
      * 根据属性名称获取对应的setter方法名称
-     * @param property
-     * @return
      */
     public static String getSetterMethodName(String property) {
         StringBuilder sb = covertMethodPost(property);

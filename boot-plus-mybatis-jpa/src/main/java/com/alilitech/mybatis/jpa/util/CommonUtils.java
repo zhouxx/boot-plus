@@ -25,28 +25,24 @@ public class CommonUtils {
 
     /**
      * 将驼峰标识转换为下划线
-     * @param text
-     * @return
      */
     public static String camelToUnderline(String text) {
         if (text == null || "".equals(text.trim())) {
             return "";
         }
         StringBuilder result = new StringBuilder(text.length() + 1);
-        result.append(text.substring(0, 1));
+        result.append(text, 0, 1);
         for (int i = 1; i < text.length(); i++) {
             if (!Character.isLowerCase(text.charAt(i))) {
                 result.append('_');
             }
-            result.append(text.substring(i, i + 1));
+            result.append(text, i, i + 1);
         }
         return result.toString().toLowerCase();
     }
 
     /**
      * 将下划线标识转换为驼峰
-     * @param text
-     * @return
      */
     public static String underlineToCamel(String text) {
         if (text == null || "".equals(text.trim())) {

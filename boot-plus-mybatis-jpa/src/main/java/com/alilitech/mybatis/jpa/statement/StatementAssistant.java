@@ -36,8 +36,6 @@ public class StatementAssistant {
 
 	/**
 	 * resolve the {@link MethodType} by {@link MethodDefinition}
-	 * @param definition
-	 * @return
 	 */
 	public static MethodType resolveMethodType(MethodDefinition definition) {
 		String methodName = definition.getMethodName();

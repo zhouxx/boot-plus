@@ -40,9 +40,9 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
 
     protected MessageSourceAccessor messages = SecurityBizMessageSource.getAccessor();
 
-    private SecurityTokenUtils securityTokenUtils;
+    private final SecurityTokenUtils securityTokenUtils;
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
     public TokenAuthorizationFilter(SecurityTokenUtils securityTokenUtils, ExtensibleSecurity extensibleSecurity) {
         this.extensibleSecurity = extensibleSecurity;
@@ -84,8 +84,6 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
 
     /**
      * resolve token
-     * @param request
-     * @return token
      */
     private String resolveToken(HttpServletRequest request){
         return extensibleSecurity.resolveToken(request);

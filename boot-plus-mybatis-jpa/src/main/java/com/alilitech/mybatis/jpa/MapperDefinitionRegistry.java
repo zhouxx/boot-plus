@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MapperDefinitionRegistry {
 
-    private Map<Type, MapperDefinition> entityMapperRelation = new ConcurrentHashMap<>();
+    private final Map<Type, MapperDefinition> entityMapperRelation = new ConcurrentHashMap<>();
 
     public MapperDefinitionRegistry() {
     }

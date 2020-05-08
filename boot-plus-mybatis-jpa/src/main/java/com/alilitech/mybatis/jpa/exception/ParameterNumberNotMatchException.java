@@ -21,13 +21,13 @@ package com.alilitech.mybatis.jpa.exception;
  */
 public class ParameterNumberNotMatchException extends RuntimeException {
 
-    private String namespace;
+    private final String namespace;
 
-    private String statement;
+    private final String statement;
 
-    private Integer expect;
+    private final Integer expect;
 
-    private Integer actual;
+    private final Integer actual;
 
     public ParameterNumberNotMatchException(String namespace, String statement, Integer expect, Integer actual) {
         this.namespace = namespace;

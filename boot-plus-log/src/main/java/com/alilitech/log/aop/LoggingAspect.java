@@ -40,7 +40,7 @@ public class LoggingAspect {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private ObjectProvider<LogExtension> logExtension;
+    private final ObjectProvider<LogExtension> logExtension;
 
     public LoggingAspect(ObjectProvider<LogExtension> logExtension) {
         this.logExtension = logExtension;

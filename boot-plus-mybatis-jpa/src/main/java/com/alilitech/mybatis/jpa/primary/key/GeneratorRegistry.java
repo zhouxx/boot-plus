@@ -34,9 +34,9 @@ public class GeneratorRegistry {
      * key is {@link GenerationType } or class extends from {@link KeyGenerator},
      * value is a {@link KeyGenerator} instance
      */
-    private Map<Object, KeyGenerator> cacheMap = new ConcurrentHashMap<>();
+    private final Map<Object, KeyGenerator> cacheMap = new ConcurrentHashMap<>();
 
-    private static GeneratorRegistry generatorRegistry = new GeneratorRegistry();
+    private static final GeneratorRegistry generatorRegistry = new GeneratorRegistry();
 
     private GeneratorRegistry() {
         register(GenerationType.UUID, new KeyGenerator4UUID());

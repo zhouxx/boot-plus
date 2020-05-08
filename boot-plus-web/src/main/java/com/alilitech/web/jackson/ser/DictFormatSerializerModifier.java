@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Map<String, Map<String, Object>> cacheMap = new HashMap<>();
 
@@ -76,7 +76,7 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
     protected class DictJsonSerializer extends JsonSerializer<Object> {
 
-        private DictAnnotationConfig dictAnnotationConfig;
+        private final DictAnnotationConfig dictAnnotationConfig;
 
         DictJsonSerializer(DictAnnotationConfig dictAnnotationConfig) {
             this.dictAnnotationConfig = dictAnnotationConfig;
@@ -108,12 +108,12 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
         }
     }
 
-    protected class DictAnnotationConfig {
+    protected static class DictAnnotationConfig {
 
-        private String targetFiledName;
-        private String dictKey;
-        private boolean dictKeyToString;
-        private String defaultValue;
+        private final String targetFiledName;
+        private final String dictKey;
+        private final boolean dictKeyToString;
+        private final String defaultValue;
 
         DictAnnotationConfig(String targetFiledName, String dictKey, boolean dictKeyToString, String defaultValue) {
             this.targetFiledName = targetFiledName;

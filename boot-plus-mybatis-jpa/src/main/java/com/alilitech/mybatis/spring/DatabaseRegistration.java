@@ -26,7 +26,7 @@ import com.alilitech.mybatis.jpa.DatabaseType;
  */
 public class DatabaseRegistration {
 
-    private DatabaseType databaseType;
+    private final DatabaseType databaseType;
 
     private KeySqlGenerator keySqlGenerator;
 

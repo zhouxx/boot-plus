@@ -46,7 +46,6 @@ public enum GenerationType {
     /**
      * Distribute id with snowflake.
      */
-    SNOWFLAKE;
-
+    SNOWFLAKE
 
 }

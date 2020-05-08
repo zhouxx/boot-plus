@@ -27,11 +27,9 @@ import java.util.Map;
  */
 public class CriteriaQuery<T> {
 
-    private final Class<T> returnType;
-
     private PredicateExpression.BooleanOperator booleanOperator = PredicateExpression.BooleanOperator.AND;
 
-    private RenderContext renderContext = new RenderContext();
+    private final RenderContext renderContext = new RenderContext();
 
     private String whereScript;
 
@@ -40,7 +38,6 @@ public class CriteriaQuery<T> {
     private String orderByScript;
 
     public CriteriaQuery(Class<T> returnType) {
-        this.returnType = returnType;
     }
 
     public CriteriaQuery(Class<T> returnType, PredicateExpression.BooleanOperator booleanOperator) {

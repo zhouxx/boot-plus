@@ -48,16 +48,16 @@ import java.util.List;
 @Order(Ordered.HIGHEST_PRECEDENCE - 10)
 public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ApplicationContext applicationContext;
 
-    private SqlSessionFactory sqlSessionFactory;
-    private DatabaseRegistry databaseRegistry;
-    private DatabaseTypeRegistry databaseTypeRegistry;
-    private KeySqlDialectRegistry keySqlDialectRegistry;
-    private PaginationDialectRegistry paginationDialectRegistry;
-    private List<MybatisJpaConfigurer> mybatisJpaConfigurers;
+    private final SqlSessionFactory sqlSessionFactory;
+    private final DatabaseRegistry databaseRegistry;
+    private final DatabaseTypeRegistry databaseTypeRegistry;
+    private final KeySqlDialectRegistry keySqlDialectRegistry;
+    private final PaginationDialectRegistry paginationDialectRegistry;
+    private final List<MybatisJpaConfigurer> mybatisJpaConfigurers;
 
     public MybatisJpaStart(SqlSessionFactory sqlSessionFactory, DatabaseRegistry databaseRegistry, DatabaseTypeRegistry databaseTypeRegistry, KeySqlDialectRegistry keySqlDialectRegistry, PaginationDialectRegistry paginationDialectRegistry, List<MybatisJpaConfigurer> mybatisJpaConfigurers) {
         this.sqlSessionFactory = sqlSessionFactory;

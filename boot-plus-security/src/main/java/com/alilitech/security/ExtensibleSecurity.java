@@ -20,6 +20,7 @@ import com.alilitech.security.domain.BizUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -27,14 +28,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public interface ExtensibleSecurity<T> {
+public interface ExtensibleSecurity {
 
     String HEADER_NAME = "Authorization";
 
@@ -43,9 +44,8 @@ public interface ExtensibleSecurity<T> {
     /**
      * validation extension
      * @param bizUser biz user
-     * @param request
-     * @param response
-     * @return
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @throws AccessDeniedException when validate error
      */
     default void validateToken(BizUser bizUser, HttpServletRequest request, HttpServletResponse response) throws AccessDeniedException {
@@ -55,35 +55,35 @@ public interface ExtensibleSecurity<T> {
     //=======================Authentication===================
     /**
      * login success handler
-     * @param request
-     * @param response
-     * @param token
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param token token
+     * @throws IOException IOException
      */
     default void loginSuccess(HttpServletRequest request, HttpServletResponse response, String token, BizUser bizUser) throws IOException {
         response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().println(token);
     }
 
     /**
      * login failure handler
-     * @param request
-     * @param response
-     * @param message
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param message message
+     * @throws IOException IOException
      */
     default void loginFailure(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().println(message);
     }
 
     /**
      * logout success handler
-     * @param request
-     * @param response
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     default void logoutSuccess(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.getWriter().println("logout success");
@@ -93,10 +93,10 @@ public interface ExtensibleSecurity<T> {
      * load user by username
      * @param username just login key
      * @param maxAuthUser not need authorization user
-     * @return
+     * @return biz user
      */
     default <T extends BizUser> T loadUserByUsername(String username, boolean maxAuthUser) {
-        List<String> roles = new ArrayList<>(Arrays.asList("USER"));
+        List<String> roles = new ArrayList<>(Collections.singletonList("USER"));
         BizUser bizUser = new BizUser(username, username, roles);
         bizUser.setUserId("1");
         return (T) bizUser;
@@ -107,38 +107,55 @@ public interface ExtensibleSecurity<T> {
 
     /**
      * resolve token from request
-     * @param request
-     * @return
+     * @param request HttpServletRequest
+     * @return token
      */
     default String resolveToken(HttpServletRequest request) {
-        String token = request.getHeader(HEADER_NAME);
-        return token;
+        return request.getHeader(HEADER_NAME);
     }
 
     /**
      * obtain resource by request, when need(not max authorization user and not permit all uri)
-     * @param request
-     * @return
+     * @param request HttpServletRequest
+     * @return biz resource
      */
     default BizResource obtainResource(HttpServletRequest request) {
         RequestMatcher requestMatcher = new AntPathRequestMatcher("/**", request.getMethod());
         BizResource bizResource = new BizResource(requestMatcher);
-        bizResource.setRoles(new ArrayList<>(Arrays.asList("USER")));
+        bizResource.setRoles(new ArrayList<>(Collections.singletonList("USER")));
         return bizResource;
     }
 
     /**
      * authorization failure handler
-     * @param request
-     * @param response
-     * @param message
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param message message
+     * @throws IOException IOException
      */
     default void authorizationFailure(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().println(message);
     }
 
+    //=======================original extension===================
+    default void authenticationExtension(HttpSecurity http) throws Exception {
+        http.cors();
+        http.sessionManagement().disable();
+        http.csrf().disable();
+    }
+
+    //=======================original extension===================
+    default void authorizationExtension(HttpSecurity http) throws Exception {
+        http.cors();
+        http.sessionManagement().disable();
+        http.csrf().disable();
+        http.logout().disable();
+        http.formLogin().disable();
+        http.anonymous().disable();
+        http.securityContext().disable();
+        http.requestCache().disable();
+    }
 
 }

@@ -43,9 +43,6 @@ public class QuartzManager<T extends QuartzJob> {
 
     /**
      * 有则更新，无则创建
-     *
-     * @param job
-     * @throws Exception
      */
     public void saveOrUpdateJob(T job) throws Exception {
         // Keys are composed of both a name and group, and the name  must be unique within the group
@@ -63,9 +60,6 @@ public class QuartzManager<T extends QuartzJob> {
 
     /**
      * 创建子任务
-     *
-     * @param job
-     * @throws Exception
      */
     protected void createJob(T job) throws Exception {
         MethodInvokingJobDetailFactoryBean methodInvJobDetailFB = new MethodInvokingJobDetailFactoryBean();
@@ -106,11 +100,6 @@ public class QuartzManager<T extends QuartzJob> {
 
     /**
      * 更新相应的定时设置 根据job_status做相应的处理
-     *
-     * @param job
-     * @param triggerKey
-     * @param trigger
-     * @throws SchedulerException
      */
     protected void updateJob(T job, TriggerKey triggerKey, CronTrigger trigger) throws SchedulerException {
         if (job.isEnabled()) {// 0禁用 1启用

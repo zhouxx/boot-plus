@@ -24,7 +24,6 @@ public interface KeyGenerator {
 
     /**
      * generate key
-     * @return
      */
     Object generate();
 

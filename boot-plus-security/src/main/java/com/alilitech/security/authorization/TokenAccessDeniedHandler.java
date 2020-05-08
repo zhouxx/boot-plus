@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public class TokenAccessDeniedHandler implements AccessDeniedHandler {
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
     public TokenAccessDeniedHandler(ExtensibleSecurity extensibleSecurity) {
         this.extensibleSecurity = extensibleSecurity;

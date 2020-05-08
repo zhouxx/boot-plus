@@ -34,7 +34,7 @@ import java.util.Collection;
  */
 public class TriggerValue4NoKeyGenerator extends NoKeyGenerator {
 
-    private ParameterAssistant parameterAssistant = new ParameterAssistant();
+    private final ParameterAssistant parameterAssistant = new ParameterAssistant();
 
     @Override
     public void processBefore(Executor executor, MappedStatement mappedStatement, Statement stmt, Object parameterObject) {

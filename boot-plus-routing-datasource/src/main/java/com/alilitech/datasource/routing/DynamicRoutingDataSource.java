@@ -124,7 +124,7 @@ public abstract class DynamicRoutingDataSource extends AbstractDataSource implem
         if (this.targetDataSources == null) {
             throw new IllegalArgumentException("Property 'targetDataSources' is required");
         }
-        this.resolvedDataSources = new HashMap<Object, DataSource>();
+        this.resolvedDataSources = new HashMap<>();
 
         for (Map.Entry<Object, Object> entry : this.targetDataSources.entrySet()) {
             Object lookupKey = resolveSpecifiedLookupKey(entry.getKey());

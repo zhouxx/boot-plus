@@ -67,7 +67,7 @@ public class CompoundPredicateExpression<T> implements PredicateExpression<T> {
         renderContext.renderString("( ");
         String sep = "";
 
-        for(PredicateExpression predicateExpression : predicates) {
+        for(PredicateExpression<T> predicateExpression : predicates) {
             renderContext.renderString(sep);
             predicateExpression.render(renderContext);
             sep = " " + operator.toString() + " ";

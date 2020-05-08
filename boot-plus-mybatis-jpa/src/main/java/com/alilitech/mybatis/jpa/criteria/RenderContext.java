@@ -27,13 +27,13 @@ public class RenderContext {
 
     private StringBuilder scriptBuilder = new StringBuilder();
 
-    private AtomicInteger paramIndex = new AtomicInteger(0);
+    private final AtomicInteger paramIndex = new AtomicInteger(0);
 
     private String paramPrefixPrefix = "_parameter.paramValues.";
 
     private String paramPrefix = "param";
 
-    private Map<String, Object> paramValues = new ConcurrentHashMap<>();
+    private final Map<String, Object> paramValues = new ConcurrentHashMap<>();
 
     public RenderContext() {
     }

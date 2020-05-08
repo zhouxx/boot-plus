@@ -35,7 +35,7 @@ public class TokenLoginSuccessHandler extends SavedRequestAwareAuthenticationSuc
 
     private final SecurityTokenUtils securityTokenUtils;
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
     public TokenLoginSuccessHandler(SecurityTokenUtils securityTokenUtils, ExtensibleSecurity extensibleSecurity) {
         this.securityTokenUtils = securityTokenUtils;

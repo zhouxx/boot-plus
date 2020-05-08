@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 
@@ -35,7 +34,7 @@ import java.nio.charset.StandardCharsets;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class FileDownloadStreamingResponseBody extends AbstractStreamingResponseBody {
+public class FileDownloadStreamingResponseBody extends AbstractStreamingResponseBody<FileDownloadStreamingResponseBody> {
 
     protected String fileName;
 
@@ -55,7 +54,7 @@ public class FileDownloadStreamingResponseBody extends AbstractStreamingResponse
         super(file, mediaType);
     }
 
-    public AbstractStreamingResponseBody fileName(String fileName) {
+    public FileDownloadStreamingResponseBody fileName(String fileName) {
         this.fileName = fileName;
         return this;
     }

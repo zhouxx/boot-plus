@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class JpaMapperStatementBuilder {
 
-    private Logger logger = LoggerFactory.getLogger(JpaMapperStatementBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(JpaMapperStatementBuilder.class);
 
     /** mybatis */
     protected MapperBuilderAssistant builderAssistant;

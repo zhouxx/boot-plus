@@ -31,9 +31,9 @@ import java.io.IOException;
  */
 public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
-    private BlackListManager blackListManager;
+    private final BlackListManager blackListManager;
 
     public JwtLogoutSuccessHandler(ExtensibleSecurity extensibleSecurity, BlackListManager blackListManager) {
         this.extensibleSecurity = extensibleSecurity;

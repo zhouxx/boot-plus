@@ -9,7 +9,7 @@
 * web: json serialize, cros and so on
 * log management
 * swagger(api online)
-* mybatis extension：like jpa
+* mybatis extension：like jpa, but more smart
 * security integration: more simple, support JWT & Stateful Token
 
 
@@ -18,7 +18,7 @@
 
 ## 2.1 系统要求
 
-Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
+Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 ## 2.2 Maven 依赖
 
@@ -28,7 +28,7 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
         <dependency>
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -67,7 +67,7 @@ Boot Plus 1.1.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.2.0</version>
+                <version>1.2.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -193,7 +193,8 @@ mvc:
     allowedMethods: "*"
     allowCredentials: true
     maxAge: 3600
-    exposedHeaders: message
+    exposedHeaders: 
+      - message
 ```
 
 * enabled： 是否启用跨域
@@ -483,13 +484,13 @@ security:
 
 > 两种风格只需要切换配置即可。
 
-## 9.3 devlepement
+## 9.3 如何开发
 
 * 登录url:/authentication/login
 
 * 登出uri:/authentication/logout
 
-* 用户扩展类`ExtensibleSecurity` `，可自定义授权与鉴权部分
+* 用户扩展类`ExtensibleSecurity` ，可自定义授权与鉴权部分
 
   * validateToken: 校验token扩展，可自定义校验Token扩展，也可以刷新缓存期限
 
@@ -517,6 +518,23 @@ security:
   * obtainResource 根据request获得关联的角色信息
 
   * authorizationFailure 鉴权失败处理
+  
+  * authenticationExtension 授权原始框架扩展，默认情况下实现以下功能
+  
+    * 开启跨域支持
+    * session管理禁用
+    * csrf 禁用
+  
+  * authorizationExtension 鉴权原始框架扩展，默认情况下实现以下功能
+  
+    * 开启跨域支持
+    * session管理禁用
+    * csrf 禁用
+    * anonymous 禁用
+    * securityContext 禁用
+    * requestCache 禁用
+  
+  > 对于`authenticationExtension ` 和`authorizationExtension `原始默认实现功能不符合要求，可完全覆盖默认实现
 
 
 
@@ -550,7 +568,7 @@ base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的
 如果需要根据条件进行查询，可根据jpa规范实现，无需编写sql。如：
 
 ```java
-// 
+// select ... from xxx where name = ? and age = ? order by name desc
 List<User> findByNameAndAgeOrderByNameDesc(String name, Integer age)
 ```
 
@@ -578,6 +596,7 @@ List<User> findByNameAndAgeOrderByNameDesc(String name, Integer age)
 | IsFalse; False                              | xx is false                  |
 | IsNot; Not                                  | xx <> val                    |
 | Is; Equals                                  | xx = val                     |
+| In(传入list)                                | xx in (?, ?, ? ....)         |
 
 排序：
 
@@ -636,16 +655,35 @@ List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true
 在查询时，往往会关联多表查询。但在使用jpa的时候，可以定义关联关系。通过自定义关联关系，可自动关联查询。
 
 ```java
+@Table(name = "t_user")
 public class User {
+    
     @Id
-    private Long id;
+    private Long userId;
 
     //...
+    
+    private String deptNo
 
     @ManyToOne
-    @JoinColumn(name = "deptNo", referencedColumnName = "userId")
+    @JoinColumn(name = "deptNo", referencedColumnName = "deptNo")
     private Dept dept;
 }
+
+@Table(name = "t_dept")
+public class Detp {
+    
+    @Id
+    private Long deptId;
+    
+    private String deptNo;
+    
+    //...
+    
+    @OneToMany(mappedBy = "dept")
+    private List<User> users;
+}
+
 ```
 
 目前提供三种关联
@@ -659,7 +697,9 @@ public class User {
   
       //...
   	
+      //User表的userId和UserInfo表的userId一对一关联
       @OneToOne
+      @JoinColumn(name = "userId", referencedColumnName = "userId")
       private UserInfo userInfo;
   }
   
@@ -682,7 +722,8 @@ public class User {
       private Long dictId;
   
       //...
-  
+  	
+      //Dict表的doctId与DictVal表里的dictId关联
      	@OneToMany(mappedBy = "dict")
   	private List<DictVal> dictVals;
   }
@@ -694,7 +735,8 @@ public class User {
       private String dictId;
   
       //...
-  
+  	
+      //DictVal的dictId与Dict主键关联
      	@ManyToOne
   	private Dict dict;
   }
@@ -709,6 +751,9 @@ public class User {
   
       //...
   
+      //定义中间表user_role
+      //定义User表的userId与中间表的userId字段关联
+      //定义Role表的roleId与中间表的roleId字段关联
       @ManyToMany
   	@JoinTable(name = "user_role",
               joinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"),
@@ -744,10 +789,12 @@ public class User {
 	private Long id;
 	
 	//...
+    
+    private String deptNo
 	
-	@MappedStatement(exclude = {"findById"})     //findById方法时不查询dept
+	@MappedStatement(exclude = {"findById"})     //findById方法时不关联查询Dept
 	@ManyToOne
-	@JoinColumn(name = "deptNo")
+	@JoinColumn(name = "deptNo", referencedColumnName = "deptNo")
 	private Dept dept;
 }
 ```
@@ -765,11 +812,14 @@ public class User {
 	
 	//...
 	
+    private String deptNo;
+    
+    // 关联查Dept的时候加条件 deleted = 0 order by dept_no
 	@ManyToOne
 	@JoinColumn(name = "deptNo")
     @SubQuery(
             predicates = @SubQuery.Predicate(property = "deleted",condition = "= 0"),
-            orders = @SubQuery.Order(property = "deptNo"))
+            orders = @SubQuery.Order(property = "deptNo"))   
 	private Dept dept;
 }
 ```
@@ -782,7 +832,7 @@ public class User {
 
 ```java
 // WHERE ( dept_no = ? AND ( age > ? AND name like ?) ) order by name ASC
-testUserMapper.findSpecification(Specifications.and()
+userMapper.findSpecification(Specifications.and()
                 .equal("deptNo", "002")
                 .nested(builder -> {
                     builder.and()
@@ -802,7 +852,7 @@ testUserMapper.findPageSpecification(page, Specifications.and()
 或者自定义构建
 
 ```java
-testUserMapper.findSpecification((cb, query) -> {
+userMapper.findSpecification((cb, query) -> {
     PredicateExpression expression = cb.and(cb.in("deptNo", "002", "003"), cb.isNull("createTime"));
             PredicateExpression expression1 = cb.or(cb.lessThan("age", 18), expression);
             query.where(cb.equal("name", "Jack"), expression1);
@@ -816,7 +866,7 @@ testUserMapper.findSpecification((cb, query) -> {
 目前支持三种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位）。可如下定义：
 
 ```java
-public class TestUser {
+public class User {
 
     @GeneratedValue(GenerationType.IDENTITY)
     @Id
@@ -893,3 +943,55 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 
 提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
 
+# Part12 boot-plus-generator
+
+这是一个插件，方便生成domain和mapper层，使用方式如下：
+
+* 在需要生成代码的项目或模块里，定义一个xml文件`generate.xml`：
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <config>
+      <datasource>
+          <url>jdbc:mysql://localhost:3306/test?characterEncoding=utf-8</url>
+          <driverName>com.mysql.jdbc.Driver</driverName>
+          <username>root</username>
+          <password>root</password>
+      </datasource>
+  
+      <properties>
+          <projectPath>src/main/java</projectPath>
+          <packageName>com.alilitech</packageName>
+      </properties>
+  
+      <tables>
+          <table tableName="t_user" domainName="User" />
+          <!-- 可以多个table -->
+      </tables>
+  </config>
+  ```
+
+​		将此文件置于classpath下，注意此项目本身要有相关的数据库连接驱动，否则无法连接数据库。
+
+* 配置插件
+
+  ```xml
+  <build>
+          <plugins>
+              <plugin>
+                  <groupId>com.alilitech</groupId>
+                  <artifactId>boot-plus-generator</artifactId>
+                  <version>1.2.0</version>
+                  <dependencies>
+                      <dependency>
+                          <groupId>com.alilitech</groupId>
+                          <artifactId>boot-plus-mybatis-jpa</artifactId>
+                          <version>1.2.0</version>
+                      </dependency>
+                  </dependencies>
+              </plugin>
+          </plugins>
+  </build>
+  ```
+
+* 运行插件

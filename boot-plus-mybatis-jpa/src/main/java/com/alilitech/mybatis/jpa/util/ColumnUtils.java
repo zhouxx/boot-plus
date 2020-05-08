@@ -31,7 +31,7 @@ public class ColumnUtils {
      * 注解优先，{@link Column} name属性值。
      * 无注解,将字段名转为字符串,默认下划线风格.
      * @param field 字段对象
-     * @return
+     * @return 字段名称
      */
     public static String getColumnName(Field field) {
         if (field.isAnnotationPresent(Column.class)) {

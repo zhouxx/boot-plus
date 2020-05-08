@@ -27,14 +27,12 @@ public abstract class Pageable<T> extends RowBounds implements Serializable {
 
     /**
      * Returns the page to be returned.
-     *
      * @return the page to be returned.
      */
     public abstract Integer getPage();
 
     /**
      * Returns the number of items to be returned.
-     *
      * @return the number of items of that page
      */
     public abstract Integer getSize();
@@ -45,22 +43,20 @@ public abstract class Pageable<T> extends RowBounds implements Serializable {
 
     /**
      * Returns the sorting parameters.
-     *
-     * @return
+     * @return sort
      */
     public abstract Sort getSort();
 
     /**
      * Set return's content
-     * @param content
+     * @param content content
      */
     public abstract void setContent(Iterable<T> content);
 
     /**
      * Returns whether there's a previous {@link Pageable} we can access from the current one. Will return
      * {@literal false} in case the current {@link Pageable} already refers to the first page.
-     *
-     * @return
+     * @return has previous
      */
     public abstract boolean hasPrevious();
 

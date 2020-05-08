@@ -26,8 +26,8 @@ public interface ValidateHandler {
 
     /**
      * handler exception, 根据抛出的校验异常处理校验不通过返回
-     * @param e
-     * @return
+     * @param e just exception
+     * @return 请求返回
      */
-    ResponseEntity handle(Exception e);
+    ResponseEntity<?> handle(Exception e);
 }

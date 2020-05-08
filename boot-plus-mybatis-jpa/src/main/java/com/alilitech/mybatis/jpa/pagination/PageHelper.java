@@ -26,10 +26,9 @@ public class PageHelper {
 
     /**
      * 计算当前分页偏移量
-     *
      * @param current 当前页
      * @param size 每页显示数量
-     * @return
+     * @return 分页偏移量
      */
     public static int offsetCurrent(int current, int size) {
         if (current > 0) {
@@ -40,9 +39,9 @@ public class PageHelper {
 
 
     /**
-     *
-     * @param pagination
-     * @return
+     * 计算当前分页偏移量
+     * @param pagination 分页类
+     * @return 分页偏移量
      */
     public static int offsetCurrent(Pagination pagination) {
         if (null == pagination) {

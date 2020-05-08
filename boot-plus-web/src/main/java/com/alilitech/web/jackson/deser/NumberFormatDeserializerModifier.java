@@ -17,7 +17,6 @@ package com.alilitech.web.jackson.deser;
 
 import com.alilitech.web.jackson.anotation.NumberParse;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
@@ -54,17 +53,17 @@ public class NumberFormatDeserializerModifier extends BeanDeserializerModifier {
     }
 
     private boolean isNumberType(JavaType type) {
-        Class clazz = type.getRawClass();
+        Class<?> clazz = type.getRawClass();
         return clazz.equals(BigDecimal.class)
                 || clazz.equals(byte.class) || clazz.equals(short.class) || clazz.equals(int.class) || clazz.equals(long.class) || clazz.equals(double.class) || clazz.equals(float.class)
                 || clazz.equals(Byte.class) || clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Double.class) || clazz.equals(Float.class);
     }
 
-    protected class NumberJsonDeSerializer extends JsonDeserializer<Object> {
+    protected static class NumberJsonDeSerializer extends JsonDeserializer<Object> {
 
-        private NumberParse annotation;
+        private final NumberParse annotation;
 
-        private Class<?> targetClass;
+        private final Class<?> targetClass;
 
         NumberJsonDeSerializer(NumberParse annotation, JavaType javaType) {
             this.annotation = annotation;
@@ -72,7 +71,7 @@ public class NumberFormatDeserializerModifier extends BeanDeserializerModifier {
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             DecimalFormat df = new DecimalFormat(annotation.pattern());
             df.setParseBigDecimal(true);
             BigDecimal bigDecimal = (BigDecimal) df.parse(p.getText(), new ParsePosition(0));

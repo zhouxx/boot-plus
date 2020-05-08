@@ -28,7 +28,6 @@ public class KeyGenerator4UUID implements KeyGenerator {
 
     /**
      * System {@link UUID} and replace all '-'
-     * @return
      */
     @Override
     public Object generate() {

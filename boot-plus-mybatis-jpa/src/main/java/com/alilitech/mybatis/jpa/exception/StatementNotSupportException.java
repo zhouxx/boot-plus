@@ -14,15 +14,16 @@
  *    limitations under the License.
  */
 package com.alilitech.mybatis.jpa.exception;
+
 /**
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
 public class StatementNotSupportException extends RuntimeException {
 
-    private String namespace;
+    private final String namespace;
 
-    private String statement;
+    private final String statement;
 
     public StatementNotSupportException(String namespace, String statement) {
         this.namespace = namespace;
@@ -33,15 +34,8 @@ public class StatementNotSupportException extends RuntimeException {
         return namespace;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
     public String getStatement() {
         return statement;
     }
 
-    public void setStatement(String statement) {
-        this.statement = statement;
-    }
 }

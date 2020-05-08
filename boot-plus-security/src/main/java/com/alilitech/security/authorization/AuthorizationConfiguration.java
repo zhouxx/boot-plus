@@ -48,12 +48,10 @@ public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAd
     protected SecurityBizProperties securityBizProperties;
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         //ignore urls
         if(!StringUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
-            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> {
-                web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern());
-            });
+            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
         }
     }
 
@@ -71,20 +69,8 @@ public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAd
                     }
                 });
 
-        if(securityBizProperties.isCors()) {
-            http.cors();
-        }
-        http.sessionManagement().disable();
-        http.csrf().disable();
-        http.logout().disable();
-        http.formLogin().disable();
-        http.anonymous().disable();
-        http.headers().disable();
-        http.securityContext().disable();
-        http.requestCache().disable();
-
-        //http.portMapper().http(port).mapsTo(443);
-
         http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+
+        extensibleSecurity.authorizationExtension(http);
     }
 }

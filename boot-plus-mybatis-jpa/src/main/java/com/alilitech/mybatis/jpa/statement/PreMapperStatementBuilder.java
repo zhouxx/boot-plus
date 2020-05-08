@@ -260,8 +260,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * find语句提供ResultType或id
-     * @param preMapperStatement
-     * @param genericType
      */
     protected void setFindResultIdOrType(PreMapperStatement preMapperStatement, GenericType genericType) {
         if(resultType != null) {
@@ -278,7 +276,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * 生成复合查询的ResultMap
-     * @return
      */
     private String buildResultMap() {
 

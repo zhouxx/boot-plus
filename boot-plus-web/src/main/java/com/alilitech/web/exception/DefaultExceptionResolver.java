@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
-    private ExceptionHandler exceptionHandler;
+    private final ExceptionHandler exceptionHandler;
 
     public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
@@ -45,7 +45,7 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
         }
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.addHeader(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode("服务器内部错误"));
 
         return null;

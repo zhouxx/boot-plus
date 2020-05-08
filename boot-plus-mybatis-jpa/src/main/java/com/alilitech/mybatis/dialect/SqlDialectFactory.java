@@ -30,7 +30,7 @@ import com.alilitech.mybatis.jpa.pagination.Pagination;
  */
 public class SqlDialectFactory {
 
-    private DatabaseType databaseType;
+    private final DatabaseType databaseType;
 
     public SqlDialectFactory(String databaseId) {
         this.databaseType = DatabaseTypeRegistry.getInstance().get(databaseId);
@@ -40,17 +40,16 @@ public class SqlDialectFactory {
      * generate pageable SQL
      * @param page pageable Object
      * @param buildSql original SQL
-     * @return
-     * @throws Exception
+     * @return pageable sql
      */
-    public String buildPaginationSql(Pagination page, String buildSql)  {
+    public String buildPaginationSql(Pagination<?> page, String buildSql)  {
         return PaginationDialectRegistry.getInstance().get(databaseType).buildPaginationSql(buildSql, PageHelper.offsetCurrent(page), page.getSize());
     }
 
     /**
      * generate the sql to select the sequence
-     * @param sequenceName
-     * @return
+     * @param sequenceName sequence name
+     * @return key generator script
      */
     public String buildKeyGeneratorScript(String sequenceName) {
         return KeySqlDialectRegistry.getInstance().get(databaseType).generateKeySql(sequenceName);

@@ -29,7 +29,7 @@ import java.io.InputStream;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class FileViewStreamingResponseBody extends AbstractStreamingResponseBody {
+public class FileViewStreamingResponseBody extends AbstractStreamingResponseBody<FileViewStreamingResponseBody> {
 
     public FileViewStreamingResponseBody(InputStream inputStream) {
         super(inputStream);

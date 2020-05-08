@@ -24,7 +24,6 @@ import com.alilitech.swagger.web.model.DocParameter;
 import com.alilitech.swagger.web.model.DocResponse;
 import com.alilitech.swagger.web.model.WordDocument;
 import com.alilitech.web.file.FileDownloadStreamingResponseBody;
-import com.alilitech.web.file.FileViewStreamingResponseBody;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import freemarker.template.Configuration;
@@ -74,15 +73,15 @@ public class SwaggerCustomController {
     }
 
     @RequestMapping("v2/export")
-    public ResponseEntity<FileViewStreamingResponseBody> exportDocument(
+    public ResponseEntity<FileDownloadStreamingResponseBody> exportDocument(
             @RequestParam(value = "group", required = false) String swaggerGroup) throws IOException, TemplateException {
 
         //=====================引用swagger部分
         String groupName = Optional.ofNullable(swaggerGroup).orElse(Docket.DEFAULT_GROUP_NAME);
         Documentation documentation = documentationCache.documentationByGroup(groupName);
-        if (documentation == null) {
+        //if (documentation == null) {
             //return new ResponseEntity<Json>(HttpStatus.NOT_FOUND);
-        }
+        //}
         Swagger swagger = mapper.mapDocumentation(documentation);
 
         //Map<String, Path> paths = swagger.getPaths();

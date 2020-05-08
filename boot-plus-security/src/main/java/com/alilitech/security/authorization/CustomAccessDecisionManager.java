@@ -49,8 +49,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                         new Object[]{requestURI},
                         "Authorization is not allowed for {0}!"));
             }
-            ConfigAttribute configAttribute = attribute;
-            String needCode = configAttribute.getAttribute();
+            String needCode = attribute.getAttribute();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             for (GrantedAuthority authority : authorities) {
                 if (StringUtils.equals(authority.getAuthority(), needCode)) {

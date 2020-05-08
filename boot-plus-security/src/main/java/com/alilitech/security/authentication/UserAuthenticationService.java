@@ -35,9 +35,9 @@ import java.util.List;
  */
 public class UserAuthenticationService implements UserDetailsService {
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
-    private SecurityBizProperties securityBizProperties;
+    private final SecurityBizProperties securityBizProperties;
 
     public UserAuthenticationService(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties) {
         this.extensibleSecurity = extensibleSecurity;

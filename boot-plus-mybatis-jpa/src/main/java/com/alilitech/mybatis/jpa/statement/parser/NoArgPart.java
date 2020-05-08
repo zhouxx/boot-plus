@@ -27,9 +27,9 @@ import java.util.Optional;
  */
 public class NoArgPart implements Render {
 
-    private PropertyPath propertyPath;
+    private final PropertyPath propertyPath;
 
-    private String condition;
+    private final String condition;
 
     public NoArgPart(String property, Class<?> domainClass, MethodDefinition definition, String condition) {
         Assert.hasText(property, "SimplePart property must not be null or empty!");

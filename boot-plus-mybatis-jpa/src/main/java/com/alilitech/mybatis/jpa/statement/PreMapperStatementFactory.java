@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PreMapperStatementFactory {
 
-    private Logger logger = LoggerFactory.getLogger(PreMapperStatementFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(PreMapperStatementFactory.class);
 
     private static PreMapperStatementFactory preMapperStatementFactory;
 

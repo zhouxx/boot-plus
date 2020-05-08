@@ -27,6 +27,8 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -44,6 +46,8 @@ import java.util.Properties;
 @Component
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class PaginationInterceptor implements Interceptor {
+
+    private final Logger logger = LoggerFactory.getLogger(PaginationInterceptor.class);
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -98,8 +102,8 @@ public class PaginationInterceptor implements Interceptor {
 
     /**
      * 根据原生SQL,包装count SQL
-     * @param originalSql
-     * @return
+     * @param originalSql original sql
+     * @return count sql
      */
     private String getOriginalCountSql(String originalSql, DatabaseType databaseType) {
         if(databaseType == DatabaseType.MS_SQL_SERVER) {
@@ -114,10 +118,10 @@ public class PaginationInterceptor implements Interceptor {
 
     /**
      * 查询总记录条数
-     * @param sql
-     * @param mappedStatement
-     * @param boundSql
-     * @param page
+     * @param sql sql
+     * @param mappedStatement mappedStatement
+     * @param boundSql boundSql
+     * @param page page
      */
     protected void queryTotal(String sql, MappedStatement mappedStatement, BoundSql boundSql, Pagination page, Connection connection) {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -131,6 +135,8 @@ public class PaginationInterceptor implements Interceptor {
             }
             page.setTotal(total);
         } catch (Exception e) {
+            logger.error("select count occur error: {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 }

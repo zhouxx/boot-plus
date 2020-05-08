@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class CriteriaBuilder<T> {
 
-    private Class<T> domainClass;
+    private final Class<T> domainClass;
 
     public CriteriaBuilder(Class<T> domainClass) {
         this.domainClass = domainClass;
@@ -118,7 +118,7 @@ public class CriteriaBuilder<T> {
     }
 
     private PredicateExpression<T> buildPredicate(String property, OperatorExpression<T> operator, Object ...values) {
-        VariableExpression variable = new VariableExpression<T>(domainClass, property);
+        VariableExpression variable = new VariableExpression<>(domainClass, property);
         if(values != null && values.length > 0) {
             List<ParameterExpression<T>> parameters = Arrays.stream(values).map(value -> new ParameterExpression<T>(value)).collect(Collectors.toList());
             return new SinglePredicateExpression<>(variable, operator, parameters);
@@ -132,12 +132,12 @@ public class CriteriaBuilder<T> {
     }
 
     public OrderExpression<T> desc(String property) {
-        VariableExpression variable = new VariableExpression<T>(domainClass, property);
+        VariableExpression variable = new VariableExpression<>(domainClass, property);
         return new OrderExpression<>(variable, Direction.DESC);
     }
 
     public OrderExpression<T> asc(String property) {
-        VariableExpression variable = new VariableExpression<T>(domainClass, property);
+        VariableExpression variable = new VariableExpression<>(domainClass, property);
         return new OrderExpression<>(variable, Direction.ASC);
     }
 }

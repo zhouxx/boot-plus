@@ -34,36 +34,35 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BeanUtils {
 
 	/** Log */
-	private static Logger logger = LoggerFactory.getLogger(BeanUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
 
 	/** cache */
-	private static Map<Class, List<FieldDesc>> cache = new ConcurrentHashMap<>();
+	private static final Map<Class, List<FieldDesc>> cache = new ConcurrentHashMap<>();
 
 	/**
 	 * bean to map，only support the fields of the current class
-	 * @param source
-	 * @return map
+	 * @param source 源对象
+	 * @return map 结果
 	 */
-	public static Map<String, Object> beanToMapCommon(Object source) throws Exception {
+	public static Map<String, Object> beanToMapCommon(Object source) {
 		if(source == null) {
 			logger.debug("Source object is null");
 			return null;
 		}
-		Map<String, Object> mapRet = new HashMap<String, Object>();
+		Map<String, Object> mapRet = new HashMap<>();
 		List<TempBean> list = new BeanUtils().findSourceMethod(source);
-
-		for(TempBean tb : list) {
-			try {
-				Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO(), new Object[]{});
-				String fieldName = tb.getFieldDesc().getFieldName();
-				mapRet.put(fieldName, value);
-			} catch (NoSuchMethodException e) {
-				logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-				continue;
-			} catch (SecurityException e) {
-				logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-				continue;
+		try {
+			for (TempBean tb : list) {
+				try {
+					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO());
+					String fieldName = tb.getFieldDesc().getFieldName();
+					mapRet.put(fieldName, value);
+				} catch (NoSuchMethodException | SecurityException e) {
+					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
+				}
 			}
+		} catch (Exception e) {
+			logger.error("copy occur error: {}", e.getMessage());
 		}
 		return mapRet;
 	}
@@ -71,29 +70,27 @@ public class BeanUtils {
 	/**
 	 * bean to map，also support the field of the parent class
 	 * @param source source object
-	 * @return map
-	 * @throws Exception
+	 * @return map结果
 	 */
-	public static Map<String, Object> beanToMap(Object source) throws Exception {
+	public static Map<String, Object> beanToMap(Object source) {
 		if(source == null) {
 			logger.debug("Source object is null");
 			return null;
 		}
 		Map<String, Object> mapRet = new HashMap<>();
-		List<TempBean> list = new BeanUtils().findSourceMethod(source, null);
-		for(TempBean tb : list) {
+		try {
+			List<TempBean> list = new BeanUtils().findSourceMethod(source, null);
+			for (TempBean tb : list) {
 				try {
-					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO(), new Object[]{});
-					String fieldName = tb.getFieldDesc().getGetName();
+					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO());
+					String fieldName = tb.getFieldDesc().getFieldName();
 					mapRet.put(fieldName, value);
-				} catch (NoSuchMethodException e) {
+				} catch (NoSuchMethodException | SecurityException e) {
 					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-					continue;
-				} catch (SecurityException e) {
-					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-					continue;
 				}
-
+			}
+		}catch (Exception e) {
+			logger.error("copy occur error: {}", e.getMessage());
 		}
 		return mapRet;
 	}
@@ -102,14 +99,13 @@ public class BeanUtils {
 	 * 将源list属性拷贝成目标list
 	 * @param source 源list
 	 * @param clazz 目标list对象的类
-	 * @return
-	 * @throws Exception
+	 * @return 新的集合
 	 */
 	public static <T> List<T> copyPropertiesList(List<?> source, Class<T> clazz)  {
 		List listRet = new ArrayList();
 		if(!CollectionUtils.isEmpty(source)) {
-			for(int i=0; i<source.size(); i++) {
-				listRet.add(copyPropertiesDeep(source.get(i), clazz));
+			for (Object o : source) {
+				listRet.add(copyPropertiesDeep(o, clazz));
 			}
 		} else {
 			logger.debug("Source List is empty");
@@ -119,17 +115,13 @@ public class BeanUtils {
 
 	/**
 	 * support DK1.8 {@link Optional}
-	 * @param source
-	 * @param clazz
-	 * @param <T>
-	 * @return
 	 */
 	public static <T> Optional<T> copyPropertiesDeep(Optional<?> source, Class<T> clazz) {
 		if(source.isPresent()) {
 			T t = copyPropertiesDeep(source.get(), clazz);
 			return Optional.ofNullable(t);
 		} else {
-			return Optional.ofNullable(null);
+			return Optional.empty();
 		}
 	}
 
@@ -137,8 +129,7 @@ public class BeanUtils {
 	 * 将源对象的属性（包括聚合对象）拷贝到目标对象，目标对象必须为没有聚合的对象
 	 * @param source 源对象
 	 * @param clazz 目标对象类
-	 * @return
-	 * @throws Exception
+	 * @return 新的对象
 	 */
 	public static <T> T copyPropertiesDeep(Object source, Class<T> clazz)  {
 
@@ -149,9 +140,7 @@ public class BeanUtils {
 		T target = null;
 		try {
 			target = clazz.newInstance();
-		} catch (InstantiationException e) {
-			logger.error("init target object error");
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("init target object error");
 		}
 		copyPropertiesDeep(source, target);
@@ -162,7 +151,6 @@ public class BeanUtils {
 	 * 将源对象的属性（包括聚合对象）拷贝到目标对象，目标对象必须为没有聚合的对象
 	 * @param target 目标对象，不能为空
 	 * @param source 源对象
-	 * @throws Exception
 	 */
 	public static void copyPropertiesDeep(Object source, Object target) {
 		if(target == null) {
@@ -174,7 +162,7 @@ public class BeanUtils {
 			return;
 		}
 		try {
-			Map<String, TempBean> tbSourceMap = new BeanUtils().findSourceMethodAndTanslateGetNameMap(source);
+			Map<String, TempBean> tbSourceMap = new BeanUtils().findSourceMethodAndTranslateGetNameMap(source);
 			List<TempBean> listTarget = new BeanUtils().findSourceMethod(target, null);
 			for (TempBean tempBean : listTarget) {
 				try {
@@ -184,19 +172,15 @@ public class BeanUtils {
 					if (tempBeanSource == null) {
 						continue;
 					}
-					Method method = target.getClass().getMethod(tempBean.getFieldDesc().getSetName(), new Class[]{tempBean.getFieldDesc().getClazz()});
-					Object value = tempBeanSource.getO().getClass().getMethod(tempBeanSource.getFieldDesc().getGetName(), new Class[]{}).invoke(tempBeanSource.getO(), new Object[]{});
+					Method method = target.getClass().getMethod(tempBean.getFieldDesc().getSetName(), tempBean.getFieldDesc().getClazz());
+					Object value = tempBeanSource.getO().getClass().getMethod(tempBeanSource.getFieldDesc().getGetName(), new Class[]{}).invoke(tempBeanSource.getO());
 					//值为空不需要塞
 					if (value == null) {
 						continue;
 					}
-					method.invoke(target, new Object[]{value});
-				} catch (NoSuchMethodException e) {
+					method.invoke(target, value);
+				} catch (NoSuchMethodException | SecurityException e) {
 					logger.debug(tempBean.getFieldDesc().getSetName() + " is not exist, not covert!");
-					continue;
-				} catch (SecurityException e) {
-					logger.debug(tempBean.getFieldDesc().getSetName() + " is not exist, not covert!");
-					continue;
 				}
 			}
 		} catch (Exception e) {
@@ -206,11 +190,8 @@ public class BeanUtils {
 
 	/**
 	 * 查找对象源的get和set方法，包括聚合对象, 并转换成以get方法为key的Map
-	 * @param source
-	 * @return
-	 * @throws Exception
 	 */
-	protected Map<String, TempBean> findSourceMethodAndTanslateGetNameMap(Object source) throws Exception {
+	protected Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source) throws Exception {
 		List<TempBean> list = this.findSourceMethod(source, null);
 		Map<String, TempBean> retMap = new HashMap<>();
 		for(TempBean tb : list) {
@@ -221,9 +202,6 @@ public class BeanUtils {
 
 	/**
 	 * 查找对象源的get和set方法，包括聚合对象
-	 * @param source
-	 * @param list
-	 * @return
 	 */
 	protected List<TempBean> findSourceMethod(Object source, List<TempBean> list) throws Exception {
 		if(list == null) {
@@ -240,8 +218,7 @@ public class BeanUtils {
 
 			List<Field> sourceFields = getAllFields(clazzSource, null);
 
-			for (int i = 0; i < sourceFields.size(); i++) {
-				Field field = sourceFields.get(i);
+			for (Field field : sourceFields) {
 				if (isDirectConvert(field.getType())) {
 					descList.add(new FieldDesc(field));
 					continue;
@@ -281,9 +258,6 @@ public class BeanUtils {
 
 	/**
 	 * 只取类的第一层，不包括对象里的对象
-	 * @param source
-	 * @return
-	 * @throws Exception
 	 */
 	protected List<TempBean> findSourceMethod(Object source) {
 		List<TempBean> list = new ArrayList<>();
@@ -310,18 +284,13 @@ public class BeanUtils {
 
 	/**
 	 * 获得类的所有字段，包括父级字段
-	 * @param clazz
-	 * @param list
-	 * @return
 	 */
 	private List<Field> getAllFields(Class<?> clazz, List<Field> list) {
 		if(list == null) {
 			list = new ArrayList<>();
 		}
 		Field[] fields = clazz.getDeclaredFields();
-		for(Field field : fields) {
-			list.add(field);
-		}
+		list.addAll(Arrays.asList(fields));
 		if(!"Object".equals(clazz.getSuperclass().getSimpleName())) {
 			getAllFields(clazz.getSuperclass(), list);
 		}
@@ -331,23 +300,19 @@ public class BeanUtils {
 
 	/**
 	 * 根据对象和字段名获得这个字段的对象值
-	 * @param field
-	 * @param source
-	 * @return
 	 */
 	private Object getFieldObject(Field field, Object source) throws InvocationTargetException, IllegalAccessException {
 		String fieldName = field.getName();
-		Method method = null;
+		Method method;
 		try {
-			method = source.getClass().getMethod(JavaBeansUtil.getGetterMethodName(fieldName, field.getType().getSimpleName()), new Class[]{});
+			method = source.getClass().getMethod(JavaBeansUtil.getGetterMethodName(fieldName, field.getType().getSimpleName()));
 		} catch (NoSuchMethodException e) {
 			return null;
 		}
-		Object o = method.invoke(source, new Object[]{});
-		return o;
+		return method.invoke(source);
 	}
 
-	protected class TempBean {
+	protected static class TempBean {
 
 		FieldDesc fieldDesc;
 
@@ -375,7 +340,7 @@ public class BeanUtils {
 		}
 	}
 
-	protected class FieldDesc {
+	protected static class FieldDesc {
 
 		private String fieldName;
 		/** get方法名称 */

@@ -37,21 +37,21 @@ public class CompoundPredicateBuilder<T> extends PredicateBuilder<T> {
     }
 
     public CompoundPredicateBuilder() {
-        super(new EmptySpecificationBuilder());
+        super(new EmptySpecificationBuilder<>());
         this.operator = PredicateExpression.BooleanOperator.AND;
     }
 
     @Override
     public Specification<T> build() {
         return (cb, query) -> {
-            for (int i = 0; i < specifications.size(); i++) {
-                PredicateExpression predicateExpression = specifications.get(i).toPredicate(cb, query);
-                if(predicateExpression != null) {
+            for (Specification<T> specification : specifications) {
+                PredicateExpression<T> predicateExpression = specification.toPredicate(cb, query);
+                if (predicateExpression != null) {
                     this.predicates.add(predicateExpression);
                 }
             }
             if (!CollectionUtils.isEmpty(predicates)) {
-                return new CompoundPredicateExpression(this.operator, predicates);
+                return new CompoundPredicateExpression<>(this.operator, predicates);
             }
             return null;
         };

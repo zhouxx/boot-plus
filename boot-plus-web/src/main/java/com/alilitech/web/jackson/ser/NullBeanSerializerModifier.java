@@ -41,14 +41,14 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
     private boolean defaultNull;
     private String defaultNullValue;
 
-    private JsonSerializer<Object> _nullArrayJsonSerializer = new NullArrayJsonSerializer();
-    private JsonSerializer<Object> _nullStringJsonSerializer = new NullStringJsonSerializer();
-    private JsonSerializer<Object> _nullMapJsonSerializer = new NullMapJsonSerializer();
-    private JsonSerializer<Object> _nullDoubleJsonSerializer = new NullDoubleJsonSerializer();
-    private JsonSerializer<Object> _nullIntegerJsonSerializer = new NullIntegerJsonSerializer();
-    private JsonSerializer<Object> _nullDateJsonSerializer = new NullDateJsonSerializer();
-    private JsonSerializer<Object> _nullObjectJsonSerializer = new NullObjectJsonSerializer();
-    private JsonSerializer<Object> _nullBigDecimalJsonSerializer = new NullBigDecimalJsonSerializer();
+    private final JsonSerializer<Object> _nullArrayJsonSerializer = new NullArrayJsonSerializer();
+    private final JsonSerializer<Object> _nullStringJsonSerializer = new NullStringJsonSerializer();
+    private final JsonSerializer<Object> _nullMapJsonSerializer = new NullMapJsonSerializer();
+    private final JsonSerializer<Object> _nullDoubleJsonSerializer = new NullDoubleJsonSerializer();
+    private final JsonSerializer<Object> _nullIntegerJsonSerializer = new NullIntegerJsonSerializer();
+    private final JsonSerializer<Object> _nullDateJsonSerializer = new NullDateJsonSerializer();
+    private final JsonSerializer<Object> _nullObjectJsonSerializer = new NullObjectJsonSerializer();
+    private final JsonSerializer<Object> _nullBigDecimalJsonSerializer = new NullBigDecimalJsonSerializer();
 
     public NullBeanSerializerModifier() {
     }
@@ -73,16 +73,14 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
             }
         }
 
-        for(int i = 0; i < beanProperties.size(); ++i) {
-            BeanPropertyWriter writer = beanProperties.get(i);
-
+        for (BeanPropertyWriter writer : beanProperties) {
             String propertyDefaultNullValue = classDefaultNullValue;
 
             //属性指定的默认值
             NullFormat propertyNullFormat = writer.getAnnotation(NullFormat.class);
 
-            if(propertyNullFormat != null) {
-                if(!propertyNullFormat.defaultNull()) {
+            if (propertyNullFormat != null) {
+                if (!propertyNullFormat.defaultNull()) {
                     propertyDefaultNullValue = null;
                 } else {
                     propertyDefaultNullValue = propertyNullFormat.defaultNullValue();
@@ -90,28 +88,26 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
             }
 
             //如果提供了空值的默认值
-            if(propertyDefaultNullValue != null) {
+            if (propertyDefaultNullValue != null) {
                 writer.assignNullSerializer(new NullDefaultValueJsonSerializer(propertyDefaultNullValue));
-            } else if(defaultNull) {  //没有提供则提供不同类型的
-                if(this.isArrayType(writer)) {
+            } else if (defaultNull) {  //没有提供则提供不同类型的
+                if (this.isArrayType(writer)) {
                     writer.assignNullSerializer(this.defaultNullArrayJsonSerializer());
-                } else if(this.isStringType(writer)) {
+                } else if (this.isStringType(writer)) {
                     writer.assignNullSerializer(this.defaultNullStringJsonSerializer());
-                } else if(this.isMapType(writer)) {
+                } else if (this.isMapType(writer)) {
                     writer.assignNullSerializer(this.defaultNullMapJsonSerializer());
-                } else if(this.isDoubleType(writer)) {
+                } else if (this.isDoubleType(writer)) {
                     writer.assignNullSerializer(this.defaultNullDoubleJsonSerializer());
-                } else if(this.isBigDecimalType(writer)) {
+                } else if (this.isBigDecimalType(writer)) {
                     writer.assignNullSerializer(this.defaultNullBigDecimalJsonSerializer());
-                } else if(this.isIntegerType(writer)) {
+                } else if (this.isIntegerType(writer)) {
                     writer.assignNullSerializer(this.defaultNullIntegerJsonSerializer());
-                } else if(this.isDateType(writer)) {
+                } else if (this.isDateType(writer)) {
                     writer.assignNullSerializer(this.defaultNullDateJsonSerializer());
                 } else {
                     writer.assignNullSerializer(this.defaultNullObjectJsonSerializer());
                 }
-            } else {
-                //其它不做任何处理
             }
         }
 
@@ -120,37 +116,37 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
 
     private boolean isArrayType(BeanPropertyWriter writer) {
         //Class clazz = writer.getPropertyType();
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.isArray() || clazz.equals(List.class) || clazz.equals(Set.class);
     }
 
     private boolean isStringType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(String.class);
     }
 
     private boolean isMapType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(Map.class);
     }
 
     private boolean isBigDecimalType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(BigDecimal.class);
     }
 
     private boolean isDoubleType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(Double.class);
     }
 
     private boolean isIntegerType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Short.class);
     }
 
     private boolean isDateType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(Date.class) || clazz.equals(java.sql.Date.class);
     }
 

@@ -45,11 +45,11 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 
     protected MessageSourceAccessor messages = SecurityBizMessageSource.getAccessor();
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
-    private SecurityBizProperties securityBizProperties;
+    private final SecurityBizProperties securityBizProperties;
 
-    private Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMap = new HashMap<>();
+    private final Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMap = new HashMap<>();
 
     public CustomSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties) {
         this.extensibleSecurity = extensibleSecurity;
@@ -135,7 +135,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
             List<AntPathRequestMatcher> requestMatchers = securityBizProperties.getPermitAllPatterns().stream().map(requestMatcher -> new AntPathRequestMatcher(requestMatcher.getPattern(), requestMatcher.getMethod().toString())).collect(Collectors.toList());
             for(RequestMatcher requestMatcher : requestMatchers) {
                 ConfigAttribute configAttribute = new SecurityConfig("ROLE_PUBLIC");
-                requestMatchersPermitAllMap.put(requestMatcher, Arrays.asList(configAttribute));
+                requestMatchersPermitAllMap.put(requestMatcher, Collections.singletonList(configAttribute));
             }
         }
         return requestMatchersPermitAllMap;

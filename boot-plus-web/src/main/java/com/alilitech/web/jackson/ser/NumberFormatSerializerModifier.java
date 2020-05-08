@@ -50,15 +50,15 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
     }
 
     private boolean isNumberType(BeanPropertyWriter writer) {
-        Class clazz = writer.getType().getRawClass();
+        Class<?> clazz = writer.getType().getRawClass();
         return clazz.equals(BigDecimal.class)
                 || clazz.equals(byte.class) || clazz.equals(short.class) || clazz.equals(int.class) || clazz.equals(long.class) || clazz.equals(double.class) || clazz.equals(float.class)
                 || clazz.equals(Byte.class) || clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Double.class) || clazz.equals(Float.class);
     }
 
-    protected class NumberJsonSerializer extends JsonSerializer<Object> {
+    protected static class NumberJsonSerializer extends JsonSerializer<Object> {
 
-        private NumberFormat annotation;
+        private final NumberFormat annotation;
 
         NumberJsonSerializer(NumberFormat annotation) {
             this.annotation = annotation;
@@ -71,9 +71,9 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
                 if(value instanceof BigDecimal) {
                     bigDecimalValue = (BigDecimal) value;
                 } else if(value instanceof Double){
-                    bigDecimalValue = new BigDecimal((Double)value);
+                    bigDecimalValue = BigDecimal.valueOf((Double) value);
                 } else if(value instanceof Float){
-                    bigDecimalValue = new BigDecimal((Float)value);
+                    bigDecimalValue = BigDecimal.valueOf((Float) value);
                 } else if(value instanceof Long){
                     bigDecimalValue = new BigDecimal((Long)value);
                 } else if(value instanceof Integer){

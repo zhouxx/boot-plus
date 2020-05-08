@@ -30,7 +30,7 @@ import java.io.*;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public abstract class AbstractStreamingResponseBody implements StreamingResponseBody {
+public abstract class AbstractStreamingResponseBody<T extends AbstractStreamingResponseBody> implements StreamingResponseBody {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -73,6 +73,6 @@ public abstract class AbstractStreamingResponseBody implements StreamingResponse
         }
     }
 
-    public abstract <T extends AbstractStreamingResponseBody> ResponseEntity<T> toResponseEntity();
+    public abstract ResponseEntity<T> toResponseEntity();
 
 }

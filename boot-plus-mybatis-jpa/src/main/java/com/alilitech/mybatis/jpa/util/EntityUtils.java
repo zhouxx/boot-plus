@@ -32,8 +32,6 @@ public class EntityUtils {
 
     /**
      * 获取Java对象对应的表名, 默认下划线风格
-     * @param clazz
-     * @return
      */
     public static String getTableName(Class<?> clazz) {
         // 判断是否有Table注解
@@ -83,8 +81,6 @@ public class EntityUtils {
 
     /**
      * 是否为持久化字段{@link Transient}注解为非持久化字段
-     * @param field
-     * @return
      */
     public static boolean isPersistentField(Field field) {
         return !field.isAnnotationPresent(Transient.class);

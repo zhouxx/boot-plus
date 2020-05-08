@@ -44,7 +44,7 @@ public class SortArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Sort resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Sort resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         String[] directionParameter = webRequest.getParameterValues(DEFAULT_PARAMETER);
 
         // No parameter

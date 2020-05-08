@@ -47,12 +47,8 @@ public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
 
     private Boolean getBooleanData(Object object) {
         if(object instanceof Integer) {
-            Integer i = Integer.parseInt(object.toString());
-            if(i > 0) {
-                return true;
-            } else {
-                return false;
-            }
+            int i = Integer.parseInt(object.toString());
+            return i > 0;
         }
         return null;
     }

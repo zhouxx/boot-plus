@@ -38,7 +38,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final SortArgumentResolver DEFAULT_SORT_RESOLVER = new SortArgumentResolver();
 
-    private SortArgumentResolver sortResolver;
+    private final SortArgumentResolver sortResolver;
 
     public PageableArgumentResolver(SortArgumentResolver sortResolver) {
         this.sortResolver = sortResolver == null ? DEFAULT_SORT_RESOLVER : sortResolver;
@@ -50,7 +50,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Page resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Page resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         String pageString = webRequest.getParameter(DEFAULT_PAGE_PARAMETER);
         String pageSizeString = webRequest.getParameter(DEFAULT_SIZE_PARAMETER);
 
@@ -66,7 +66,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
         // Limit lower bound
         pageSize = pageSize < 1 ? pageable.getSize() : pageSize;
         // Limit upper bound
-        pageSize = pageSize > DEFAULT_MAX_PAGE_SIZE ? DEFAULT_MAX_PAGE_SIZE : pageSize;
+        pageSize = Math.min(pageSize, DEFAULT_MAX_PAGE_SIZE);
 
         //Sort解析转化
         Sort sort = sortResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
@@ -78,7 +78,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
 
         try {
             int parsed = Integer.parseInt(parameter) - (shiftIndex ? 1 : 0);
-            return parsed < 0 ? 0 : parsed > upper ? upper : parsed;
+            return parsed < 0 ? 0 : Math.min(parsed, upper);
         } catch (NumberFormatException e) {
             return 0;
         }

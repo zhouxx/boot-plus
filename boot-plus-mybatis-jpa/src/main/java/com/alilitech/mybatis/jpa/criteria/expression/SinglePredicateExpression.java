@@ -70,8 +70,8 @@ public class SinglePredicateExpression<T> implements PredicateExpression<T> {
 
         if(parameters != null && parameters.size() <= 0) {
             operator.render(renderContext);
-        } else {
-            Expression[] array = new Expression[parameters.size()];
+        } else if(parameters != null) {
+            Expression<T>[] array = new Expression[parameters.size()];
             operator.render(renderContext, parameters.toArray(array));
         }
     }

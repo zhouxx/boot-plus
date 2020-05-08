@@ -21,13 +21,11 @@ import com.alilitech.web.exception.DefaultExceptionResolver;
 import com.alilitech.web.jackson.BootPlusModule;
 import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -46,11 +44,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     public static final String TIP_KEY = "message";
 
-    private CorsProperties corsProperties;
+    private final CorsProperties corsProperties;
 
-    private BootPlusModule bootPlusModule;
+    private final BootPlusModule bootPlusModule;
 
-    private DefaultExceptionResolver defaultExceptionResolver;
+    private final DefaultExceptionResolver defaultExceptionResolver;
 
     public WebConfig(CorsProperties corsProperties,
                      DefaultExceptionResolver defaultExceptionResolver,
@@ -77,7 +75,7 @@ public class WebConfig implements WebMvcConfigurer {
                     .allowedOrigins(corsProperties.getAllowedOrigins())
                     .allowedMethods(corsProperties.getAllowedMethods())
                     .allowCredentials(corsProperties.isAllowCredentials())
-                    .exposedHeaders(StringUtils.tokenizeToStringArray(corsProperties.getExposedHeaders(), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS))
+                    .exposedHeaders(corsProperties.getExposedHeaders())
                     .maxAge(corsProperties.getMaxAge());
         }
     }

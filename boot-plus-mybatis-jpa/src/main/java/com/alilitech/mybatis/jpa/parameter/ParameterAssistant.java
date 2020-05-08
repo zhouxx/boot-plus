@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class ParameterAssistant {
 
-    private Logger logger = LoggerFactory.getLogger(ParameterAssistant.class);
+    private final Logger logger = LoggerFactory.getLogger(ParameterAssistant.class);
 
     public Collection<Object> getParameters(Object parameter) {
         Collection<Object> parameters = null;
@@ -80,7 +80,7 @@ public class ParameterAssistant {
 
             KeyGenerator keyGenerator = null;
 
-            if(idGenerationType != GenerationType.AUTO || generatorClass != KeyGenerator4Auto.class) {
+            if((idGenerationType != GenerationType.AUTO && idGenerationType != GenerationType.IDENTITY) || generatorClass != KeyGenerator4Auto.class) {
 
                 keyGenerator = GeneratorRegistry.getInstance().get(idGenerationType);
 

@@ -31,9 +31,9 @@ import java.io.IOException;
  */
 public class TokenLogoutSuccessHandler implements LogoutSuccessHandler {
 
-    private ExtensibleSecurity extensibleSecurity;
+    private final ExtensibleSecurity extensibleSecurity;
 
-    private SecurityTokenUtils securityTokenUtils;
+    private final SecurityTokenUtils securityTokenUtils;
 
     public TokenLogoutSuccessHandler(SecurityTokenUtils securityTokenUtils, ExtensibleSecurity extensibleSecurity) {
         this.extensibleSecurity = extensibleSecurity;

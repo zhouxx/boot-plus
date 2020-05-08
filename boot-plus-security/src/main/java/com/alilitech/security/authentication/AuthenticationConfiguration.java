@@ -15,7 +15,7 @@
  */
 package com.alilitech.security.authentication;
 
-import com.alilitech.security.SecurityBizProperties;
+import com.alilitech.security.ExtensibleSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -42,24 +42,20 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
     private LogoutSuccessHandler logoutSuccessHandler;
 
     @Autowired
-    protected SecurityBizProperties securityBizProperties;
+    protected ExtensibleSecurity extensibleSecurity;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         HttpSecurity httpSecurity = http.antMatcher("/authentication/*");
-        if(securityBizProperties.isCors()) {
-            httpSecurity.cors();
-        }
+
         httpSecurity.formLogin()
                 .loginProcessingUrl("/authentication/login")
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(loginFailureHandler)
                 ;
-        http.sessionManagement().disable();
-        http.csrf().disable();
-
         http.logout().logoutUrl("/authentication/logout").logoutSuccessHandler(logoutSuccessHandler);
 
+        extensibleSecurity.authenticationExtension(http);
     }
 }

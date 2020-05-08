@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class JpaInitializer {
 
-    private Configuration configuration;
+    private final Configuration configuration;
 
     protected final EntityMetaDataRegistry entityMetaDataRegistry = EntityMetaDataRegistry.getInstance();
 

@@ -139,7 +139,7 @@ public class Part implements Render {
 		String result = part;
 
 		if (matcher.find()) {
-			result = part.substring(0, matcher.start()) + part.substring(matcher.end(), part.length());
+			result = part.substring(0, matcher.start()) + part.substring(matcher.end());
 		}
 
 		return result;
@@ -284,7 +284,7 @@ public class Part implements Render {
 	 * @author Oliver Gierke
 	 * @author Thomas Darimont
 	 */
-	static enum Type {
+	enum Type {
 
 		NOT_BETWEEN(2, new Expression("not between #{0} and #{1}"), "IsNotBetween", "NotBetween"),
 		BETWEEN(2, new Expression("between #{0} and #{1}"), "IsBetween", "Between"),
@@ -322,7 +322,7 @@ public class Part implements Render {
 		public static final Collection<String> ALL_KEYWORDS;
 
 		static {
-			List<String> allKeywords = new ArrayList<String>();
+			List<String> allKeywords = new ArrayList<>();
 			for (Type type : ALL) {
 				allKeywords.addAll(type.keywords);
 			}
@@ -337,11 +337,8 @@ public class Part implements Render {
 		/**
 		 * Creates a new {@link Type} using the given keyword, number of arguments to be bound and comparison. Keyword and
 		 * comparison can be {@literal null}.
-		 *  @param numberOfArguments
-		 * @param expression
-		 * @param keywords
 		 */
-		private Type(int numberOfArguments, LikeType likeType, Expression expression, String... keywords) {
+		Type(int numberOfArguments, LikeType likeType, Expression expression, String... keywords) {
 
 			this.numberOfArguments = numberOfArguments;
 			this.expression = expression;
@@ -349,15 +346,15 @@ public class Part implements Render {
 			this.likeType = likeType;
 		}
 
-		private Type(int numberOfArguments, Expression expression, String... keywords) {
+		Type(int numberOfArguments, Expression expression, String... keywords) {
 			this(numberOfArguments, null, expression, keywords);
 		}
 
-		private Type(LikeType likeType, Expression expression, String... keywords) {
+		Type(LikeType likeType, Expression expression, String... keywords) {
 			this(1, likeType, expression, keywords);
 		}
 
-		private Type(Expression expression, String... keywords) {
+		Type(Expression expression, String... keywords) {
 			this(1, expression, keywords);
 		}
 
@@ -365,9 +362,6 @@ public class Part implements Render {
 		 * Returns the {@link Type} of the {@link Part} for the given raw propertyPath. This will try to detect e.g.
 		 * keywords contained in the raw propertyPath that trigger special query creation. Returns {@link #SIMPLE_PROPERTY}
 		 * by default.
-		 *
-		 * @param rawProperty
-		 * @return
 		 */
 		public static Part.Type fromProperty(String rawProperty) {
 
@@ -382,8 +376,6 @@ public class Part implements Render {
 
 		/**
 		 * Returns all keywords supported by the current {@link Type}.
-		 *
-		 * @return
 		 */
 		public Collection<String> getKeywords() {
 			return Collections.unmodifiableList(keywords);
@@ -392,9 +384,6 @@ public class Part implements Render {
 		/**
 		 * Returns whether the the type supports the given raw property. Default implementation checks whether the property
 		 * ends with the registered keyword. Does not support the keyword if the property is a valid field as is.
-		 *
-		 * @param property
-		 * @return
 		 */
 		protected boolean supports(String property) {
 
@@ -413,8 +402,6 @@ public class Part implements Render {
 
 		/**
 		 * Returns the number of arguments the propertyPath binds. By default this exactly one argument.
-		 *
-		 * @return
 		 */
 		public int getNumberOfArguments() {
 			return numberOfArguments;
@@ -425,9 +412,6 @@ public class Part implements Render {
 		/**
 		 * Callback method to extract the actual propertyPath to be bound from the given part. Strips the keyword from the
 		 * part's end if available.
-		 *
-		 * @param part
-		 * @return
 		 */
 		public String extractProperty(String part) {
 

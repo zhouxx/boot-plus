@@ -22,11 +22,11 @@ import com.alilitech.mybatis.jpa.domain.Direction;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class OrderExpression<T> implements Expression {
+public class OrderExpression<T> implements Expression<T> {
 
-    private VariableExpression<T> variable;
+    private final VariableExpression<T> variable;
 
-    private Direction direction;
+    private final Direction direction;
 
     public OrderExpression(VariableExpression<T> variable, Direction direction) {
         this.variable = variable;
@@ -34,7 +34,7 @@ public class OrderExpression<T> implements Expression {
     }
 
     @Override
-    public void render(RenderContext renderContext, Expression ...expressions) {
+    public void render(RenderContext renderContext, Expression<T> ...expressions) {
         variable.render(renderContext);
         renderContext.renderBlank();
         renderContext.renderString(direction.toString());

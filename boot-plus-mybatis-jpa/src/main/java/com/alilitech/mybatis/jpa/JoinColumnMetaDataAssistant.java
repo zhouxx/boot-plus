@@ -34,12 +34,12 @@ import java.util.List;
  */
 public class JoinColumnMetaDataAssistant {
 
-    private Logger logger = LoggerFactory.getLogger(JoinColumnMetaDataAssistant.class);
+    private final Logger logger = LoggerFactory.getLogger(JoinColumnMetaDataAssistant.class);
 
-    private EntityMetaData entityMetaData;
+    private final EntityMetaData entityMetaData;
 
     //哪些需要关联的方法
-    private List<JoinColumnMetaData> joinColumnList = new ArrayList<>();
+    private final List<JoinColumnMetaData> joinColumnList = new ArrayList<>();
 
     public JoinColumnMetaDataAssistant(EntityMetaData entityMetaData) {
         this.entityMetaData = entityMetaData;

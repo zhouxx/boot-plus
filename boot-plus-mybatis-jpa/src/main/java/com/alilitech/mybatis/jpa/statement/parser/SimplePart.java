@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public class SimplePart implements Render {
 
-    private PropertyPath propertyPath;
+    private final PropertyPath propertyPath;
 
     public SimplePart(String property, Class<?> domainClass, MethodDefinition definition) {
         Assert.hasText(property, "SimplePart property must not be null or empty!");

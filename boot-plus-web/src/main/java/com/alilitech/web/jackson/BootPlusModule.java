@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BootPlusModule extends SimpleModule {
 
-    private JsonProperties jsonProperties;
+    private final JsonProperties jsonProperties;
 
     private DictFormatSerializerModifier dictFormatSerializerModifier;
 

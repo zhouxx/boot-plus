@@ -27,10 +27,10 @@ import com.alilitech.mybatis.jpa.criteria.Specification;
 public interface SpecificationBuilder<T> {
 
     default OrderBuilder<T> order() {
-        return new OrderBuilder(this);
+        return new OrderBuilder<>(this);
     }
 
-    void build(CriteriaBuilder cb, CriteriaQuery query);
+    void build(CriteriaBuilder<T> cb, CriteriaQuery<T> query);
 
     default Specification<T> build() {
         return (cb, query) -> {

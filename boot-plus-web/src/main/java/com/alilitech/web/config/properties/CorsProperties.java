@@ -30,15 +30,15 @@ public class CorsProperties {
 
     private String path = "/**";
 
-    private String allowedOrigins = "*";
+    private String[] allowedOrigins = new String[]{"*"};
 
-    private String allowedMethods = "*";
+    private String[] allowedMethods = new String[]{"*"};
 
     private boolean allowCredentials = true;
 
     private long maxAge = 3600;
 
-    private String exposedHeaders = "";
+    private String[] exposedHeaders;
 
     public boolean isEnabled() {
         return enabled;
@@ -56,19 +56,19 @@ public class CorsProperties {
         this.path = path;
     }
 
-    public String getAllowedOrigins() {
+    public String[] getAllowedOrigins() {
         return allowedOrigins;
     }
 
-    public void setAllowedOrigins(String allowedOrigins) {
+    public void setAllowedOrigins(String[] allowedOrigins) {
         this.allowedOrigins = allowedOrigins;
     }
 
-    public String getAllowedMethods() {
+    public String[] getAllowedMethods() {
         return allowedMethods;
     }
 
-    public void setAllowedMethods(String allowedMethods) {
+    public void setAllowedMethods(String[] allowedMethods) {
         this.allowedMethods = allowedMethods;
     }
 
@@ -88,11 +88,11 @@ public class CorsProperties {
         this.maxAge = maxAge;
     }
 
-    public String getExposedHeaders() {
+    public String[] getExposedHeaders() {
         return exposedHeaders;
     }
 
-    public void setExposedHeaders(String exposedHeaders) {
+    public void setExposedHeaders(String[] exposedHeaders) {
         this.exposedHeaders = exposedHeaders;
     }
 }
