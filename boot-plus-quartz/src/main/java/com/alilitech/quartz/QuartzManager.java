@@ -63,6 +63,8 @@ public class QuartzManager<T extends QuartzJob> {
      */
     protected void createJob(T job) throws Exception {
         MethodInvokingJobDetailFactoryBean methodInvJobDetailFB = new MethodInvokingJobDetailFactoryBean();
+        // 并发设置
+        methodInvJobDetailFB.setConcurrent(job.isConcurrent());
         // 设置Job组名称
         methodInvJobDetailFB.setGroup(job.getJobGroup());
         // 设置Job名称
@@ -77,9 +79,6 @@ public class QuartzManager<T extends QuartzJob> {
         methodInvJobDetailFB.setTargetMethod(job.getMethodName());
         // 将管理Job类提交到计划管理类
         methodInvJobDetailFB.afterPropertiesSet();
-
-        /** 并发设置 */
-        // methodInvJobDetailFB.setConcurrent(job.getConcurrent().equals("1") ? true : false);
 
         JobDetail jobDetail = methodInvJobDetailFB.getObject();// 动态
         jobDetail.getJobDataMap().put("scheduleJob", job);

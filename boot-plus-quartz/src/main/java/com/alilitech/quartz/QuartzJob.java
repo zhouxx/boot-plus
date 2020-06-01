@@ -64,6 +64,11 @@ public class QuartzJob {
      */
     private String jobName;
 
+    /**
+     * 是否并发执行，此属性仅在创建时有效，修改时无效
+     */
+    private boolean concurrent = true;
+
     public String getClassName() {
         return className;
     }
@@ -132,5 +137,13 @@ public class QuartzJob {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public boolean isConcurrent() {
+        return concurrent;
+    }
+
+    public void setConcurrent(boolean concurrent) {
+        this.concurrent = concurrent;
     }
 }
