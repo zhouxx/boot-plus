@@ -19,6 +19,7 @@ import com.alilitech.mybatis.jpa.LikeContainer;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 
 
@@ -33,37 +34,61 @@ public class MybatisJpaParameterHandler extends DefaultParameterHandler {
         super(mappedStatement, process(mappedStatement, parameterObject, boundSql), boundSql);
     }
 
-    private static Object process(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+    @Override
+    public Object getParameterObject() {
+        return super.getParameterObject();
+    }
 
-        //对like参数进行转换，防止sql注入
-        if(parameterObject instanceof MapperMethod.ParamMap) {
+    private static Object process(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        //对like参数进行转换，防止sql注入，前提必须是有参数
+        if(parameterObject != null && mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
             String methodId = mappedStatement.getId();
             LikeContainer likeContainer = LikeContainer.getInstance();
 
-            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
-            paramMap.forEach((key, value) -> {
-                String likeKey = methodId + "." + key;
-                if(likeContainer.isExist(likeKey) && value != null) {
+            //多参数
+            if(parameterObject instanceof MapperMethod.ParamMap) {
+                MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+                paramMap.forEach((key, value) -> {
+                    String likeKey = methodId + "." + key;
+                    if(likeContainer.isExist(likeKey) && value != null) {
+                        switch (likeContainer.get(likeKey)) {
+                            case BEFORE: {
+                                paramMap.put(key, "%" + value);
+                                break;
+                            }
+                            case AFTER: {
+                                paramMap.put(key, value + "%");
+                                break;
+                            }
+                            case CONTAIN: {
+                                paramMap.put(key, "%" + value + "%");
+                                break;
+                            }
+                        }
+                    }
+                });
+            } else { // 单参数
+                String likeKey = methodId + "._parameter";
+                if(likeContainer.isExist(likeKey)) {
                     switch (likeContainer.get(likeKey)) {
                         case BEFORE: {
-                            paramMap.put(key, "%" + value);
+                            parameterObject = "%" + parameterObject;
                             break;
                         }
                         case AFTER: {
-                            paramMap.put(key, value + "%");
+                            parameterObject = parameterObject + "%";
                             break;
                         }
                         case CONTAIN: {
-                            paramMap.put(key, "%" + value + "%");
+                            parameterObject = "%" + parameterObject + "%";
                             break;
                         }
                     }
-                };
-            });
+                    // 单个参数，必须手动设置，否则无效。因为传参的是值，不是引用
+                    boundSql.setAdditionalParameter("_parameter", parameterObject);
+                }
+            }
         }
-
         return parameterObject;
-
     }
-
 }
