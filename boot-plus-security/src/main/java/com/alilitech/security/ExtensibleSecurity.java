@@ -63,6 +63,7 @@ public interface ExtensibleSecurity {
     default void loginSuccess(HttpServletRequest request, HttpServletResponse response, String token, BizUser bizUser) throws IOException {
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().println(token);
     }
 
@@ -76,6 +77,7 @@ public interface ExtensibleSecurity {
     default void loginFailure(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().println(message);
     }
 
@@ -136,6 +138,7 @@ public interface ExtensibleSecurity {
     default void authorizationFailure(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().println(message);
     }
 

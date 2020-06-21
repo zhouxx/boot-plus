@@ -20,17 +20,20 @@ import com.alilitech.security.SecurityBizProperties;
 import com.alilitech.security.SecurityConfiguration;
 import com.alilitech.security.jwt.authentication.JwtLoginSuccessHandler;
 import com.alilitech.security.jwt.authentication.JwtLogoutSuccessHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
 @ConditionalOnProperty(name="security.token.type", havingValue = "JWT")
 @Configuration
 @EnableCaching
@@ -57,7 +60,5 @@ public class SecurityJwtConfiguration extends SecurityConfiguration {
     public LogoutSuccessHandler logoutSuccessHandler(BlackListManager blackListManager, ExtensibleSecurity extensibleSecurity) {
         return new JwtLogoutSuccessHandler(extensibleSecurity, blackListManager);
     }
-
-
 
 }
