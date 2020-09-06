@@ -60,4 +60,10 @@ public abstract class Pageable<T> extends RowBounds implements Serializable {
      */
     public abstract boolean hasPrevious();
 
+    /**
+     * set select count
+     * @return
+     */
+    public abstract void setSelectCount(boolean selectCount);
+
 }

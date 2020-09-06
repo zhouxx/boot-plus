@@ -75,12 +75,15 @@ public class PaginationInterceptor implements Interceptor {
         // 针对定义了rowBounds，做为mapper接口方法的参数
         BoundSql boundSql = (BoundSql) metaObject.getValue("delegate.boundSql");
         String originalSql = boundSql.getSql();
-        Connection connection = (Connection) invocation.getArgs()[0];
+
         if (rowBounds instanceof Pagination) {
             Pagination page = (Pagination) rowBounds;
-            String sqlCount = getOriginalCountSql(originalSql, sqlDialectFactory.getDatabaseType());
-            this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
 
+            if(page.isSelectCount()) {
+                Connection connection = (Connection) invocation.getArgs()[0];
+                String sqlCount = getOriginalCountSql(originalSql, sqlDialectFactory.getDatabaseType());
+                this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
+            }
             originalSql = sqlDialectFactory.buildPaginationSql(page, originalSql);
         }
 

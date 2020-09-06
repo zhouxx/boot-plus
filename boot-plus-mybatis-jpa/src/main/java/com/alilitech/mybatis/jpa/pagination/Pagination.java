@@ -36,6 +36,8 @@ public abstract class Pagination<T> extends Pageable<T> {
 
     protected Integer page = 1;
 
+    protected boolean selectCount = true;
+
     public long getTotal() {
         return total;
     }
@@ -60,4 +62,12 @@ public abstract class Pagination<T> extends Pageable<T> {
         this.page = page;
     }
 
+    public boolean isSelectCount() {
+        return selectCount;
+    }
+
+    @Override
+    public void setSelectCount(boolean selectCount) {
+        this.selectCount = selectCount;
+    }
 }
