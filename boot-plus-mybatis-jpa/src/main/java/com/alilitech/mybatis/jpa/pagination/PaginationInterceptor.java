@@ -43,7 +43,6 @@ import java.util.Properties;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class PaginationInterceptor implements Interceptor {
 

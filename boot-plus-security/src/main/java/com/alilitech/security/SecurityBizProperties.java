@@ -17,7 +17,6 @@ package com.alilitech.security;
 
 import com.alilitech.security.domain.BizUser;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
@@ -28,7 +27,6 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Configuration
 @ConfigurationProperties(prefix = "security.token", ignoreUnknownFields = false)
 public class SecurityBizProperties {
 

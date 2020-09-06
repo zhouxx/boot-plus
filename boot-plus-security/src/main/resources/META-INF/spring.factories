@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.alilitech.security.jwt.SecurityJwtConfiguration,\
+com.alilitech.security.st.SecurityTokenConfiguration,\
+com.alilitech.security.authentication.AuthenticationConfiguration,\
+com.alilitech.security.jwt.authorization.JwtAuthorizationConfiguration,\
+com.alilitech.security.st.authorization.TokenAuthorizationConfiguration

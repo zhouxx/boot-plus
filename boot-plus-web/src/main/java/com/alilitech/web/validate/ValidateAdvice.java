@@ -16,7 +16,7 @@
 package com.alilitech.web.validate;
 
 import com.alilitech.core.util.UnicodeUtils;
-import com.alilitech.web.config.WebConfig;
+import com.alilitech.web.config.WebConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
@@ -54,7 +54,7 @@ public class ValidateAdvice {
         }
         ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
         return ResponseEntity.badRequest()
-                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
+                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class ValidateAdvice {
         }
         ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
         return ResponseEntity.badRequest()
-                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
+                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
                 .build();
     }
 
@@ -83,7 +83,7 @@ public class ValidateAdvice {
             }
         }
         return ResponseEntity.badRequest()
-                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
                 .build();
     }
 
@@ -97,7 +97,7 @@ public class ValidateAdvice {
             }
         }
         return ResponseEntity.notFound()
-                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
                 .build();
     }
 
@@ -111,7 +111,7 @@ public class ValidateAdvice {
             }
         }
         return ResponseEntity.notFound()
-                .header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
+                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
                 .build();
     }
 
@@ -124,7 +124,7 @@ public class ValidateAdvice {
                 return responseEntity;
             }
         }
-        return ResponseEntity.badRequest().header(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage())).build();
+        return ResponseEntity.badRequest().header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage())).build();
     }
 
 }

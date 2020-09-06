@@ -21,8 +21,8 @@ import com.alilitech.web.exception.DefaultExceptionResolver;
 import com.alilitech.web.jackson.BootPlusModule;
 import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -36,11 +36,11 @@ import java.util.List;
 /**
  *
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.4
  */
-@Configuration
-@Import({CorsProperties.class, JsonProperties.class, DictFormatSerializerModifier.class, DefaultExceptionResolver.class})
-public class WebConfig implements WebMvcConfigurer {
+@EnableConfigurationProperties({CorsProperties.class, JsonProperties.class})
+@Import({DictFormatSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
+public class WebConfiguration implements WebMvcConfigurer {
 
     public static final String TIP_KEY = "message";
 
@@ -50,9 +50,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final DefaultExceptionResolver defaultExceptionResolver;
 
-    public WebConfig(CorsProperties corsProperties,
-                     DefaultExceptionResolver defaultExceptionResolver,
-                     BootPlusModule bootPlusModule) {
+    public WebConfiguration(CorsProperties corsProperties,
+                            DefaultExceptionResolver defaultExceptionResolver,
+                            BootPlusModule bootPlusModule) {
         this.corsProperties = corsProperties;
         this.defaultExceptionResolver = defaultExceptionResolver;
         this.bootPlusModule = bootPlusModule;

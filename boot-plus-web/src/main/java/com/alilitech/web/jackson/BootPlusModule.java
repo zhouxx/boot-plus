@@ -22,18 +22,16 @@ import com.alilitech.web.jackson.ser.NullBeanSerializerModifier;
 import com.alilitech.web.jackson.ser.NumberFormatSerializerModifier;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-@Component
 public class BootPlusModule extends SimpleModule {
 
     private final JsonProperties jsonProperties;
 
-    private DictFormatSerializerModifier dictFormatSerializerModifier;
+    private final DictFormatSerializerModifier dictFormatSerializerModifier;
 
     public BootPlusModule(JsonProperties jsonProperties,
                           DictFormatSerializerModifier dictFormatSerializerModifier) {

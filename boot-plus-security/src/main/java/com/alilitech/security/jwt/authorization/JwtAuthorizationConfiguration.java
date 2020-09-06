@@ -20,7 +20,6 @@ import com.alilitech.security.jwt.BlackListManager;
 import com.alilitech.security.jwt.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
@@ -29,7 +28,6 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @since 1.0
  */
 @ConditionalOnProperty(name="security.token.type", havingValue = "JWT")
-@Configuration
 public class JwtAuthorizationConfiguration extends AuthorizationConfiguration {
 
     @Autowired

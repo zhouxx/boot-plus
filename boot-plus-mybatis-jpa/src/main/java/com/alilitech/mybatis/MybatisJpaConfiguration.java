@@ -13,22 +13,35 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.mybatis.spring;
+package com.alilitech.mybatis;
 
 import com.alilitech.mybatis.dialect.KeySqlDialectRegistry;
 import com.alilitech.mybatis.dialect.PaginationDialectRegistry;
+import com.alilitech.mybatis.jpa.DatabaseIdProviderImpl;
 import com.alilitech.mybatis.jpa.DatabaseTypeRegistry;
+import com.alilitech.mybatis.jpa.pagination.PaginationInterceptor;
+import com.alilitech.mybatis.jpa.parameter.MybatisJpaConfigurationCustomizer;
 import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
+import com.alilitech.mybatis.spring.DatabaseRegistry;
+import com.alilitech.mybatis.spring.MybatisJpaConfigurer;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.Nullable;
+
+import java.util.List;
 
 /**
- *
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.4
  */
 @Configuration
-public class MyBatisJpaSpringConfiguration {
+public class MybatisJpaConfiguration {
+
+    @Bean
+    public MybatisJpaStart mybatisJpaStart(SqlSessionFactory sqlSessionFactory, DatabaseRegistry databaseRegistry, DatabaseTypeRegistry databaseTypeRegistry, KeySqlDialectRegistry keySqlDialectRegistry, PaginationDialectRegistry paginationDialectRegistry,@Nullable List<MybatisJpaConfigurer> mybatisJpaConfigurers) {
+        return new MybatisJpaStart(sqlSessionFactory, databaseRegistry, databaseTypeRegistry, keySqlDialectRegistry, paginationDialectRegistry, mybatisJpaConfigurers);
+    }
 
     @Bean
     public PaginationDialectRegistry paginationDialectRegistry() {
@@ -53,6 +66,21 @@ public class MyBatisJpaSpringConfiguration {
     @Bean
     public GeneratorRegistry generatorRegistry() {
         return GeneratorRegistry.getInstance();
+    }
+
+    @Bean
+    public DatabaseIdProviderImpl databaseIdProvider() {
+        return new DatabaseIdProviderImpl();
+    }
+
+    @Bean
+    public MybatisJpaConfigurationCustomizer mybatisJpaConfigurationCustomizer() {
+        return new MybatisJpaConfigurationCustomizer();
+    }
+
+    @Bean
+    public PaginationInterceptor paginationInterceptor() {
+        return new PaginationInterceptor();
     }
 
 }

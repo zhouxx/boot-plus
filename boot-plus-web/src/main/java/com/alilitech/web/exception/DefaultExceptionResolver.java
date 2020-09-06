@@ -15,7 +15,7 @@
  */
 package com.alilitech.web.exception;
 
-import com.alilitech.web.config.WebConfig;
+import com.alilitech.web.config.WebConfiguration;
 import com.alilitech.core.util.UnicodeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,7 +46,7 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.addHeader(WebConfig.TIP_KEY, UnicodeUtils.stringToUnicode("服务器内部错误"));
+        response.addHeader(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode("服务器内部错误"));
 
         return null;
     }

@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 public class MybatisJpaConfigurationCustomizer implements ConfigurationCustomizer {
     @Override
     public void customize(Configuration configuration) {

@@ -22,9 +22,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
@@ -34,15 +32,14 @@ import java.util.Arrays;
  * By default, it only runs with "logging.aspect = true".
  */
 @Aspect
-@Component
 @ConditionalOnProperty(value = "logging.aspect", havingValue = "true")
 public class LoggingAspect {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final ObjectProvider<LogExtension> logExtension;
+    private final LogExtension logExtension;
 
-    public LoggingAspect(ObjectProvider<LogExtension> logExtension) {
+    public LoggingAspect(LogExtension logExtension) {
         this.logExtension = logExtension;
     }
 
@@ -63,8 +60,8 @@ public class LoggingAspect {
      */
     @Around("loggingPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        if(logExtension.getIfAvailable() != null) {
-            logExtension.getIfAvailable().beforeEnter(joinPoint.getSignature(), joinPoint.getArgs());
+        if(logExtension != null) {
+            logExtension.beforeEnter(joinPoint.getSignature(), joinPoint.getArgs());
         }
 
         if (log.isDebugEnabled()) {
@@ -77,8 +74,8 @@ public class LoggingAspect {
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName(), result);
             }
-            if(logExtension.getIfAvailable() != null) {
-                result = logExtension.getIfAvailable().afterExit(joinPoint.getSignature(), result);
+            if(logExtension != null) {
+                result = logExtension.afterExit(joinPoint.getSignature(), result);
             }
             return result;
         } catch (IllegalArgumentException e) {

@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
  * @since 1.0
  */
 @Aspect
-@Component
 public class DynamicDataSourceAspect implements Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

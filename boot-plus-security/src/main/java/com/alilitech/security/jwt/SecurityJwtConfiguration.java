@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
@@ -35,7 +34,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  */
 @ConditionalOnClass(WebSecurityConfigurerAdapter.class)
 @ConditionalOnProperty(name="security.token.type", havingValue = "JWT")
-@Configuration
 @EnableCaching
 public class SecurityJwtConfiguration extends SecurityConfiguration {
 

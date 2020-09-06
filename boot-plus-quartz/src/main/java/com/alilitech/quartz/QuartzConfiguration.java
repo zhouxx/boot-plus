@@ -13,20 +13,19 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.datasource.routing.config;
+package com.alilitech.quartz;
 
-import com.alilitech.datasource.routing.DynamicDataSourceRegister;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
+import org.springframework.context.annotation.Bean;
 
 /**
- *
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.4
  */
-@Configuration
-@Import(DynamicDataSourceRegister.class)
-public class DynamicDataSourceConfig {
+public class QuartzConfiguration {
+
+    @Bean
+    public QuartzManager quartzManager() {
+        return new QuartzManager();
+    }
 
 }

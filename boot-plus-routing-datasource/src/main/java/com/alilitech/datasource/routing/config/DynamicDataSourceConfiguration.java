@@ -13,26 +13,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.log.config;
+package com.alilitech.datasource.routing.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import com.alilitech.datasource.routing.DynamicDataSourceRegister;
+import org.springframework.context.annotation.Import;
+
 
 /**
+ *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Configuration
-public class LogConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("log.html")
-                .addResourceLocations("classpath:/");
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/resources/webjars/");
-    }
+@Import(DynamicDataSourceRegister.class)
+public class DynamicDataSourceConfiguration {
 
 }

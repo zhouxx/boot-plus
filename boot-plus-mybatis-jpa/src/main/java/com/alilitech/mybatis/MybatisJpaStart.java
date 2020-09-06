@@ -32,7 +32,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
 
@@ -44,7 +43,6 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 @Order(Ordered.HIGHEST_PRECEDENCE - 10)
 public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 

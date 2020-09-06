@@ -19,7 +19,6 @@ import com.alilitech.security.authorization.AuthorizationConfiguration;
 import com.alilitech.security.st.SecurityTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
@@ -28,7 +27,6 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @since 1.0
  */
 @ConditionalOnProperty(name="security.token.type", havingValue = "ST")
-@Configuration
 public class TokenAuthorizationConfiguration extends AuthorizationConfiguration {
 
     @Autowired

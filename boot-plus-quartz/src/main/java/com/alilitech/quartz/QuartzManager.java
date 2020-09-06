@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
-import org.springframework.stereotype.Component;
 
 
 /**
@@ -30,7 +29,6 @@ import org.springframework.stereotype.Component;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 public class QuartzManager<T extends QuartzJob> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

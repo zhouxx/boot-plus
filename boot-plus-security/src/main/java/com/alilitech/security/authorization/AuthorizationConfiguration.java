@@ -18,6 +18,7 @@ package com.alilitech.security.authorization;
 import com.alilitech.security.ExtensibleSecurity;
 import com.alilitech.security.SecurityBizProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -30,6 +31,7 @@ import org.springframework.util.StringUtils;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@EnableConfigurationProperties({SecurityBizProperties.class})
 public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired

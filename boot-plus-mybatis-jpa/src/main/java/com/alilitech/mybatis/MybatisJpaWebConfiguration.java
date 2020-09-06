@@ -13,11 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.mybatis.web;
+package com.alilitech.mybatis;
 
+import com.alilitech.mybatis.web.PageableArgumentResolver;
+import com.alilitech.mybatis.web.SortArgumentResolver;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -25,11 +26,10 @@ import java.util.List;
 
 /**
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.4
  */
-@Configuration
 @ConditionalOnClass(WebMvcConfigurer.class)
-public class MybatisJpaConfiguration implements WebMvcConfigurer {
+public class MybatisJpaWebConfiguration implements WebMvcConfigurer {
 
     @Bean
     public PageableArgumentResolver mybatisPageableResolver() {

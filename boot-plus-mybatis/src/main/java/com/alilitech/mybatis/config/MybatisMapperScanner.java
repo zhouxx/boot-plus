@@ -49,7 +49,6 @@ import static org.springframework.util.Assert.notNull;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor, ResourceLoaderAware, InitializingBean, EnvironmentAware {
 
     private static final Logger logger = LoggerFactory.getLogger(MybatisMapperScanner.class);

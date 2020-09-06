@@ -26,7 +26,6 @@ import java.util.Properties;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Component
 public class DatabaseIdProviderImpl extends VendorDatabaseIdProvider {
 
     @Override

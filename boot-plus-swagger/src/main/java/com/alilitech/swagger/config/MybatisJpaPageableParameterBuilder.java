@@ -50,7 +50,6 @@ import static springfox.documentation.spi.schema.contexts.ModelContext.inputPara
  * @since 1.0
  */
 @Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
-@Component
 @ConditionalOnClass(Pageable.class)
 @Order(Ordered.LOWEST_PRECEDENCE + 10)
 public class MybatisJpaPageableParameterBuilder implements OperationBuilderPlugin {

@@ -4,3 +4,7 @@ com.alilitech.diagnostics.analyzer.PropertyNotFoundFailureAnalyzer,\
 com.alilitech.diagnostics.analyzer.ParameterNumberNotMatchFailureAnalyzer,\
 com.alilitech.diagnostics.analyzer.StatementNotSupportFailureAnalyzer
 
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.alilitech.mybatis.MybatisJpaConfiguration,\
+com.alilitech.mybatis.MybatisJpaWebConfiguration
+

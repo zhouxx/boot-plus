@@ -18,12 +18,13 @@ package com.alilitech.swagger.config;
 import com.alilitech.core.constants.Profiles;
 import com.alilitech.swagger.config.properties.Authorized;
 import com.alilitech.swagger.config.properties.SwaggerProperties;
+import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -38,13 +39,17 @@ import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.schema.ModelRef;
+import springfox.documentation.schema.TypeNameExtractor;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Predicates.or;
 import static java.util.stream.Collectors.toList;
@@ -54,8 +59,8 @@ import static java.util.stream.Collectors.toList;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Configuration
-@Import(BeanValidatorPluginsConfiguration.class)
+@EnableConfigurationProperties(SwaggerProperties.class)
+@Import({BeanValidatorPluginsConfiguration.class})
 @EnableSwagger2
 @Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
 public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware {
@@ -182,6 +187,16 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
     @Override
     public void setEnvironment(Environment environment) {
         this.env = environment;
+    }
+
+    @Bean
+    public MybatisJpaPageableParameterBuilder mybatisJpaPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
+        return new MybatisJpaPageableParameterBuilder(nameExtractor, resolver);
+    }
+
+    @Bean
+    public DataPageableParameterBuilder dataPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
+        return new DataPageableParameterBuilder(nameExtractor, resolver);
     }
 
 }
