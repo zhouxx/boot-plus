@@ -122,7 +122,13 @@ public class QuartzJob {
     }
 
     public String getJobGroup() {
-        this.jobGroup = this.className.lastIndexOf(".") == -1 ? "" : this.getClassName().substring(0, this.className.lastIndexOf("."));
+        if(this.jobGroup == null || this.jobGroup.equals("")) {
+            if(this.className != null) {
+                this.jobGroup = this.className;
+            } else {
+                this.jobGroup = this.beanName;
+            }
+        }
         return jobGroup;
     }
 
@@ -131,7 +137,9 @@ public class QuartzJob {
     }
 
     public String getJobName() {
-        this.jobName = this.className.lastIndexOf(".") == -1 ? "" : this.getClassName().substring(this.className.lastIndexOf(".") + 1);
+        if(jobName == null || jobName.equals("")) {
+            this.jobName = this.methodName;
+        }
         return jobName;
     }
 
