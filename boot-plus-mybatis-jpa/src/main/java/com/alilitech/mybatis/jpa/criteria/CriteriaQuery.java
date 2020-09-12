@@ -55,7 +55,7 @@ public class CriteriaQuery<T> {
 
     public CriteriaQuery orderBy(OrderExpression ...orderExpressions) {
         if(orderExpressions != null && orderExpressions.length > 0) {
-            renderContext.renderString("order by ");
+            renderContext.renderString("ORDER BY ");
             String split = "";
             for (OrderExpression orderExpression : orderExpressions) {
                 renderContext.renderString(split);

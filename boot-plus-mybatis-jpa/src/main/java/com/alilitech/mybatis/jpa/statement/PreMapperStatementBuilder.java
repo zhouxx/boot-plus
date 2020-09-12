@@ -165,7 +165,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
             String paramName = methodDefinition.isOneParameter() ? "_parameter" : ("arg" + methodDefinition.getSortIndex());
             StringBuilder orderString = new StringBuilder()
                     .append("<if test=\"" + paramName + "!= null\">")
-                    .append("<foreach item=\"item\" index=\"index\" open=\"order by\" separator=\", \" close=\"\" collection=\"" + paramName + ".orders\">")
+                    .append("<foreach item=\"item\" index=\"index\" open=\"ORDER BY\" separator=\", \" close=\"\" collection=\"" + paramName + ".orders\">")
                     .append("${item.property} ${item.direction}")
                     .append("</foreach>")
                     .append("</if>");

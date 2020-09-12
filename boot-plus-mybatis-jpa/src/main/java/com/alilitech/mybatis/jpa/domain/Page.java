@@ -98,4 +98,18 @@ public class Page<T> extends Pagination<T> {
     public boolean hasPrevious() {
         return page > 0;
     }
+
+    public static <T> Page<T> get() {
+        return new Page<T>();
+    }
+
+    public Page page(Integer page) {
+        this.setPage(page);
+        return this;
+    }
+
+    public Page size(Integer size) {
+        this.setSize(size);
+        return this;
+    }
 }

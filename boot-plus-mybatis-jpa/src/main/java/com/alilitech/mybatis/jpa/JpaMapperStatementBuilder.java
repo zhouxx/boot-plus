@@ -72,7 +72,12 @@ public class JpaMapperStatementBuilder {
 
             if(!configuration.hasStatement(builderAssistant.getCurrentNamespace() + "." + methodDefinition.getMethodName())) {
 
-                logger.trace("add statement==>" + builderAssistant.getCurrentNamespace() + "." + methodDefinition.getMethodName());
+                String statement = builderAssistant.getCurrentNamespace() + "." + methodDefinition.getMethodName();
+
+                logger.trace("add statement==>" + statement);
+
+                // add to statement registry
+                AutoGenerateStatementRegistry.getInstance().addStatement(statement);
 
                 PreMapperStatement preMapperStatement = PreMapperStatementFactory.getInstance().createPreMapperStatement(configuration, builderAssistant, methodDefinition, mapperDefinition.getGenericType());
 

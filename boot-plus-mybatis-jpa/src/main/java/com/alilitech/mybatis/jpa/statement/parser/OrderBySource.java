@@ -101,7 +101,7 @@ public class OrderBySource implements Render {
     @Override
     public void render(RenderContext context) {
         if(!CollectionUtils.isEmpty(orders)) {
-            context.renderString("order by ");
+            context.renderString("ORDER BY ");
             String delim = "";
             for(Order order : orders) {
                 context.renderString(delim);

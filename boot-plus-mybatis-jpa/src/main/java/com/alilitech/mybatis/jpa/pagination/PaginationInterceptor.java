@@ -16,7 +16,7 @@
 package com.alilitech.mybatis.jpa.pagination;
 
 import com.alilitech.mybatis.dialect.SqlDialectFactory;
-import com.alilitech.mybatis.jpa.DatabaseType;
+import com.alilitech.mybatis.jpa.AutoGenerateStatementRegistry;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -29,12 +29,13 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -47,6 +48,10 @@ import java.util.Properties;
 public class PaginationInterceptor implements Interceptor {
 
     private final Logger logger = LoggerFactory.getLogger(PaginationInterceptor.class);
+
+    private static Pattern fromPattern = Pattern.compile("\\sfrom\\s");
+
+    private static Pattern orderPattern = Pattern.compile("\\sorder\\s+by\\s");
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -80,7 +85,7 @@ public class PaginationInterceptor implements Interceptor {
 
             if(page.isSelectCount()) {
                 Connection connection = (Connection) invocation.getArgs()[0];
-                String sqlCount = getOriginalCountSql(originalSql, sqlDialectFactory.getDatabaseType());
+                String sqlCount = buildCountSql(originalSql, mappedStatement.getId());
                 this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
             }
             originalSql = sqlDialectFactory.buildPaginationSql(page, originalSql);
@@ -103,18 +108,39 @@ public class PaginationInterceptor implements Interceptor {
     }
 
     /**
-     * 根据原生SQL,包装count SQL
+     * according to the original sql to build `count sql`
      * @param originalSql original sql
      * @return count sql
      */
-    private String getOriginalCountSql(String originalSql, DatabaseType databaseType) {
-        if(databaseType == DatabaseType.MS_SQL_SERVER) {
+    private String buildCountSql(String originalSql, String statement) {
+//        if(databaseType == DatabaseType.MS_SQL_SERVER) {
+//            String loweredString = originalSql.toLowerCase();
+//            int orderByIndex = loweredString.indexOf("order by");
+//            if (orderByIndex != -1) {
+//                originalSql = originalSql.substring(0, orderByIndex);
+//            }
+//        }
+
+        // only auto generate statement optimize select count sql
+        if(AutoGenerateStatementRegistry.getInstance().contains(statement)) {
             String loweredString = originalSql.toLowerCase();
-            int orderByIndex = loweredString.indexOf("order by");
-            if (orderByIndex != -1) {
-                originalSql = originalSql.substring(0, orderByIndex);
+
+            // order matcher to optimize `order by`
+            Matcher orderMatcher = orderPattern.matcher(loweredString);
+            if(orderMatcher.find()) {
+                originalSql = originalSql.substring(0, orderMatcher.start());
+                loweredString = loweredString.substring(0, orderMatcher.start());
+            }
+
+            Matcher fromMatcher = fromPattern.matcher(loweredString);
+            if (fromMatcher.find()) {
+                return "SELECT COUNT(1)" + originalSql.substring(fromMatcher.start());
+            } else {
+                return String.format("SELECT COUNT(1) FROM ( %s ) TOTAL", originalSql);
             }
         }
+
+        // custom sql
         return String.format("SELECT COUNT(1) FROM ( %s ) TOTAL", originalSql);
     }
 
