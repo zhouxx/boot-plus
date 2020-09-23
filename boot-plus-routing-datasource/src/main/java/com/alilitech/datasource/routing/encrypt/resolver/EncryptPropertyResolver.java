@@ -13,25 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.datasource.routing.config;
-
-import com.alilitech.datasource.routing.DynamicDataSourceRegister;
-import com.alilitech.datasource.routing.aop.DynamicDataSourceAspect;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-
+package com.alilitech.datasource.routing.encrypt.resolver;
 
 /**
  *
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.6
  */
-@Import(DynamicDataSourceRegister.class)
-public class DynamicDataSourceConfiguration {
+public interface EncryptPropertyResolver {
 
-    @Bean
-    public DynamicDataSourceAspect dynamicDataSourceAspect() {
-        return new DynamicDataSourceAspect();
-    }
+    /**
+     * determine whether to resolve
+     * @param key property key
+     * @param value property value
+     * @return result
+     */
+    boolean supportResolve(String key, String value);
+
+    /**
+     * resolve
+     * @param value property value
+     * @return the result of resolve
+     */
+    String resolve(String value);
 
 }

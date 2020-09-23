@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,21 +27,21 @@ public class DataSourceContextHolder {
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
 
     /**
-     * 设置数据源名
+     * set data source name
      */
     public static void setDataSource(String dataSourceName) {
         contextHolder.set(dataSourceName);
     }
 
     /**
-     * 获取数据源名
+     * get data source name
      */
     public static String getDataSource() {
         return contextHolder.get();
     }
 
     /**
-     * 清除数据源名
+     * clear data source name
      */
     public static void clearDataSource() {
         contextHolder.remove();

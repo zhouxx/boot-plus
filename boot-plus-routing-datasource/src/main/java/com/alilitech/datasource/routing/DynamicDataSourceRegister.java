@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package com.alilitech.datasource.routing;
 
+import com.alilitech.datasource.routing.encrypt.resolver.EncryptPropertyResolver;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -25,10 +26,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.bind.BindHandler;
-import org.springframework.boot.context.properties.bind.BindResult;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.bind.*;
 import org.springframework.boot.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +39,8 @@ import java.util.*;
 
 
 /**
- * 动态注册DefaultDynamicDataSource数据源作为主数据源，并把原数据源置为defaultDataSource
+ * Dynamically register the Default Dynamic Data Source data source as the main data source,
+ * And set the original data source as the default Data Source
  *
  * @author ZhouXiaoxiang
  * @since 1.0
@@ -54,40 +53,60 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
 
     private ApplicationContext context;
 
+    private static final String SPRING_DATASOURCE_PREFIX = "spring.datasource";
+
     private final ConfigurationPropertyName SPRING_DATASOURCE = ConfigurationPropertyName
-            .of("spring.datasource");
+            .of(SPRING_DATASOURCE_PREFIX);
 
     private static final Bindable<Map<String, String>> STRING_STRING_MAP = Bindable
             .mapOf(String.class, String.class);
 
+    private EncryptPropertyResolver encryptPropertyResolver;
+
+    /**
+     * to resolve the result
+     */
+    private BindHandler bindHandler = new BindHandler() {
+        @Override
+        public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+            if(encryptPropertyResolver != null && target.getType().getType().equals(String.class)) {
+                if(encryptPropertyResolver.supportResolve(name.toString(), result.toString())) {
+                    result = encryptPropertyResolver.resolve(result.toString());
+                    return result;
+                }
+            }
+            return result;
+        }
+    };
+
+
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
-        //没有数据源返回
+        // do nothing without dataSource
         if(!registry.containsBeanDefinition(DATASOURCE_BEAN_NAME)) {
             return;
         }
 
-        //取得已经注册的数据源
+        // get the registered data source
         BeanDefinition beanDefinition = registry.getBeanDefinition(DATASOURCE_BEAN_NAME);
-
 
         if(beanDefinition instanceof AbstractBeanDefinition) {
             AbstractBeanDefinition abstractBeanDefinition = (AbstractBeanDefinition) beanDefinition;
-            //移除并添加为defaultDataSource的数据源
+            // Remove and add the data source as the default Data Source
             registry.removeBeanDefinition(DATASOURCE_BEAN_NAME);
 
             registry.registerBeanDefinition("defaultDataSource", abstractBeanDefinition);
 
-            //新建动态数据源，并注册为系统数据源
+            // Create a new dynamic data source and register it as a system data source
             GenericBeanDefinition dynamicBeanDefinition = new GenericBeanDefinition();
             dynamicBeanDefinition.setBeanClass(DefaultDynamicDataSource.class);
             dynamicBeanDefinition.setSynthetic(true);
             dynamicBeanDefinition.setPrimary(true);
 
-            //初始化的路由列表
+            // initialized routing list
             Map<Object, Object> targetDataSources = new HashMap<>();
-            //初始化配置的数据源列表，在spring.datasource下并以ds开头的就是数据源
+            // Initialize the configured dataSource list, under 'spring.datasource' and start with 'ds' is the dataSource
             addConfigDataSource(targetDataSources);
 
             MutablePropertyValues mpv = dynamicBeanDefinition.getPropertyValues();
@@ -104,11 +123,6 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
         Map<String, String> datasourceMap = binder.bind(SPRING_DATASOURCE, STRING_STRING_MAP)
                 .orElseGet(Collections::emptyMap);
 
-       /* List<String> list = Binder.get(environment).bind("spring.datasource", String[].class)
-                .map(Arrays::asList).orElse(Collections.emptyList());
-
-        String[] excludes = environment.getProperty("spring.datasource", String[].class);*/
-
         List<String> dataSourceNames = new ArrayList<>();
 
         datasourceMap.forEach((k, v) -> {
@@ -120,6 +134,18 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
                 }
             }
         });
+
+        /**
+         * try to init bean if exist {@link EncryptPropertyResolver} bean
+         * bean will be instantiated in advance
+         */
+        if(dataSourceNames.size() > 0) {
+            try {
+                encryptPropertyResolver = context.getBean(EncryptPropertyResolver.class);
+            } catch (BeansException e) {
+                // do nothing
+            }
+        }
 
         dataSourceNames.forEach(dataSourceName -> targetDataSources.put(dataSourceName, buildDataSource(dataSourceName)));
 
@@ -141,15 +167,22 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
     }
 
     private DataSource buildDataSource(String dataSourceName) {
-        BindResult<DataSourceProperties> bindResult = Binder.get(environment).bind("spring.datasource." + dataSourceName, DataSourceProperties.class);
+        // according to the need for encryption and resolver, construct different results
+        BindResult<DataSourceProperties> bindResult;
+        if(encryptPropertyResolver == null) {
+            bindResult = Binder.get(environment).bind(SPRING_DATASOURCE_PREFIX + "." + dataSourceName, DataSourceProperties.class);
+        } else {
+            bindResult = Binder.get(environment).bind(SPRING_DATASOURCE_PREFIX + "." + dataSourceName, Bindable.of(DataSourceProperties.class), bindHandler);
+        }
+
         DataSource dataSource = bindResult.get().initializeDataSourceBuilder().build();
 
-        //if datasource type is HikariDataSource, bind properties to hikari
+        // if datasource type is HikariDataSource, bind properties to hikari
         if(hasClass("com.zaxxer.hikari.HikariDataSource")) {
             if(dataSource instanceof HikariDataSource) {
                 BindHandler bindHandler = new IgnoreTopLevelConverterNotFoundBindHandler();
                 Bindable<?> target = Bindable.of(HikariDataSource.class).withExistingValue((HikariDataSource) dataSource);
-                Binder.get(environment).bind("spring.datasource." + dataSourceName + ".hikari", target, bindHandler);
+                Binder.get(environment).bind(SPRING_DATASOURCE_PREFIX + "." + dataSourceName + ".hikari", target, bindHandler);
             }
         }
 

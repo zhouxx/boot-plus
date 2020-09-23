@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 
@@ -39,24 +38,19 @@ public class DynamicDataSourceAspect implements Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    //@Autowired
-    //private DataSource primaryDataSource;
-
     @Before("@annotation(com.alilitech.datasource.routing.annotation.DynamicSource) || @within(com.alilitech.datasource.routing.annotation.DynamicSource)")
     public void beforeSwitchDataSource(JoinPoint point) throws NoSuchMethodException {
 
-        //获得当前访问的class
         Class<?> clazz = point.getTarget().getClass();
-
-        //获得访问的方法名
         String methodName = point.getSignature().getName();
-        //得到方法的参数的类型
         Class[] argClass = ((MethodSignature)point.getSignature()).getParameterTypes();
-        String dataSourceName = null;
-        // 得到访问的方法对象
+        // access method object
         Method method = clazz.getMethod(methodName, argClass);
 
-        // 判断是否存在@DynamicSource注解
+        String dataSourceName = null;
+        /**
+         * Determine whether there is {@link DynamicSource} annotation
+          */
         if (method.isAnnotationPresent(DynamicSource.class) || clazz.isAnnotationPresent(DynamicSource.class)) {
             DynamicSource annotation = method.getAnnotation(DynamicSource.class);
 
@@ -64,7 +58,7 @@ public class DynamicDataSourceAspect implements Ordered {
                 annotation = clazz.getAnnotation(DynamicSource.class);
             }
 
-            //若是运行期间指定，则拿指定的数据源名称
+            // 若是运行期间指定，则拿指定的数据源名称
             if(annotation.runtime()) {
                 dataSourceName = DataSourceContextHolder.getDataSource();
             } else {
@@ -74,7 +68,7 @@ public class DynamicDataSourceAspect implements Ordered {
 
         }
 
-        // 切换数据源
+        // switch data source
         DataSourceContextHolder.setDataSource(dataSourceName);
 
         if(dataSourceName != null) {
@@ -87,7 +81,7 @@ public class DynamicDataSourceAspect implements Ordered {
         DataSourceContextHolder.clearDataSource();
     }
 
-    //AOP在事务前面切入
+    // aop cuts in before the transaction
     @Override
     public int getOrder() {
         return -1;
