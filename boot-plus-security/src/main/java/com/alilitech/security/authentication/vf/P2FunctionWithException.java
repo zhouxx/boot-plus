@@ -13,12 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.security;
+package com.alilitech.security.authentication.vf;
+
+import org.springframework.security.core.AuthenticationException;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
 
 /**
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.2.6
  */
-public class DefaultExtensibleSecurity implements ExtensibleSecurity {
+public interface P2FunctionWithException<T, U, R> {
 
+    /**
+     * Applies this function to the given arguments.
+     *
+     * @param t the first function argument
+     * @param u the second function argument
+     * @return the function result
+     */
+    R apply(T t, U u) throws AuthenticationException, IOException, ServletException;
 }

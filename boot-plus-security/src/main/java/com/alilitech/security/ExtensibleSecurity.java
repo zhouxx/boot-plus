@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,14 @@
  */
 package com.alilitech.security;
 
+import com.alilitech.security.authentication.vf.VirtualFilterDefinition;
 import com.alilitech.security.domain.BizResource;
 import com.alilitech.security.domain.BizUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -48,11 +50,20 @@ public interface ExtensibleSecurity {
      * @param response HttpServletResponse
      * @throws AccessDeniedException when validate error
      */
-    default void validateToken(BizUser bizUser, HttpServletRequest request, HttpServletResponse response) throws AccessDeniedException {
+    default void validTokenExtension(String token, BizUser bizUser, HttpServletRequest request, HttpServletResponse response) throws AccessDeniedException {
 
     }
 
     //=======================Authentication===================
+
+    /**
+     * config/add {@link VirtualFilterDefinition}s for Authentication
+     * @param virtualFilterDefinitions
+     */
+    default void addVirtualFilterDefinitions(List<VirtualFilterDefinition> virtualFilterDefinitions) {
+
+    }
+
     /**
      * login success handler
      * @param request HttpServletRequest
@@ -71,14 +82,13 @@ public interface ExtensibleSecurity {
      * login failure handler
      * @param request HttpServletRequest
      * @param response HttpServletResponse
-     * @param message message
      * @throws IOException IOException
      */
-    default void loginFailure(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
+    default void loginFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().println(message);
+        response.getWriter().println(exception.getMessage());
     }
 
     /**

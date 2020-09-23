@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,10 @@ import java.util.Collection;
 public class SecurityUser extends User {
 
     private BizUser bizUser;
+
+    public SecurityUser(String username, Collection<? extends GrantedAuthority> authorities) {
+        this(username, "", authorities);
+    }
 
     public SecurityUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);

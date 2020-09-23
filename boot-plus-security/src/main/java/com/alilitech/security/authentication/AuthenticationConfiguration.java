@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,19 @@
 package com.alilitech.security.authentication;
 
 import com.alilitech.security.ExtensibleSecurity;
+import com.alilitech.security.SecurityBizProperties;
+import com.alilitech.security.authentication.vf.SecurityVirtualFilter;
+import com.alilitech.security.authentication.vf.VirtualFilterDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Zhou Xiaoxiang
@@ -42,17 +49,34 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     protected ExtensibleSecurity extensibleSecurity;
 
+    @Autowired
+    protected SecurityBizProperties securityBizProperties;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        HttpSecurity httpSecurity = http.antMatcher("/authentication/*");
+        String prefix = securityBizProperties.getAuthenticationPrefix();
+
+        HttpSecurity httpSecurity = http.antMatcher(prefix + "/**");
 
         httpSecurity.formLogin()
-                .loginProcessingUrl("/authentication/login")
+                .loginProcessingUrl(prefix + "/login")
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(loginFailureHandler)
                 ;
-        http.logout().logoutUrl("/authentication/logout").logoutSuccessHandler(logoutSuccessHandler);
+        http.logout().logoutUrl(prefix + "/logout").logoutSuccessHandler(logoutSuccessHandler);
+
+        List<VirtualFilterDefinition> virtualFilterDefinitions = new ArrayList<>();
+        extensibleSecurity.addVirtualFilterDefinitions(virtualFilterDefinitions);
+
+        if(virtualFilterDefinitions.size() > 0) {
+            virtualFilterDefinitions.forEach(virtualFilterDefinition -> {
+                SecurityVirtualFilter securityVirtualFilter = new SecurityVirtualFilter(virtualFilterDefinition);
+                securityVirtualFilter.setAuthenticationFailureHandler(loginFailureHandler);
+                securityVirtualFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+                http.addFilterBefore(securityVirtualFilter, UsernamePasswordAuthenticationFilter.class);
+            });
+        }
 
         extensibleSecurity.authenticationExtension(http);
     }

@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,7 +82,7 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
             Authentication authentication = jwtTokenUtils.getAuthentication(token);
 
             //extension validateToken
-            extensibleSecurity.validateToken(((SecurityUser) authentication.getPrincipal()).getBizUser(), request, response);
+            extensibleSecurity.validTokenExtension(token, ((SecurityUser) authentication.getPrincipal()).getBizUser(), request, response);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(
             HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) throws IOException {
-        extensibleSecurity.loginFailure(request, response, exception.getMessage());
+        extensibleSecurity.loginFailure(request, response, exception);
     }
 }

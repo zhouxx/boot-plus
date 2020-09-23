@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +31,14 @@ import java.util.List;
 public class SecurityBizProperties {
 
     /**
-     * Authentication and authorization is cors
+     * authentication and authorization is cors
      */
     private boolean cors;
+
+    /**
+     * authentication uri prefix
+     */
+    private String authenticationPrefix = "/authentication";
 
     /**
      * ignore url patterns that not managed by security
@@ -72,6 +77,14 @@ public class SecurityBizProperties {
 
     public void setCors(boolean cors) {
         this.cors = cors;
+    }
+
+    public String getAuthenticationPrefix() {
+        return authenticationPrefix;
+    }
+
+    public void setAuthenticationPrefix(String authenticationPrefix) {
+        this.authenticationPrefix = authenticationPrefix;
     }
 
     public List<RequestMatcher> getIgnorePatterns() {
