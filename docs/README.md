@@ -28,7 +28,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
         <dependency>
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.6</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -67,7 +67,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.2.1</version>
+                <version>1.2.6</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -137,13 +137,32 @@ spring:
 代码里动态使用数据源的方式采用注解，一般在service层。比如：
 
 ```java
-@DynamicSource("second")
+@DynamicSource("ds-second")
 public void exeService() {
     
 }
 ```
 
-## 4.2 动态添加/移除数据源
+## 4.2 加密密码解析
+
+部分在配置文件里的密码是加密的，但在连数据的时候需要明文。所以提供了`EncryptPropertyResolver`来解析。
+
+```java
+@Component
+public class MyEncryptPropertyResolver implements EncryptPropertyResolver {
+    @Override
+    public boolean supportResolve(String key, String value) {
+        return key.equals("spring.datasource.ds-second.password");
+    }
+
+    @Override
+    public String resolve(String value) {
+        return value;
+    }
+}
+```
+
+## 4.3 动态添加/移除数据源
 
 代码里可以动态地创建数据源，并添加到多数据源里。
 
@@ -439,6 +458,7 @@ security:
     permitAllUserNames: 
       - admin
     bizUserClassName: 
+    authenticationPrefix: "/authentication"
     jwt:
       secret:                    # 加密串
       timeoutMin:                # Token超时, 单位：分钟
@@ -480,19 +500,20 @@ security:
     permitAllUserNames: 
       - admin
     bizUserClassName: 
+    authenticationPrefix: "/authentication"
 ```
 
 > 两种风格只需要切换配置即可。
 
 ## 9.3 如何开发
 
-* 登录url:/authentication/login
+* 登录url: ${authenticationPrefix}/login
 
-* 登出uri:/authentication/logout
+* 登出uri: ${authenticationPrefix}/logout
 
 * 用户扩展类`ExtensibleSecurity` ，可自定义授权与鉴权部分
 
-  * validateToken: 校验token扩展，可自定义校验Token扩展，也可以刷新缓存期限
+  * validTokenExtension: 校验token扩展，可自定义校验Token扩展，也可以刷新缓存期限
 
   * loginSuccess: 登录成功处理
 
@@ -500,24 +521,53 @@ security:
 
   * logoutSuccess: 登出成功处理
 
-  * loadUserByUsername: 根据用户名加载信息，包括用户名，密码。若需要鉴权的用户则需要加入角色信息
+  * loadUserByUsername: 
 
+    为用户名和密码方式的认证提供方法。
+  
+    根据用户名加载信息，包括用户名，密码。若需要鉴权的用户则需要加入角色信息
+  
     ```java
     if(maxAuth) {
         BizUser bizUser = new BizUser(user.getUserName(), user.getPassword(), new ArrayList<>());
         return bizUser;
     } else {
         List<String> roleCodes = ....
-        BizUser bizUser = new BizUser(user.getUserName(), user.getPassword(), roleCodes);
+      BizUser bizUser = new BizUser(user.getUserName(), user.getPassword(), roleCodes);
         return bizUser;
-    }
+  }
     ```
 
-  * resolveToken 解析Token
-
-  * obtainResource 根据request获得关联的角色信息
-
+  * resolveToken 根据请求解析Token
+  
+  * obtainResource 根据request（资源）获得关联的角色信息，以验证此用户是否有权限
+  
   * authorizationFailure 鉴权失败处理
+  
+  * addVirtualFilterDefinitions 
+  
+    我们可能有这样的需求，一个认证请求会同时验证好多数据，比如登陆时附带验证码的时候，我们需要先验证验证码，再验证用户名和密码。我们可以定义多个`VirtualFilterDefinition`，如：
+  
+    ```java
+    virtualFilterDefinitions.add(VirtualFilterDefinition.get().supportedPredicate((servletRequest, servletResponse) -> {
+        		// 此filter是否支持验证判断
+                AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher("/authentication/login", "POST");
+                RequestMatcher.MatchResult matcher = requestMatcher.matcher((HttpServletRequest) servletRequest);
+                return matcher.isMatch();
+            }).authenticationFunction((servletRequest, servletResponse) -> {
+        		// 如何验证，验证失败时可以抛出AuthenticationException
+                String code = servletRequest.getParameter("code");
+                if("1".equals(code)) {
+                    return null;
+                }
+                throw new UsernameNotFoundException("验证码错误");
+            }).endAuthentication((authentication, servletRequest, servletResponse) -> {	
+        		// 此filter认证成功后，是否结束整个流程的认证
+                return false;
+            }).alias("验证码验证"));  //别名，在日志里会看到经过了哪些filter
+    ```
+  
+    > 这些定义的filter会在用户名和密码认证的filter之前。用户名和密码的认证filter，只支持post请求。
   
   * authenticationExtension 授权原始框架扩展，默认情况下实现以下功能
   
@@ -890,7 +940,7 @@ private String id;
 
 ## 11.10 分页排序支持
 
-已经实现了自动物理分页。但对orderBy没有做优化（数据库本身会优化）。
+已经实现了自动物理分页。
 
 在方法里传`Page`即可。如：
 
@@ -902,7 +952,9 @@ List<TestUser> findPageByName(Page page, Sort sort， String name);
 
 排序传入`Sort`对象，`Sort`对象可以构造多个排序
 
-> 若使用传入参数排序，则不要用接口定义的方式定义排序。只会选一种。
+> 若使用传入参数排序，则不要用接口定义的方式定义排序。只能选一种。
+>
+> 分页中，只对框架生成的sql提供了优化count sql，自定义的sql暂未做解析优化
 
 ## 11.11 默认值触发
 
@@ -942,6 +994,8 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 ## 11.14 MybatisJpaStartedEvent
 
 提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
+
+比如我们需要在框架启动后去调用jpa构建的statement，不然会报找不到statement的异常
 
 # Part12 boot-plus-generator
 
