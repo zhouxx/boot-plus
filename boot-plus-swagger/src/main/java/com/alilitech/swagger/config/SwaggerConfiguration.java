@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +60,7 @@ import static java.util.stream.Collectors.toList;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@ConditionalOnClass(WebMvcConfigurer.class)
 @EnableConfigurationProperties(SwaggerProperties.class)
 @Import({BeanValidatorPluginsConfiguration.class})
 @EnableSwagger2
@@ -190,11 +192,13 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
     }
 
     @Bean
+    @ConditionalOnClass(name = "com.alilitech.mybatis.jpa.domain.Pageable")
     public MybatisJpaPageableParameterBuilder mybatisJpaPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
         return new MybatisJpaPageableParameterBuilder(nameExtractor, resolver);
     }
 
     @Bean
+    @ConditionalOnClass(name = "org.springframework.data.domain.Pageable")
     public DataPageableParameterBuilder dataPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
         return new DataPageableParameterBuilder(nameExtractor, resolver);
     }

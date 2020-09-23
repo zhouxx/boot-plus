@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.schema.ModelReference;
 import springfox.documentation.schema.ResolvedTypes;
@@ -50,7 +49,6 @@ import static springfox.documentation.spi.schema.contexts.ModelContext.inputPara
  * @since 1.0
  */
 @Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
-@ConditionalOnClass(Pageable.class)
 @Order(Ordered.LOWEST_PRECEDENCE + 10)
 public class MybatisJpaPageableParameterBuilder implements OperationBuilderPlugin {
 
