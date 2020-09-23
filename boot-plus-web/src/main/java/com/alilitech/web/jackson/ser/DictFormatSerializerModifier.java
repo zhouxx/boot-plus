@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
  */
 package com.alilitech.web.jackson.ser;
 
-import com.alilitech.web.jackson.DictCollector;
 import com.alilitech.web.jackson.anotation.DictFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -26,13 +25,10 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -44,14 +40,10 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Map<String, Map<String, Object>> cacheMap = new HashMap<>();
+    @Autowired
+    private DictCacheManager dictCacheManager;
 
-    private List<DictCollector> dictCollectorList = new ArrayList<>();
-
-    public DictFormatSerializerModifier(ObjectProvider<List<DictCollector>> dicServiceProvider) {
-        if(dicServiceProvider.getIfAvailable() != null) {
-            dictCollectorList = dicServiceProvider.getIfAvailable();
-        }
+    public DictFormatSerializerModifier() {
     }
 
     @Override
@@ -84,23 +76,27 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
 
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            //将字典key的原始值转换成String
+            // Convert the original value of the dictionary key to String
             if(dictAnnotationConfig.isDictKeyToString()) {
                 value = value == null ? null : value.toString();
             }
-            //字典key要转换成String，否则不好匹配
+            // to be matched the cache key, converted the dictionary key string
             String dictKeyStringValue = value == null ? null : value.toString();
-            //如果不存在key,或不存在value，重新加载
-            if(!cacheMap.containsKey(dictAnnotationConfig.getDictKey()) || !cacheMap.get(dictAnnotationConfig.getDictKey()).containsKey(dictKeyStringValue)) {
-                logger.warn("dict key: {} and value: {} is not in cache, and it will reload all dict collectors.", dictAnnotationConfig.getDictKey(), dictKeyStringValue);
-                cacheMap.clear();
-                dictCollectorList.forEach(dictCollector -> cacheMap.putAll(dictCollector.findDictAndValues()));
-            }
+
+            // If there is no key or no value, reload the dictionary collector
+            dictCacheManager.existAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
+
+//            if(!cacheMap.containsKey(dictAnnotationConfig.getDictKey()) || !cacheMap.get(dictAnnotationConfig.getDictKey()).containsKey(dictKeyStringValue)) {
+//                logger.warn("dict key: {} and value: {} is not in cache, and it will reload all dict collectors.", dictAnnotationConfig.getDictKey(), dictKeyStringValue);
+//                cacheMap.clear();
+//                dictCollectorList.forEach(dictCollector -> cacheMap.putAll(dictCollector.findDictAndValues()));
+//            }
             gen.writeObject(value);
-            //写字典值
+
+            // write dictionary value
             gen.writeFieldName(dictAnnotationConfig.getTargetFiledName());
-            if(cacheMap.containsKey(dictAnnotationConfig.getDictKey())) {
-               Object object = cacheMap.get(dictAnnotationConfig.getDictKey()).get(dictKeyStringValue);
+            if(dictCacheManager.exist(dictAnnotationConfig.getDictKey())) {
+               Object object = dictCacheManager.getDictValByKey(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
                gen.writeObject(object);
             } else {
                gen.writeObject(dictAnnotationConfig.getDefaultValue());
@@ -139,4 +135,5 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
         }
 
     }
+
 }

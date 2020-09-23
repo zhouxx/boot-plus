@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2017-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ import com.alilitech.web.config.properties.CorsProperties;
 import com.alilitech.web.config.properties.JsonProperties;
 import com.alilitech.web.exception.DefaultExceptionResolver;
 import com.alilitech.web.jackson.BootPlusModule;
+import com.alilitech.web.jackson.ser.DictCacheManager;
 import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,7 +40,7 @@ import java.util.List;
  * @since 1.2.4
  */
 @EnableConfigurationProperties({CorsProperties.class, JsonProperties.class})
-@Import({DictFormatSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
+@Import({DictCacheManager.class, DictFormatSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
 public class WebConfiguration implements WebMvcConfigurer {
 
     public static final String TIP_KEY = "message";
