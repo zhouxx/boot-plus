@@ -1,4 +1,4 @@
-/**
+/*
  *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@ import java.util.Map;
 
 /**
  * @author Clinton Begin
- * @author zhouxiaoxiang
+ * @author Zhou Xiaoxiang
  */
 public class MybatisJpaXMLScriptBuilder extends BaseBuilder {
 
