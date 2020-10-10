@@ -21,6 +21,7 @@ import com.alilitech.security.authorization.CustomAccessDecisionManager;
 import com.alilitech.security.authorization.CustomSecurityMetadataSource;
 import com.alilitech.security.authorization.TokenAccessDeniedHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -29,6 +30,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@EnableCaching
 public class SecurityConfiguration {
 
     //===============global=====================

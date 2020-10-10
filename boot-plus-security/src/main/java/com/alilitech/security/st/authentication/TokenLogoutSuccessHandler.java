@@ -16,6 +16,8 @@
 package com.alilitech.security.st.authentication;
 
 import com.alilitech.security.ExtensibleSecurity;
+import com.alilitech.security.authentication.SecurityUser;
+import com.alilitech.security.domain.BizUser;
 import com.alilitech.security.st.SecurityTokenUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -43,7 +45,11 @@ public class TokenLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String token = extensibleSecurity.resolveToken(request);
+        if(authentication == null) {
+            authentication = securityTokenUtils.getAuthentication(token);
+        }
         securityTokenUtils.removeToken(token);
-        extensibleSecurity.logoutSuccess(request, response);
+        BizUser bizUser = ((SecurityUser) authentication.getPrincipal()).getBizUser();
+        extensibleSecurity.logoutSuccess(request, response, bizUser);
     }
 }

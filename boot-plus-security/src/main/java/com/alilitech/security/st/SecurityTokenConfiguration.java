@@ -35,7 +35,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  */
 @ConditionalOnClass(WebSecurityConfigurerAdapter.class)
 @ConditionalOnProperty(name="security.token.type", havingValue = "ST")
-@EnableCaching
 public class SecurityTokenConfiguration extends SecurityConfiguration {
 
     //===============global=====================

@@ -59,13 +59,13 @@ public class BizUser implements Serializable {
     }
 
     public BizUser(String username, Collection<String> roles) {
-        this.username = username;
-        this.roles = roles;
+        this(username, "", roles);
     }
 
     public BizUser(String username, String password, Collection<String> roles) {
-        this(username, roles);
+        this.username = username;
         this.password = password;
+        this.roles = roles;
     }
 
     public String getUserId() {

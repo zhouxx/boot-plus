@@ -34,7 +34,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  */
 @ConditionalOnClass(WebSecurityConfigurerAdapter.class)
 @ConditionalOnProperty(name="security.token.type", havingValue = "JWT")
-@EnableCaching
 public class SecurityJwtConfiguration extends SecurityConfiguration {
 
     //===============global=====================
@@ -55,8 +54,8 @@ public class SecurityJwtConfiguration extends SecurityConfiguration {
     }
 
     @Bean
-    public LogoutSuccessHandler logoutSuccessHandler(BlackListManager blackListManager, ExtensibleSecurity extensibleSecurity) {
-        return new JwtLogoutSuccessHandler(extensibleSecurity, blackListManager);
+    public LogoutSuccessHandler logoutSuccessHandler(BlackListManager blackListManager, ExtensibleSecurity extensibleSecurity, JwtTokenUtils jwtTokenUtils) {
+        return new JwtLogoutSuccessHandler(extensibleSecurity, blackListManager, jwtTokenUtils);
     }
 
 }

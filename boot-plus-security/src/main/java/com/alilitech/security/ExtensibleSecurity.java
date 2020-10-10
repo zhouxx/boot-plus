@@ -41,19 +41,6 @@ public interface ExtensibleSecurity {
 
     String HEADER_NAME = "Authorization";
 
-    //====================token extension===================
-
-    /**
-     * validation extension
-     * @param bizUser biz user
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws AccessDeniedException when validate error
-     */
-    default void validTokenExtension(String token, BizUser bizUser, HttpServletRequest request, HttpServletResponse response) throws AccessDeniedException {
-
-    }
-
     //=======================Authentication===================
 
     /**
@@ -95,9 +82,10 @@ public interface ExtensibleSecurity {
      * logout success handler
      * @param request HttpServletRequest
      * @param response HttpServletResponse
+     * @param bizUser
      * @throws IOException IOException
      */
-    default void logoutSuccess(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    default void logoutSuccess(HttpServletRequest request, HttpServletResponse response, BizUser bizUser) throws IOException {
         response.getWriter().println("logout success");
     }
 
@@ -124,6 +112,17 @@ public interface ExtensibleSecurity {
      */
     default String resolveToken(HttpServletRequest request) {
         return request.getHeader(HEADER_NAME);
+    }
+
+    /**
+     * validation extension
+     * @param bizUser biz user
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws AccessDeniedException when validate error
+     */
+    default void validTokenExtension(String token, BizUser bizUser, HttpServletRequest request, HttpServletResponse response) throws AccessDeniedException {
+
     }
 
     /**
