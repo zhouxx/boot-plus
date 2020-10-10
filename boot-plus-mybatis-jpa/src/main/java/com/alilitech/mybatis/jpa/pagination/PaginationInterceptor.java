@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * 分页插件
+ * Pagination Plugin
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
@@ -60,33 +60,40 @@ public class PaginationInterceptor implements Interceptor {
 
         MetaObject metaObject = SystemMetaObject.forObject(statementHandler);
 
-        // 先判断是不是SELECT操作
+        // determine whether it is a SELECT operation
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
         if (!SqlCommandType.SELECT.equals(mappedStatement.getSqlCommandType())) {
             return invocation.proceed();
         }
 
+        // if it is not the RowBounds parameter then skip it
         RowBounds rowBounds = (RowBounds) metaObject.getValue("delegate.rowBounds");
-
         if (rowBounds == null || rowBounds == RowBounds.DEFAULT) {
             return invocation.proceed();
         }
 
-        // 拿到configuration，实例化一个SqlDialectFactory
-        Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
-        SqlDialectFactory sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
-
-        // 针对定义了rowBounds，做为mapper接口方法的参数
         BoundSql boundSql = (BoundSql) metaObject.getValue("delegate.boundSql");
         String originalSql = boundSql.getSql();
 
         if (rowBounds instanceof Pagination) {
             Pagination page = (Pagination) rowBounds;
 
+            // add since v1.2.5
             if(page.isSelectCount()) {
                 Connection connection = (Connection) invocation.getArgs()[0];
                 String sqlCount = buildCountSql(originalSql, mappedStatement.getId());
                 this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
+            }
+
+            // determine whether the paging dialect is actively set
+            // add since v1.2.7
+            SqlDialectFactory sqlDialectFactory = null;
+            if(page.getDatabaseType() == null) {
+                // get the configuration and instantiate a SqlDialectFactory
+                Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+                sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
+            } else {
+                sqlDialectFactory = new SqlDialectFactory(page.getDatabaseType());
             }
             originalSql = sqlDialectFactory.buildPaginationSql(page, originalSql);
         }
@@ -113,14 +120,6 @@ public class PaginationInterceptor implements Interceptor {
      * @return count sql
      */
     private String buildCountSql(String originalSql, String statement) {
-//        if(databaseType == DatabaseType.MS_SQL_SERVER) {
-//            String loweredString = originalSql.toLowerCase();
-//            int orderByIndex = loweredString.indexOf("order by");
-//            if (orderByIndex != -1) {
-//                originalSql = originalSql.substring(0, orderByIndex);
-//            }
-//        }
-
         // only auto generate statement optimize select count sql
         if(AutoGenerateStatementRegistry.getInstance().contains(statement)) {
             String loweredString = originalSql.toLowerCase();
@@ -145,7 +144,7 @@ public class PaginationInterceptor implements Interceptor {
     }
 
     /**
-     * 查询总记录条数
+     * query the total number of records
      * @param sql sql
      * @param mappedStatement mappedStatement
      * @param boundSql boundSql

@@ -36,6 +36,10 @@ public class SqlDialectFactory {
         this.databaseType = DatabaseTypeRegistry.getInstance().get(databaseId);
     }
 
+    public SqlDialectFactory(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
     /**
      * generate pageable SQL
      * @param page pageable Object

@@ -15,6 +15,7 @@
  */
 package com.alilitech.mybatis.jpa.pagination;
 
+import com.alilitech.mybatis.jpa.DatabaseType;
 import com.alilitech.mybatis.jpa.domain.Pageable;
 
 
@@ -26,17 +27,29 @@ import com.alilitech.mybatis.jpa.domain.Pageable;
 public abstract class Pagination<T> extends Pageable<T> {
 
     /**
-     * 总数
+     * total count
      */
     protected long total;
+
     /**
-     * 默认10
+     * page size, default value is 10
      */
     protected Integer size = 10;
 
+    /**
+     * current page index
+     */
     protected Integer page = 1;
 
+    /**
+     * need to query the total count, default value is true
+     */
     protected boolean selectCount = true;
+
+    /**
+     * which database type to use for pagination query
+     */
+    protected DatabaseType databaseType;
 
     public long getTotal() {
         return total;
@@ -69,5 +82,14 @@ public abstract class Pagination<T> extends Pageable<T> {
     @Override
     public void setSelectCount(boolean selectCount) {
         this.selectCount = selectCount;
+    }
+
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    @Override
+    public void setDatabaseType(DatabaseType databaseType) {
+        this.databaseType = databaseType;
     }
 }

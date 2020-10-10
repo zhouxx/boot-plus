@@ -15,6 +15,7 @@
  */
 package com.alilitech.mybatis.jpa.domain;
 
+import com.alilitech.mybatis.jpa.DatabaseType;
 import org.apache.ibatis.session.RowBounds;
 
 import java.io.Serializable;
@@ -65,5 +66,10 @@ public abstract class Pageable<T> extends RowBounds implements Serializable {
      * @return
      */
     public abstract void setSelectCount(boolean selectCount);
+
+    /**
+     * set the current page used {@link DatabaseType}
+     */
+    public abstract void setDatabaseType(DatabaseType databaseType);
 
 }
