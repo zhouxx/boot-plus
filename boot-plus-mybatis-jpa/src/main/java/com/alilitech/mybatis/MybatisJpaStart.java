@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * initialize Mybatis Jpa
@@ -57,6 +58,8 @@ public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEven
     private final PaginationDialectRegistry paginationDialectRegistry;
     private final List<MybatisJpaConfigurer> mybatisJpaConfigurers;
 
+    private AtomicBoolean started = new AtomicBoolean(false);
+
     public MybatisJpaStart(SqlSessionFactory sqlSessionFactory, DatabaseRegistry databaseRegistry, DatabaseTypeRegistry databaseTypeRegistry, KeySqlDialectRegistry keySqlDialectRegistry, PaginationDialectRegistry paginationDialectRegistry, List<MybatisJpaConfigurer> mybatisJpaConfigurers) {
         this.sqlSessionFactory = sqlSessionFactory;
         this.databaseRegistry = databaseRegistry;
@@ -68,6 +71,12 @@ public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEven
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+
+        // only execute once
+        if(!started.compareAndSet(false, true)) {
+            return;
+        }
+
         // mybatis configuration
         org.apache.ibatis.session.Configuration configuration = sqlSessionFactory.getConfiguration();
 
