@@ -6,7 +6,7 @@
 
     <groupId>com.alilitech</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-routing-datasource</module>
@@ -19,6 +19,7 @@
         <module>boot-plus-dependencies</module>
         <module>boot-plus-generator</module>
         <module>boot-plus-security</module>
+        <!--<module>boot-plus-cache</module>-->
     </modules>
     <packaging>pom</packaging>
 

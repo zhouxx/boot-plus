@@ -5,7 +5,7 @@
     <parent>
         <artifactId>boot-plus</artifactId>
         <groupId>com.alilitech</groupId>
-        <version>1.2.6</version>
+        <version>1.2.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +63,12 @@
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-security</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alilitech</groupId>
+                <artifactId>boot-plus-cache</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
         </dependencies>
