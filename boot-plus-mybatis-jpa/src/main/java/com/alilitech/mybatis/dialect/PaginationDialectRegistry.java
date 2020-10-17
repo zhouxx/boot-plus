@@ -43,6 +43,7 @@ public class PaginationDialectRegistry {
         this.register(DatabaseType.H2, new H2PaginationDialect());
         this.register(DatabaseType.HSQL, new HSQLPaginationDialect());
         this.register(DatabaseType.POSTGRE, new PostgrePaginationDialect());
+        this.register(DatabaseType.SQLITE, new SQLitePaginationDialect());
     }
 
     public static final PaginationDialectRegistry getInstance() {

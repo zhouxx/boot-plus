@@ -29,6 +29,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,6 +53,9 @@ public class PaginationInterceptor implements Interceptor {
     private static Pattern fromPattern = Pattern.compile("\\sfrom\\s");
 
     private static Pattern orderPattern = Pattern.compile("\\sorder\\s+by\\s");
+
+    @Value("${mybatis.page.autoDialect:false}")
+    private boolean autoDialect = false;
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -79,19 +83,33 @@ public class PaginationInterceptor implements Interceptor {
             Pagination page = (Pagination) rowBounds;
 
             // add since v1.2.5
+            Connection connection = (Connection) invocation.getArgs()[0];
             if(page.isSelectCount()) {
-                Connection connection = (Connection) invocation.getArgs()[0];
                 String sqlCount = buildCountSql(originalSql, mappedStatement.getId());
                 this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
             }
 
-            // determine whether the paging dialect is actively set
+            // determine whether the paging dialect is actively set or auto set by config
             // add since v1.2.7
             SqlDialectFactory sqlDialectFactory = null;
             if(page.getDatabaseType() == null) {
-                // get the configuration and instantiate a SqlDialectFactory
-                Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
-                sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
+                // add since v1.2.8 use autoDialect
+                if(this.autoDialect) {
+                    String databaseProductName = connection.getMetaData().getDatabaseProductName();
+                    sqlDialectFactory = new SqlDialectFactory(databaseProductName);
+
+                    if(sqlDialectFactory.getDatabaseType() == null) {
+                        logger.warn("The databaseId of current connection used auto dialect do not has databaseType in com.alilitech.mybatis.jpa.DatabaseTypeRegistry, it will use mybatis configuration's databaseId!");
+                        // get the configuration and instantiate a SqlDialectFactory
+                        Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+                        sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
+                    }
+
+                } else {
+                    // get the configuration and instantiate a SqlDialectFactory
+                    Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
+                    sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
+                }
             } else {
                 sqlDialectFactory = new SqlDialectFactory(page.getDatabaseType());
             }

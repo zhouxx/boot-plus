@@ -55,6 +55,7 @@ public class DatabaseType {
     public static final DatabaseType MS_SQL_SERVER;
     public static final DatabaseType POSTGRE;
     public static final DatabaseType SYBASE;
+    public static final DatabaseType SQLITE;
 
     static {
         MYSQL = valueOf("MySQL", "MySql database");
@@ -68,6 +69,7 @@ public class DatabaseType {
         MS_SQL_SERVER = valueOf("Microsoft SQL Server", "SqlServer database");
         POSTGRE = valueOf("PostgreSQL", "MySql database");
         SYBASE = valueOf("Sybase", "Sybase database");
+        SQLITE = valueOf("SQLite", "SQLite database");
     }
 
     public String getDatabaseId() {

@@ -41,6 +41,7 @@ public class DatabaseTypeRegistry {
         register(DatabaseType.MS_SQL_SERVER);
         register(DatabaseType.POSTGRE);
         register(DatabaseType.SYBASE);
+        register(DatabaseType.SQLITE);
     }
 
     public static DatabaseTypeRegistry getInstance() {
