@@ -62,7 +62,7 @@ public interface ExtensibleSecurity {
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().println(token);
+        response.getWriter().print(token);
     }
 
     /**
@@ -75,7 +75,7 @@ public interface ExtensibleSecurity {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().println(exception.getMessage());
+        response.getWriter().print(exception.getMessage());
     }
 
     /**
@@ -86,7 +86,7 @@ public interface ExtensibleSecurity {
      * @throws IOException IOException
      */
     default void logoutSuccess(HttpServletRequest request, HttpServletResponse response, BizUser bizUser) throws IOException {
-        response.getWriter().println("logout success");
+        response.getWriter().print("logout success");
     }
 
     /**
@@ -148,7 +148,7 @@ public interface ExtensibleSecurity {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().println(message);
+        response.getWriter().print(message);
     }
 
     //=======================original extension===================
