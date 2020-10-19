@@ -28,7 +28,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
         <dependency>
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.2.6</version>
+            <version>1.2.8</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -67,7 +67,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.2.6</version>
+                <version>1.2.8</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -568,6 +568,8 @@ security:
     ```
   
     > 这些定义的filter会在用户名和密码认证的filter之前。用户名和密码的认证filter，只支持post请求。
+    >
+    > `VirtualFilterDefinition` 提供了构建Authentication的方法
   
   * authenticationExtension 授权原始框架扩展，默认情况下实现以下功能
   
@@ -699,6 +701,8 @@ List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true
 ```
 
 > 参数上定义了注解，则使用参数定义的注解。参数上没有定义的，则使用方法上的注解。
+>
+> `notEmpty`表示 `xx != null and  xx != ''`，`notNull`表示`xx != null`
 
 ## 11.4 面向对象关联查询
 
@@ -951,6 +955,12 @@ List<TestUser> findPageByName(Page page, Sort sort， String name);
 返回的total也在此对象里，拿到即可。
 
 排序传入`Sort`对象，`Sort`对象可以构造多个排序
+
+* 如果只是分页，不查询总数，可设置`page.setSelectCount(false)`
+* 为应对多数据源，可手动设置DatabaseType：`page.setDatabaseType(databaseType)`
+* 如果想自动根据不同数据源设置不同的type，可在配置里设置`mybatis.page.autoDialect=true`
+
+注意：
 
 > 若使用传入参数排序，则不要用接口定义的方式定义排序。只能选一种。
 >
