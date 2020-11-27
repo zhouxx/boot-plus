@@ -469,7 +469,7 @@ security:
 
 type：目前支持JWT，ST
 
-**ignorePatterns： 哪些url不需要授权和鉴权，这些url拿不到上下文 **
+**ignorePatterns： 哪些url不需要授权和鉴权，这些url拿不到上下文**
 
 **permitAllPatterns：哪些url，所有用户都有权限**
 

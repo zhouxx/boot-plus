@@ -1,4 +1,4 @@
-# Boot Plus <small>1.2.x</small>
+# Boot Plus <small>1.3.x</small>
 
 > 让开发者只关心业务
 
