@@ -27,13 +27,8 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@ConfigurationProperties(prefix = "security.token", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "security.token")
 public class SecurityBizProperties {
-
-    /**
-     * authentication and authorization is cors
-     */
-    private boolean cors;
 
     /**
      * authentication uri prefix
@@ -55,7 +50,6 @@ public class SecurityBizProperties {
      */
     private List<String> permitAllUserNames;
 
-
     /**
      * biz user Class Name
      */
@@ -70,14 +64,6 @@ public class SecurityBizProperties {
      * jwt properties
      */
     private JWT jwt = new JWT();
-
-    public boolean isCors() {
-        return cors;
-    }
-
-    public void setCors(boolean cors) {
-        this.cors = cors;
-    }
 
     public String getAuthenticationPrefix() {
         return authenticationPrefix;

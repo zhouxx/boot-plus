@@ -74,12 +74,26 @@ public class VirtualFilterDefinition {
 
     }
 
-    public static Authentication buildSimpleAuthentication(String username, List<String> Authorities) {
-        BizUser bizUser = new BizUser(username, Authorities);
+    public static Authentication buildSimpleAuthentication(String username, List<String> authorities) {
+        BizUser bizUser = new BizUser(username, authorities);
 
         //构建UserDetails
-        List<GrantedAuthority> authorities = Authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        SecurityUser securityUser = new SecurityUser(username, authorities);
+        List<GrantedAuthority> grantedAuthorities = authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        SecurityUser securityUser = new SecurityUser(username, grantedAuthorities);
+        securityUser.setBizUser(bizUser);
+
+        // 构建AuthenticationToken
+        TestingAuthenticationToken authentication = new TestingAuthenticationToken(
+                securityUser, null, grantedAuthorities);
+
+        return authentication;
+    }
+
+    public static Authentication buildSimpleAuthentication(BizUser bizUser) {
+
+        //构建UserDetails
+        List<GrantedAuthority> authorities = bizUser.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        SecurityUser securityUser = new SecurityUser(bizUser.getUsername(), authorities);
         securityUser.setBizUser(bizUser);
 
         // 构建AuthenticationToken

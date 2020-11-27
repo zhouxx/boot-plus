@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.alilitech.web.config.WebConfiguration
+com.alilitech.web.WebConfiguration

@@ -16,6 +16,7 @@
 package com.alilitech.security.jwt;
 
 import com.alilitech.security.ExtensibleSecurity;
+import com.alilitech.security.st.SecurityTokenUtils;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public class BlackListManager {
         //add to black list
         String token = extensibleSecurity.resolveToken(request);
 
-        ArrayList cacheSecurity = cacheManager.getCache("cacheSecurity").get(TOKEN_BLACK_LIST, ArrayList.class);
+        ArrayList cacheSecurity = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).get(TOKEN_BLACK_LIST, ArrayList.class);
 
         if(cacheSecurity == null) {
             cacheSecurity = new ArrayList();
@@ -66,7 +67,7 @@ public class BlackListManager {
             };
         });
 
-        cacheManager.getCache("cacheSecurity").put(TOKEN_BLACK_LIST, cacheSecurity);
+        cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).put(TOKEN_BLACK_LIST, cacheSecurity);
     }
 
     /**
@@ -75,7 +76,7 @@ public class BlackListManager {
      * @return
      */
     public boolean inBlackList(String token) {
-        ArrayList cacheSecurity = cacheManager.getCache("cacheSecurity").get(TOKEN_BLACK_LIST, ArrayList.class);
+        ArrayList cacheSecurity = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).get(TOKEN_BLACK_LIST, ArrayList.class);
 
         if(cacheSecurity == null) {
             return false;

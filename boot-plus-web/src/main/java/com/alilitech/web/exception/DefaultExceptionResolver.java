@@ -15,8 +15,8 @@
  */
 package com.alilitech.web.exception;
 
-import com.alilitech.web.config.WebConfiguration;
-import com.alilitech.core.util.UnicodeUtils;
+import com.alilitech.web.WebConfiguration;
+import com.alilitech.util.UnicodeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;

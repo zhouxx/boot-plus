@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
  */
 public class SecurityTokenUtils extends TokenUtils {
 
+    public static final String SECURITY_CACHE_NAME = "security";
+
     private final CacheManager cacheManager;
 
     public SecurityTokenUtils(SecurityBizProperties securityBizProperties, CacheManager cacheManager) {
@@ -51,13 +53,13 @@ public class SecurityTokenUtils extends TokenUtils {
 
         String token = UUID.randomUUID().toString();
 
-        cacheManager.getCache("cacheSecurity").put(token, bizUser);
+        cacheManager.getCache(SECURITY_CACHE_NAME).put(token, bizUser);
 
         return token;
     }
 
     public Authentication getAuthentication(String token) {
-        BizUser bizUser = (BizUser) cacheManager.getCache("cacheSecurity").get(token, bizClass);
+        BizUser bizUser = (BizUser) cacheManager.getCache(SECURITY_CACHE_NAME).get(token, bizClass);
 
         Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 
@@ -73,12 +75,12 @@ public class SecurityTokenUtils extends TokenUtils {
 
     public void removeToken(String token) {
         if(!StringUtils.isEmpty(token)) {
-            cacheManager.getCache("cacheSecurity").evict(token);
+            cacheManager.getCache(SECURITY_CACHE_NAME).evict(token);
         }
     }
 
     public boolean exist(String token) {
-        Object security = cacheManager.getCache("cacheSecurity").get(token, bizClass);
+        Object security = cacheManager.getCache(SECURITY_CACHE_NAME).get(token, bizClass);
         return security != null;
     }
 }

@@ -15,8 +15,8 @@
  */
 package com.alilitech.web.validate;
 
-import com.alilitech.core.util.UnicodeUtils;
-import com.alilitech.web.config.WebConfiguration;
+import com.alilitech.util.UnicodeUtils;
+import com.alilitech.web.WebConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;

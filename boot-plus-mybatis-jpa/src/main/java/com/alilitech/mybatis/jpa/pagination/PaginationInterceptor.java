@@ -15,6 +15,7 @@
  */
 package com.alilitech.mybatis.jpa.pagination;
 
+import com.alilitech.mybatis.MybatisJpaProperties;
 import com.alilitech.mybatis.dialect.SqlDialectFactory;
 import com.alilitech.mybatis.jpa.AutoGenerateStatementRegistry;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -29,7 +30,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -54,8 +54,11 @@ public class PaginationInterceptor implements Interceptor {
 
     private static Pattern orderPattern = Pattern.compile("\\sorder\\s+by\\s");
 
-    @Value("${mybatis.page.autoDialect:false}")
-    private boolean autoDialect = false;
+    private MybatisJpaProperties mybatisJpaProperties;
+
+    public PaginationInterceptor(MybatisJpaProperties mybatisJpaProperties) {
+        this.mybatisJpaProperties = mybatisJpaProperties;
+    }
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
@@ -94,7 +97,7 @@ public class PaginationInterceptor implements Interceptor {
             SqlDialectFactory sqlDialectFactory = null;
             if(page.getDatabaseType() == null) {
                 // add since v1.2.8 use autoDialect
-                if(this.autoDialect) {
+                if(this.mybatisJpaProperties.getPage().isAutoDialect()) {
                     String databaseProductName = connection.getMetaData().getDatabaseProductName();
                     sqlDialectFactory = new SqlDialectFactory(databaseProductName);
 

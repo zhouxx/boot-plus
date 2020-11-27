@@ -15,8 +15,8 @@
  */
 package com;
 
-import com.alilitech.core.constants.Profiles;
-import com.alilitech.core.util.DefaultProfileUtil;
+import com.alilitech.constants.Profiles;
+import com.alilitech.util.DefaultProfileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

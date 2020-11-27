@@ -15,7 +15,7 @@
  */
 package com.alilitech.web.jackson;
 
-import com.alilitech.web.config.properties.JsonProperties;
+import com.alilitech.web.JsonProperties;
 import com.alilitech.web.jackson.deser.NumberFormatDeserializerModifier;
 import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
 import com.alilitech.web.jackson.ser.NullBeanSerializerModifier;

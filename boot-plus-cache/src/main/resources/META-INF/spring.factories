@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.alilitech.cache.CaffeineCacheConfiguration,\
+com.alilitech.cache.CacheTemplateConfiguration

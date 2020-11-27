@@ -18,6 +18,8 @@ package com.alilitech.mybatis.jpa.pagination;
 import com.alilitech.mybatis.jpa.DatabaseType;
 import com.alilitech.mybatis.jpa.domain.Pageable;
 
+import java.beans.Transient;
+
 
 /**
  *
@@ -75,6 +77,7 @@ public abstract class Pagination<T> extends Pageable<T> {
         this.page = page;
     }
 
+    @Transient
     public boolean isSelectCount() {
         return selectCount;
     }
@@ -84,6 +87,7 @@ public abstract class Pagination<T> extends Pageable<T> {
         this.selectCount = selectCount;
     }
 
+    @Transient
     public DatabaseType getDatabaseType() {
         return databaseType;
     }

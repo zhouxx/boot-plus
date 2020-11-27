@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.alilitech.log.config.LogConfiguration
+com.alilitech.log.LogConfiguration

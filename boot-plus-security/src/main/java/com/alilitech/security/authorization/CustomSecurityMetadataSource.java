@@ -82,8 +82,6 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
     private Map<RequestMatcher, Collection<ConfigAttribute>> getMetadataSource(HttpServletRequest request) {
 
         //拿到用户，判断是否是最大权限
-        //String token = extensibleSecurity.resolveToken(request);
-        //BizUser bizUser = (BizUser) cacheManager.getCache("cacheSecurity").get(token, securityBizProperties.getBizUserClass());
         //从上下文中取得用户对象，只需要解析一次token
         BizUser bizUser = ((SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getBizUser();
 

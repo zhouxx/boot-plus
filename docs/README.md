@@ -1,26 +1,36 @@
-# Boot Plus Reference Guide 1.2.x
+# Boot Plus Reference Guide 1.3.x
 
 # Part1 : 简介
 
-​	Boot Plus 是基于spring boot 的增强，但并未修改SpringBoot已有的功能，也就是说完全可以兼容使用SpringBoot的项目。让spring boot的使用者更好地关注于业务。主要增强以下几个方面：
+​	Boot Plus 是基于spring boot 的增强，但并未修改SpringBoot已有的功能，也就是说完全可以兼容使用SpringBoot的项目。可以任意使用其中一个模块的增强，而不必引入所有模块。让spring boot的使用者更好地关注于业务。
 
-* dynamic datasource
-* quartz: add or remove cron job at runtime
-* web: json serialize, cros and so on
-* log management
+主要增强以下几个方面：
+
+* dynamic datasource based on aop
+* cache: spring cache enhancement
+* web: json serialize enhancement, cros , validation enhancement
+* log management online
 * swagger(api online)
 * mybatis extension：like jpa, but more smart
 * security integration: more simple, support JWT & Stateful Token
 
+# Part2 :  新版本特性
 
+从1.3.0版本开始，做了一些模块上的重构：
 
-# Part2 : 起步
+* 移除了quartz的增强，你可以继续使用原来的版本，也可以使用xxl-job，它对使用者更友好
+* 将mybatis的增强模块合并至mybatis-jpa，让使用者更简化使用
+* 添加了对spring cache的增强，spring cache为我们提供了很好的缓存抽象，但未提供cache和tti和ttl配置，在此提供了基于caffeine和基于redis的tti、ttl配置增强
+* 同时也升级了spring boot 版本号至 **2.3.5.RELEASE** ，与 spring cloud  **Hoxton.SR9** 的版本号保持一致
+* 引用了官方的swagger starter 3.0.0
 
-## 2.1 系统要求
+# Part3 : 起步
 
-Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
+## 3.1 系统要求
 
-## 2.2 Maven 依赖
+Boot Plus 1.3.x 至少要求java1.8，Spring Boot 2.3.5.RELEASE.
+
+## 3.2 Maven 依赖
 
 ```xml
 <dependencyManagement>
@@ -28,7 +38,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
         <dependency>
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-dependencies</artifactId>
-            <version>1.2.8</version>
+            <version>1.3.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -36,9 +46,9 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 </dependencyManagement>
 ```
 
-## 2.3 开发第一个应用
+## 3.3 开发第一个应用
 
-### 2.3.1 创建pom
+### 3.3.1 创建pom
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -67,7 +77,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
             <dependency>
                 <groupId>com.alilitech</groupId>
                 <artifactId>boot-plus-dependencies</artifactId>
-                <version>1.2.8</version>
+                <version>1.3.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -79,7 +89,7 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 你可以通过IDE指定启动类：`com.AppStart`来启动项目，也可以通过自定义启动类启动项目。
 
-### 2.3.2 创建一个可执行的jar
+### 3.3.2 创建一个可执行的jar
 
 需要添加 spring-boot-maven-plugin 至 pom.xml :
 
@@ -106,21 +116,23 @@ Boot Plus 1.2.x 至少要求java1.8，Spring Boot 2.2.1.RELEASE.
 
 至此，你已成功搭建和部署一个项目了。
 
-# Part3 : boot-plus-core
+# Part4 : boot-plus-core
 
 提供了基于spring的依赖（没有web）。提供了以下功能：
 
 * 启动类`com.AppStart`：启动时更优雅地打印更多信息
-* 工具类：`BeanUtils`：更高效的深度拷贝。父类属性，聚合属性都可一并拷贝。
+* 工具类：`BeanUtils`：更高效的深度拷贝。父类属性，聚合属性都可一并拷贝。常用于DTO与Entity之间的对象拷贝，提高开发效率。
 
-# Part4 boot-plus-routing-datasource
+# Part5 boot-plus-routing-datasource
 
 动态数据源是指在项目里可以配置多个数据源，并且可以在不同的地方指定使用不同的数据源。
 
-## 4.1 配置多数据源
+此多数据源的实现未依赖于任何一个持久化的框架，所以一般于用于多库多service。想在同一个事务里操作多个数据源暂时无法实现。
 
-主数据源还和原来的方式一样，当未指定数据源或找不到指定的数据源时使用主数据源。
-其它数据源名称要以`ds`开头，否则无法识别。配置方式和spring boot的方式一样。    
+## 5.1 配置多数据源
+
+主数据源还和原来的方式一样，当未指定数据源或找不到指定的数据源时使用主数据源。主数据源的标识是`default`。
+其它数据源标识要以`ds`开头，否则无法识别。配置方式和spring boot的方式一样。    
 
 ```yaml
 spring:
@@ -143,7 +155,7 @@ public void exeService() {
 }
 ```
 
-## 4.2 加密密码解析
+## 5.2 加密密码解析
 
 部分在配置文件里的密码是加密的，但在连数据的时候需要明文。所以提供了`EncryptPropertyResolver`来解析。
 
@@ -162,11 +174,11 @@ public class MyEncryptPropertyResolver implements EncryptPropertyResolver {
 }
 ```
 
-## 4.3 动态添加/移除数据源
+## 5.3 动态添加/移除数据源
 
 代码里可以动态地创建数据源，并添加到多数据源里。
 
-我们可以拿到数据源对象，判断是否是`DefaultDynamicDataSource`此类，可以调用此类的`addDataSource`方法。
+我们可以拿到数据源对象，判断是否是`DefaultDynamicDataSource`此类，可以调用此类的`addDataSource`方法。一般用于数据源实时动态修改切换。
 
 ```java
 //add datasource
@@ -175,27 +187,6 @@ defaultDynamicDataSource.addDataSource(datasourceName, datasourceUrl, datasource
 //remove datasource
 defaultDynamicDataSource.remove(datasourceName);
 ```
-
-# Part5 boot-plus-quartz
-
-运行时添加或移除定时任务：
-```java
- //定义jop，或其子类
-QuartzJob quartzJob = new QuartzJob();
-quartzJob.setClassName("com.alilitech.service.MyJobService");
-quartzJob.setMethodName("start");
-quartzJob.setEnabled(true);
-quartzJob.setCronExpression("* * * * * ? *");
-quartzJob.setSpringInstantiated(1);
-
-try {
-	quartzManager.saveOrUpdateJob(quartzJob);
-} catch (Exception e) {
-e.printStackTrace();
-}
-```
-
-> 当把Job的enabled定义为false，即job失效。
 
 # Part6 boot-plus-web
 
@@ -369,7 +360,7 @@ public class LogOptService implements LogExtension {
 
 ## 7.2 管理日志级别
 
-生产环境或测试环境有时候需要debug日志，等调试完后又关闭。访问`/log.html`在线管理日志级别。
+生产环境或测试环境有时候需要debug日志，等调试完后又关闭。访问`/log.html`在线管理日志级别。注意加了安全控制需要给相关人员赋于权限。相关的url包括`GET /management/logs`,`PUT /management/logs`
 
 # Part8 boot-plus-swagger
 
@@ -421,6 +412,8 @@ authorized：统一授权，会在需要授权的API上加锁，显示需要授�
 
 authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 
+> 在实际开发过程中如果有安全控制，也要将以下url分配相关权限：`GET /swagger-resources/**`, `GET /swagger-ui/**`, `GET /v2/**`
+
 # Part9 boot-plus-security
 
 集成了spring scurity，但由于spring scurity比较复杂，使用起来比较繁琐，故做了一些减法，对常用的保留，对不常用的暂时去除。若需要其它功能的，请自行集成。
@@ -430,6 +423,15 @@ authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 * 可快速实现授权与鉴权，无需关注复杂的各种过滤器
 * 集成JWT
 * 实现Stateful Token
+
+> 注意：由于security模块引入spring cache，所以一定要配置cache名称：
+>
+> ```yaml
+> spring:
+>   cache:
+>     cache-names:
+>       - security
+> ```
 
 ## 9.1 JWT
 
@@ -467,11 +469,13 @@ security:
 
 type：目前支持JWT，ST
 
-ignorePatterns： 哪些url不需要授权和鉴权，这些url拿不到上下文
+**ignorePatterns： 哪些url不需要授权和鉴权，这些url拿不到上下文 **
 
-permitAllPatterns：哪些url，所有用户都有权限
+**permitAllPatterns：哪些url，所有用户都有权限**
 
-permitAllUserNames： 哪些用户有全部url的权限
+**permitAllUserNames： 哪些用户有全部url的权限**
+
+**authenticationPrefix: 认证（登录、登出）uri前缀**
 
 bizUserClassName:  需要存储的业务用户类全路径名，默认是BizUser.class.getName()
 
@@ -481,7 +485,7 @@ jwt.timeoutMin:  Token超时, 单位：分钟
 
 jwt.refreshSeconds: Token还有多久失败时刷新Token， 单位：秒
 
-## 9.2 Stateful Token
+## 9.2 Stateful Token（有状态token)
 
 在spring Scurity 基础上实现了有状态的token, token对应的用户信息在缓存里存储。
 
@@ -511,7 +515,7 @@ security:
 
 * 登出uri: ${authenticationPrefix}/logout
 
-* 用户扩展类`ExtensibleSecurity` ，可自定义授权与鉴权部分
+* 开发者扩展类`ExtensibleSecurity` ，可自定义认证授权与鉴权部分
 
   * validTokenExtension: 校验token扩展，可自定义校验Token扩展，也可以刷新缓存期限
 
@@ -588,39 +592,69 @@ security:
   
   > 对于`authenticationExtension ` 和`authorizationExtension `原始默认实现功能不符合要求，可完全覆盖默认实现
 
+# Part10 boot-plus-mybatis-jpa
 
+mybatis本身为我们做了很多事情，又不失灵活性，我们可以完全自主的方便的自定义sql。但有些通用的表数据增删改查也要我们来提供sql。为此市面上出了很多generator，代码生成器可以帮我们解决部分需求，但在表字段增加、修改、删减后又要重新执行一遍。如果我们已经有很多定制的开发了，则无法重新执行sql生成。为此我们为mybatis提供了增强，保留了原来的灵活性，更为开发者减少了工作量。由于此次增强实现了部分JPA规范，固命名为mybatis-jpa。
 
-# Part10 boot-plus-mybatis
+## 10.1 文件配置mapper扫描路径
 
-集成层是使用Mybatis实现对数据库访问。
-除了常规配置，可以自定义mapper扫描，无需额外的java配置。
+首先增强了mybatis配置，传统的mybatis都需要搞个configuration类，然后写个`@mapperScan`, 感觉多此一举，这样也不能用统一的启动类。所以定义了在配置文件里配置mapper扫描
 
 ```yaml
 mybatis:
   mapper-locations: classpath*:com/mapping/*.xml
   type-aliases-package: com.**.domain
   mapper-scan:
-    basePackages: com.**mapper
+    basePackages: "com.**mapper,org.**mapper"     
 ```
 
 mapper-scan.basePackages 多个路径，逗号隔开
 
-# Part11 boot-plus-mybatis-jpa
+## 10.1 Crud自动加载SQL
 
-base-plus-integration-jpa是基于mybatis实现的jpa。既实现了部分jpa的规范，又不失灵活性，也可以用传统的方式在xml或注解方式自己写sql。
+通用的crud再也不用我们自己手写或生成sql了，框架为我们提供了自动装载sql。
 
-## 11.1 CrudMapper自动加载SQL
+实现了`Mapper`的接口或实现了`Mapper`的子接口(如`CrudMapper`等)的接口可以自动了生成对应的sql statement，无需重复编写。举例：
 
-虽然有增删改查的代码生成器，但在添加或删除字段或修改字段特别麻烦，需要把所有的sql都需要修改。有些已经生成的代码也需要手动修改，容易出错。
+定义mapper
 
-实现了`Mapper`的接口或实现了`Mapper`的子接口(如`CrudMapper`等)的接口可以自动了生成对应的sql statement，无需重复编写。
+```java
+// 泛型一定要定义，第一个指实体类的类型，第二指主键类型
+public interface UserMapper extends CrudMapper<User, Long> {
+    
+}
+```
 
-## 11.2 接口定义查询条件
+定义实体类
+
+```java
+@Table(name = "t_user")  //表名
+public class User {
+    
+    @Id  										//指定主键
+    @GeneratedValue(GenerationType.IDENTITY)    //指定主键生成的规则
+    private Long userId;
+
+    //...
+    
+    // 字段名会自动映射为库里的dept_no
+    private String deptNo;
+
+    //也可强制指定表里的字段名称
+    @Column(name = "memo1")
+  	private String memo1;
+}
+```
+
+## 10.2 方法名称定义查询
 
 如果需要根据条件进行查询，可根据jpa规范实现，无需编写sql。如：
 
 ```java
-// select ... from xxx where name = ? and age = ? order by name desc
+/**
+ * 框架为你装载如下sql：select ... from xxx where name = #{name} and age = #{age} order by name desc
+ * 您只需要定义方法名称，无需写sql
+ */
 List<User> findByNameAndAgeOrderByNameDesc(String name, Integer age)
 ```
 
@@ -689,13 +723,20 @@ findByXXOrderByXXXDescAndXXX
   deleteByNameOrDeptNo
   ```
 
-## 11.3 接口定义查询条件过滤
+## 10.3 方法名称定义查询（动态条件）
 
 在传统jpa里，若是实用jpa规范的接口，不能根据条件不同自定义不同条件的查询。但实际使用过程中，经常有若条件是空的，则查全部的。这个时候如果还是用条件匹配是不适合的。
 
-故为解决此问题，定义的注解`@IfTest`。如：
+故为解决此问题，定义的注解`@IfTest`。举例：
 
 ```java
+/**
+ * 
+ * 此注解相当于mybatis里的动态sql标签
+ * <if test="name != null and name != ''">and name = #{name}</if>
+ * <if test="age > 0">and age = #{age}</if>
+ * <if test="deptNo != null and deptNo != ''">and dept_no = #{deptNo}</if>
+ */
 @IfTest(notEmpty = true)
 List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true, conditions = {"> 0"})Integer age, String DeptNo);
 ```
@@ -704,9 +745,9 @@ List<TestUser> findPageByNameAndAgeOrDeptNo(String name, @IfTest(notEmpty = true
 >
 > `notEmpty`表示 `xx != null and  xx != ''`，`notNull`表示`xx != null`
 
-## 11.4 面向对象关联查询
+## 10.4 自动关联查询
 
-在查询时，往往会关联多表查询。但在使用jpa的时候，可以定义关联关系。通过自定义关联关系，可自动关联查询。
+在查询时，往往会关联多表查询。但在使用jpa的时候，可以定义关联关系。通过自定义关联关系，可自动关联查询。mybatis-jpa也提供了关联查询，您只需要在实体类上定义关联关系即可，举例如下：
 
 ```java
 @Table(name = "t_user")
@@ -833,7 +874,7 @@ public class Detp {
   
   > 当时ManyToMany的时候，可定义关联表JoinTable
 
-## 11.5 关联查询优化
+## 10.5 关联查询优化
 
 若每次查询都需要关联查询，有时候消耗较大，会影响性能（N+1问题）。我们可以通过注解来实现，哪些需要，哪些不需要从而优化部分性能。如：
 
@@ -855,7 +896,7 @@ public class User {
 
 MappedStatement有include(哪些需要关联)，exclude(哪些不需要关联)。若同时存在exclude，include。以exclude为准。
 
-## 11.6 关联查询(子查询)自定义
+## 10.6 关联查询(子查询)自定义
 
 子查询时有时候需要定义排序，或者需要自定义部分字段过滤，比如有些删除是逻辑删除，子查询的时候我们不希望把已经删除的查出来。参考：
 
@@ -880,7 +921,7 @@ public class User {
 
 通过注解`@SubQuery` 可实现自定义子查询
 
-## 11.7 代码构建复杂查询
+## 10.7 代码构建复杂查询
 
 如果一直通过Mapper的方法来直接定义查询条件和排序，有时候会让方法变地太长，这样对于维护其实是不利的，我们提供了代码级构造复杂查询，通过继承`SpecificationMapper`接口，可以利用`Specification`构建复杂条件查询。参考：
 
@@ -915,7 +956,7 @@ userMapper.findSpecification((cb, query) -> {
         });
 ```
 
-## 11.8 主键支持
+## 10.8 主键支持
 
 目前支持三种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位）。可如下定义：
 
@@ -930,23 +971,34 @@ public class User {
 }
 ```
 
-## 11.9 自定义主键生成器
+## 10.9 自定义主键生成器
 
 现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
 
 通过实现`KeyGenerator#generate`，然后在定义id生成规则的时候指定generatorClass：
 
 ```java
-@GeneratedValue(generatorClass = MyGenerator.class)
+// 定义主键生成类
+public class MyGenerator implements KeyGenerator {
+    @Override
+    public String generate() {
+        return System.currentTimeMillis() + "";
+    }
+}
+```
+
+```java
+// 指定用这个类生成这个主键，在插入的时候会自动调用此类的generate方法
 @Id
+@GeneratedValue(generatorClass = MyGenerator.class)
 private String id;
 ```
 
-## 11.10 分页排序支持
+## 10.10 分页排序支持
 
 已经实现了自动物理分页。
 
-在方法里传`Page`即可。如：
+在方法里传`Page`， `Sort`即可。如：
 
 ```java
 List<TestUser> findPageByName(Page page, Sort sort， String name);
@@ -964,9 +1016,9 @@ List<TestUser> findPageByName(Page page, Sort sort， String name);
 
 > 若使用传入参数排序，则不要用接口定义的方式定义排序。只能选一种。
 >
-> 分页中，只对框架生成的sql提供了优化count sql，自定义的sql暂未做解析优化
+> 分页中，只对框架生成的sql提供了count sql优化，自定义的sql暂未做解析优化
 
-## 11.11 默认值触发
+## 10.11 默认值触发
 
 默认值触发是指类似于触发器，在我们插入或更新时候指定某些字段的默认值。而不需要我们每次处理的时候去设置值。
 
@@ -982,7 +1034,7 @@ private Date createTime;
 private Date updateTime;
 ```
 
-## 11.12 自定义数据库扩展
+## 10.12 自定义数据库扩展
 
 不可能实现所有的关系型数据库，故将数据库的扩展功能交给使用者。
 
@@ -997,19 +1049,19 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 }
 ```
 
-## 11.13 Pageable入参解析
+## 10.13 Pageable入参解析
 
 让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
 
-## 11.14 MybatisJpaStartedEvent
+## 10.14 MybatisJpaStartedEvent
 
 提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
 
 比如我们需要在框架启动后去调用jpa构建的statement，不然会报找不到statement的异常
 
-# Part12 boot-plus-generator
+# Part11 boot-plus-generator
 
-这是一个插件，方便生成domain和mapper层，使用方式如下：
+这是一个maven插件，方便生成实体类和mapper，使用方式如下：
 
 * 在需要生成代码的项目或模块里，定义一个xml文件`generate.xml`：
 
@@ -1050,7 +1102,7 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
                       <dependency>
                           <groupId>com.alilitech</groupId>
                           <artifactId>boot-plus-mybatis-jpa</artifactId>
-                          <version>1.2.0</version>
+                          <version>1.3.0</version>
                       </dependency>
                   </dependencies>
               </plugin>
@@ -1059,3 +1111,9 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
   ```
 
 * 运行插件
+
+# Part12 boot-plus-cache
+
+spring cache为我们提供了多个缓存的抽象，我们只要调用cacheManager就可以操作不同的缓存，但并未提供缓存的tti、ttl的抽象。本模块致力于提供缓存的tti、ttl抽象。目前支持caffeine和redis。这样我们在本地开发的时候可以使用caffeine，不需要依赖redis。上生产可以切换成基于redis分布式缓存。
+
+操作缓存的类`CacheTemplate`。

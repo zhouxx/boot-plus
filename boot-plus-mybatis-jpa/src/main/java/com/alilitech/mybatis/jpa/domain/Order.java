@@ -15,14 +15,17 @@
  */
 package com.alilitech.mybatis.jpa.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
 public class Order {
-
+    @ApiModelProperty(hidden = true)
     private Direction direction;
+    @ApiModelProperty(hidden = true)
     private String property;
 
     public static final Direction DEFAULT_DIRECTION = Direction.ASC;

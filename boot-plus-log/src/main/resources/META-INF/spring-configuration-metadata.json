@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "logging.aspect",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.alilitech.log.aop.LoggingAspect",
+      "defaultValue": false
+    }
+  ]
+}

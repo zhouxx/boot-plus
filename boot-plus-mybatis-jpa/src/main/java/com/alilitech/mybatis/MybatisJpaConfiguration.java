@@ -25,8 +25,11 @@ import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
 import com.alilitech.mybatis.spring.DatabaseRegistry;
 import com.alilitech.mybatis.spring.MybatisJpaConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
@@ -35,7 +38,9 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.2.4
  */
-@Configuration
+@Order(101)
+@AutoConfigureAfter(MybatisAutoConfiguration.class)
+@EnableConfigurationProperties({MybatisJpaProperties.class})
 public class MybatisJpaConfiguration {
 
     @Bean
@@ -79,8 +84,15 @@ public class MybatisJpaConfiguration {
     }
 
     @Bean
-    public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor();
+    public PaginationInterceptor paginationInterceptor(MybatisJpaProperties mybatisJpaProperties) {
+        return new PaginationInterceptor(mybatisJpaProperties);
     }
+
+    @Bean
+    public MybatisMapperScanner mybatisMapperScanner() {
+        return new MybatisMapperScanner();
+    }
+
+
 
 }

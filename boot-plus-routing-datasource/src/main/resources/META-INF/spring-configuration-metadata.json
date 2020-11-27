@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.datasource",
+      "type": "java.util.Map<java.lang.String, org.springframework.boot.autoconfigure.jdbc.DataSourceProperties>",
+      "sourceType": "org.springframework.boot.autoconfigure.jdbc.DataSourceProperties"
+    }
+  ]
+}

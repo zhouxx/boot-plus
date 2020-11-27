@@ -6,20 +6,18 @@
 
     <groupId>com.alilitech</groupId>
     <artifactId>boot-plus</artifactId>
-    <version>1.2.8</version>
+    <version>1.3.0</version>
     <modules>
         <module>boot-plus-core</module>
         <module>boot-plus-routing-datasource</module>
-        <module>boot-plus-quartz</module>
         <module>boot-plus-web</module>
-        <module>boot-plus-mybatis</module>
         <module>boot-plus-mybatis-jpa</module>
         <module>boot-plus-swagger</module>
         <module>boot-plus-log</module>
         <module>boot-plus-dependencies</module>
         <module>boot-plus-generator</module>
         <module>boot-plus-security</module>
-        <!--<module>boot-plus-cache</module>-->
+        <module>boot-plus-cache</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -53,14 +51,12 @@
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-boot.version>2.2.1.RELEASE</spring-boot.version>
-        <springfox.version>2.8.0</springfox.version>
+        <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
         <vue.version>2.5.16</vue.version>
         <axios.version>0.18.0</axios.version>
         <bootstrap.version>4.1.3</bootstrap.version>
         <freemarker.version>2.3.23</freemarker.version>
         <java.jwt.version>3.2.0</java.jwt.version>
-        <ehcache.version>3.5.2</ehcache.version>
         <start-class>com.AppStart</start-class>
     </properties>
 

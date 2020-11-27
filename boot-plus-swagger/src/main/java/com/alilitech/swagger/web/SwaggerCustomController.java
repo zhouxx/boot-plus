@@ -15,7 +15,7 @@
  */
 package com.alilitech.swagger.web;
 
-import com.alilitech.core.constants.Profiles;
+import com.alilitech.constants.Profiles;
 import com.alilitech.swagger.web.entity.Definition;
 import com.alilitech.swagger.web.entity.Parameter;
 import com.alilitech.swagger.web.entity.SwaggerEntity;
