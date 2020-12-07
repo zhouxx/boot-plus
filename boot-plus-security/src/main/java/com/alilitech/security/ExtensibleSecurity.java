@@ -46,9 +46,12 @@ public interface ExtensibleSecurity {
     /**
      * config/add {@link VirtualFilterDefinition}s for Authentication
      * @param virtualFilterDefinitions
+     * @return if return true, close the default {@link org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter}
+     *         if return false, you should override {@link ExtensibleSecurity#loadUserByUsername} and {@link ExtensibleSecurity#obtainResource}
+     *
      */
-    default void addVirtualFilterDefinitions(List<VirtualFilterDefinition> virtualFilterDefinitions) {
-
+    default boolean addVirtualFilterDefinitions(List<VirtualFilterDefinition> virtualFilterDefinitions) {
+        return false;
     }
 
     /**

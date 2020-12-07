@@ -21,12 +21,16 @@ import com.alilitech.security.authentication.vf.SecurityVirtualFilter;
 import com.alilitech.security.authentication.vf.VirtualFilterDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +71,7 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
         http.logout().logoutUrl(prefix + "/logout").logoutSuccessHandler(logoutSuccessHandler);
 
         List<VirtualFilterDefinition> virtualFilterDefinitions = new ArrayList<>();
-        extensibleSecurity.addVirtualFilterDefinitions(virtualFilterDefinitions);
+        boolean overrideUsernamePasswordAuthenticationFilter = extensibleSecurity.addVirtualFilterDefinitions(virtualFilterDefinitions);
 
         if(virtualFilterDefinitions.size() > 0) {
             virtualFilterDefinitions.forEach(virtualFilterDefinition -> {
@@ -76,6 +80,26 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
                 securityVirtualFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
                 http.addFilterBefore(securityVirtualFilter, UsernamePasswordAuthenticationFilter.class);
             });
+        }
+
+        // since 1.3.1
+        // 返回true时，则替换默认的filter : UsernamePasswordAuthenticationFilter.class
+        // 如果是false，一定要覆写认证和鉴权方法
+        if(overrideUsernamePasswordAuthenticationFilter) {
+            VirtualFilterDefinition virtualFilterDefinition = VirtualFilterDefinition.get().supportedPredicate((servletRequest, servletResponse) -> {
+                // 此filter是否支持验证判断
+                AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher(prefix + "/login", "POST");
+                RequestMatcher.MatchResult matcher = requestMatcher.matcher((HttpServletRequest) servletRequest);
+                return matcher.isMatch();
+            }).authenticationFunction((servletRequest, servletResponse) -> {
+                // 如何验证，验证失败时可以抛出AuthenticationException
+                throw new AuthenticationServiceException("refuse");
+            }).endAuthentication((authentication, servletRequest, servletResponse) -> {
+                // 此filter认证成功后，是否结束整个流程的认证
+                return true;
+            }).alias("refused filter");
+
+            http.addFilterAt(new SecurityVirtualFilter(virtualFilterDefinition), UsernamePasswordAuthenticationFilter.class);
         }
 
         extensibleSecurity.authenticationExtension(http);
