@@ -298,7 +298,6 @@ public class ClassDefinition {
                 if(methodDefinition.getAnnotationList() != null) methodDefinition.getAnnotationList().forEach(s -> {
                     buffer.append(space4).append("@").append(s).append(lineEnd);
                 });
-
                 buffer.append(space4).append(methodDefinition.getScope()).append(" ").append(methodDefinition.getReturnValue()).append(" ").append(methodDefinition.getMethodName()).append("(");
                 if(methodDefinition.getParameters() != null) {
                     for (int i = 0; i < methodDefinition.getParameters().size(); i++) {
