@@ -89,7 +89,6 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
             parameterObject = query;
         }
 
-        //System.out.println("MybatisJpaDynamicSqlSource");
         return super.getBoundSql(parameterObject);
     }
 }

@@ -98,8 +98,12 @@ public class ParameterAssistant {
             }
 
             if(keyGenerator != null) {
-                Object idValue = keyGenerator.generate();
-                metaObject.setValue(entityMetaData.getPrimaryColumnMetaData().getProperty(), idValue);
+                try {
+                    Object idValue = keyGenerator.generate();
+                    metaObject.setValue(entityMetaData.getPrimaryColumnMetaData().getProperty(), idValue);
+                } catch (Exception e) {
+                    logger.error("Primary key generate failed, check your id generator {}!", keyGenerator.getClass().getName());
+                }
             }
         }
 
@@ -116,7 +120,7 @@ public class ParameterAssistant {
                         try {
                             obj = trigger.valueClass().getMethod(trigger.methodName()).invoke(trigger.valueClass().newInstance());
                         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
-                            logger.error(e.getMessage());
+                            logger.error("{} trigger failed, check your trigger method: {}. And the exception is {}", columnMetaData.getProperty(), trigger.valueClass().getName() + "." + trigger.methodName() ,e.getMessage());
                         }
                         metaObject.setValue(columnMetaData.getProperty(), obj);
                     }

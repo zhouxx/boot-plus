@@ -54,7 +54,7 @@ public class GeneratorRegistry {
         return cacheMap.get(key);
     }
 
-    public KeyGenerator getOrRegister(Class generatorClass) {
+    public KeyGenerator getOrRegister(Class<?> generatorClass) {
         if(!cacheMap.containsKey(generatorClass)) {
 
             if(KeyGenerator.class.isAssignableFrom(generatorClass)) {

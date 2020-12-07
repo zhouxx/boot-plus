@@ -133,7 +133,6 @@ public class ColumnMetaData {
             }
             joinColumnMetaData.setJoinEntityType(type);
 
-
             //若是OneToOne or OneToMany直接获取JoinColumn
             if(field.isAnnotationPresent(javax.persistence.JoinColumn.class)) {
                 javax.persistence.JoinColumn joinColumnAnnotation = field.getAnnotation(javax.persistence.JoinColumn.class);

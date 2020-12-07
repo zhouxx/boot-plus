@@ -20,8 +20,12 @@ import com.alilitech.mybatis.dialect.PaginationDialectRegistry;
 import com.alilitech.mybatis.jpa.DatabaseIdProviderImpl;
 import com.alilitech.mybatis.jpa.DatabaseTypeRegistry;
 import com.alilitech.mybatis.jpa.pagination.PaginationInterceptor;
+import com.alilitech.mybatis.jpa.parameter.GenerationType;
 import com.alilitech.mybatis.jpa.parameter.MybatisJpaConfigurationCustomizer;
 import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
+import com.alilitech.mybatis.jpa.primary.key.KeyGenerator4Snowflake;
+import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
+import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGenerator;
 import com.alilitech.mybatis.spring.DatabaseRegistry;
 import com.alilitech.mybatis.spring.MybatisJpaConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -93,6 +97,19 @@ public class MybatisJpaConfiguration {
         return new MybatisMapperScanner();
     }
 
-
-
+    /**
+     * register snowflake key generator
+     * @param mybatisJpaProperties
+     * @param generatorRegistry
+     * @return
+     */
+    @Bean
+    public KeyGenerator4Snowflake keyGenerator4Snowflake(MybatisJpaProperties mybatisJpaProperties, GeneratorRegistry generatorRegistry) {
+        SnowflakeContext snowflakeContext = new SnowflakeContext(mybatisJpaProperties.getSnowflake().getGroupId(), mybatisJpaProperties.getSnowflake().getWorkerId());
+        snowflakeContext.setOffset(mybatisJpaProperties.getSnowflake().getOffset());
+        SnowflakeGenerator snowflakeGenerator = mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy().getSnowflakeGenerator();
+        KeyGenerator4Snowflake keyGenerator4Snowflake = new KeyGenerator4Snowflake(snowflakeContext, snowflakeGenerator);
+        generatorRegistry.register(GenerationType.SNOWFLAKE, keyGenerator4Snowflake);
+        return keyGenerator4Snowflake;
+    }
 }
