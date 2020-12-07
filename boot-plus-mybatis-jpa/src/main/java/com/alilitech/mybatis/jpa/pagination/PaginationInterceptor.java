@@ -154,14 +154,14 @@ public class PaginationInterceptor implements Interceptor {
 
             Matcher fromMatcher = fromPattern.matcher(loweredString);
             if (fromMatcher.find()) {
-                return "SELECT COUNT(1)" + originalSql.substring(fromMatcher.start());
+                return "SELECT COUNT(*)" + originalSql.substring(fromMatcher.start());
             } else {
-                return String.format("SELECT COUNT(1) FROM ( %s ) TOTAL", originalSql);
+                return String.format("SELECT COUNT(*) FROM ( %s ) TOTAL", originalSql);
             }
         }
 
         // custom sql
-        return String.format("SELECT COUNT(1) FROM ( %s ) TOTAL", originalSql);
+        return String.format("SELECT COUNT(*) FROM ( %s ) TOTAL", originalSql);
     }
 
     /**
