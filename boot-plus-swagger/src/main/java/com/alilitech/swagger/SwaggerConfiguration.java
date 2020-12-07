@@ -60,7 +60,6 @@ import static java.util.stream.Collectors.toList;
 @EnableConfigurationProperties(SwaggerProperties.class)
 @Import({BeanValidatorPluginsConfiguration.class})
 @EnableSwagger2
-@Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
 public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware {
 
     private static final String API_PATH = "api.html";
