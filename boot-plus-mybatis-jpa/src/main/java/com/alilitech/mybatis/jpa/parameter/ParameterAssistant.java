@@ -18,9 +18,7 @@ package com.alilitech.mybatis.jpa.parameter;
 import com.alilitech.mybatis.jpa.anotation.Trigger;
 import com.alilitech.mybatis.jpa.meta.ColumnMetaData;
 import com.alilitech.mybatis.jpa.meta.EntityMetaData;
-import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
-import com.alilitech.mybatis.jpa.primary.key.KeyGenerator;
-import com.alilitech.mybatis.jpa.primary.key.KeyGenerator4Auto;
+import com.alilitech.mybatis.jpa.primary.key.*;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.reflection.MetaObject;
@@ -80,21 +78,20 @@ public class ParameterAssistant {
 
             KeyGenerator keyGenerator = null;
 
-            if((idGenerationType != GenerationType.AUTO && idGenerationType != GenerationType.IDENTITY) || generatorClass != KeyGenerator4Auto.class) {
-
+            // UUID global
+            if(idGenerationType == GenerationType.UUID) {
                 keyGenerator = GeneratorRegistry.getInstance().get(idGenerationType);
-
-                /**
-                 * if get {@link KeyGenerator} by {@link GenerationType} is null
-                 */
+            }
+            // SNOWFLAKE for every entity
+            else if (idGenerationType == GenerationType.SNOWFLAKE) {
+                keyGenerator = GeneratorRegistry.getInstance().get(entityMetaData.getEntityType());
                 if(keyGenerator == null) {
-
-                    /**
-                     *  get {@link KeyGenerator} by generator Class
-                     */
-                    keyGenerator = GeneratorRegistry.getInstance().getOrRegister(generatorClass);
-
+                    keyGenerator = SnowflakeKeyGeneratorBuilder.getInstance().build(entityMetaData.getEntityType());
                 }
+            }
+            // 自定义
+            else if(generatorClass != KeyGenerator4Auto.class){
+                keyGenerator = GeneratorRegistry.getInstance().getOrRegister(entityMetaData.getEntityType(), generatorClass);
             }
 
             if(keyGenerator != null) {
@@ -104,6 +101,8 @@ public class ParameterAssistant {
                 } catch (Exception e) {
                     logger.error("Primary key generate failed, check your id generator {}!", keyGenerator.getClass().getName());
                 }
+            } else {
+                logger.warn("check primary key config for entity class {}!", entityMetaData.getEntityType().getName());
             }
         }
 

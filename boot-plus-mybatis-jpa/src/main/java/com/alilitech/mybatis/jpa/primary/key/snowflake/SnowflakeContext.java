@@ -17,7 +17,7 @@ public class SnowflakeContext {
     private long sequence = 0L;
 
     public SnowflakeContext(long groupId, long workerId) {
-        // sanity check for workerId
+        // check for workerId
         if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
         }
@@ -30,6 +30,12 @@ public class SnowflakeContext {
 
     public SnowflakeContext(long groupId, long workerId, long extraWorkerId) {
         this(workerId, groupId);
+        if (extraWorkerId > maxWorkerId || extraWorkerId < 0) {
+            throw new IllegalArgumentException(String.format("Extra worker Id can't be greater than %d or less than 0", maxWorkerId));
+        }
+        if (extraWorkerId == workerId) {
+            throw new IllegalArgumentException("Extra worker Id can't be equals to workerId");
+        }
         this.extraWorkerId = extraWorkerId;
     }
 
@@ -59,12 +65,23 @@ public class SnowflakeContext {
     // 上次时间戳, 初始值为负数
     private long lastTimestamp = -1L;
 
+    // 发生时间回拨时容忍的最大回拨时间 (毫秒)
+    private long maxBackTime = 1L*1000;
+
     public long getWorkerId() {
         return workerId;
     }
 
+    public void setWorkerId(long workerId) {
+        this.workerId = workerId;
+    }
+
     public long getExtraWorkerId() {
         return extraWorkerId;
+    }
+
+    public void setExtraWorkerId(long extraWorkerId) {
+        this.extraWorkerId = extraWorkerId;
     }
 
     public long getGroupId() {
@@ -85,31 +102,6 @@ public class SnowflakeContext {
 
     public long getOffset() {
         return offset;
-    }
-
-    public long setOffsetByOffset(long offsetOffset) {
-        this.offset  = this.offset - offsetOffset;
-        return this.offset;
-    }
-
-    public long getWorkerIdBits() {
-        return workerIdBits;
-    }
-
-    public long getGroupIdBits() {
-        return groupIdBits;
-    }
-
-    public long getMaxWorkerId() {
-        return maxWorkerId;
-    }
-
-    public long getMaxGroupId() {
-        return maxGroupId;
-    }
-
-    public long getSequenceBits() {
-        return sequenceBits;
     }
 
     public long getSequenceMask() {
@@ -134,5 +126,13 @@ public class SnowflakeContext {
 
     public void setLastTimestamp(long lastTimestamp) {
         this.lastTimestamp = lastTimestamp;
+    }
+
+    public long getMaxBackTime() {
+        return maxBackTime;
+    }
+
+    public void setMaxBackTime(long maxBackTime) {
+        this.maxBackTime = maxBackTime;
     }
 }

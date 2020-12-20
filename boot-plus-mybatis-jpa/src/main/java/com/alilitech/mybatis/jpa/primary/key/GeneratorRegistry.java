@@ -28,10 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GeneratorRegistry {
 
-
     /**
      * registry cache.
-     * key is {@link GenerationType } or class extends from {@link KeyGenerator},
+     * key is {@link GenerationType } or entity class,
      * value is a {@link KeyGenerator} instance
      */
     private final Map<Object, KeyGenerator> cacheMap = new ConcurrentHashMap<>();
@@ -54,8 +53,8 @@ public class GeneratorRegistry {
         return cacheMap.get(key);
     }
 
-    public KeyGenerator getOrRegister(Class<?> generatorClass) {
-        if(!cacheMap.containsKey(generatorClass)) {
+    public KeyGenerator getOrRegister(Class<?> entityClass, Class<?> generatorClass) {
+        if(!cacheMap.containsKey(entityClass)) {
 
             if(KeyGenerator.class.isAssignableFrom(generatorClass)) {
                 throw new MybatisJpaException("The generate class of primary key must implement from KeyGenerator.");
@@ -66,7 +65,7 @@ public class GeneratorRegistry {
                 if (instance instanceof KeyGenerator) {
                     KeyGenerator keyGenerator = (KeyGenerator) instance;
                     // put generator in registry
-                    register(generatorClass, keyGenerator);
+                    register(entityClass, keyGenerator);
                 }
 
             } catch (Exception e) {
@@ -74,6 +73,6 @@ public class GeneratorRegistry {
             }
         }
 
-        return cacheMap.get(generatorClass);
+        return cacheMap.get(entityClass);
     }
 }

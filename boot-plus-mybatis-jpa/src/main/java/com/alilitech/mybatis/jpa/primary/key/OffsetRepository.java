@@ -15,28 +15,29 @@
  */
 package com.alilitech.mybatis.jpa.primary.key;
 
-import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
-import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGenerator;
-
 /**
- *
+ * snowflake offset repository
+ * when using {@link com.alilitech.mybatis.jpa.primary.key.snowflake.TimeCallbackStrategy#OFFSET_MODIFY} strategy
  * @author Zhou Xiaoxiang
- * @since 1.3.1
+ * @since 1.3.2
  */
-public class KeyGenerator4Snowflake implements KeyGenerator {
+public interface OffsetRepository {
 
-    private SnowflakeContext snowflakeContext;
+    /**
+     * 存储offset
+     * 发生时钟回拨之后，如果是修改偏移量策略，则将新的偏移量存储起来
+     * @param entityClass
+     * @param offset
+     * @return
+     */
+    boolean saveOffset(Class<?> entityClass, Long offset);
 
-    private SnowflakeGenerator snowflakeGenerator;
-
-    public KeyGenerator4Snowflake(SnowflakeContext snowflakeContext, SnowflakeGenerator snowflakeGenerator) {
-        this.snowflakeContext = snowflakeContext;
-        this.snowflakeGenerator = snowflakeGenerator;
-    }
-
-    @Override
-    public Object generate() {
-        return snowflakeGenerator.generate(snowflakeContext);
-    }
+    /**
+     * 获得offset
+     * 在项目重启后会将保存的偏移量拿到内存中
+     * @param entityClass
+     * @return
+     */
+    Long getOffset(Class<?> entityClass);
 
 }

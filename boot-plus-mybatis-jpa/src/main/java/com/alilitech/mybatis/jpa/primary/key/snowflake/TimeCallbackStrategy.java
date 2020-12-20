@@ -29,26 +29,26 @@ public enum TimeCallbackStrategy {
     /**
      * 等回拨时间过了
      */
-    WAITING(new SnowflakeGeneratorWaiting()),
+    WAITING(SnowflakeGeneratorWaiting.class),
 
     /**
      * 备用机
      */
-    EXTRA(new SnowflakeGeneratorExtra()),
+    EXTRA(SnowflakeGeneratorExtra.class),
 
     /**
      * 偏移量修改
      * 偏移量修改后，ID生成器器的服务重启需要间隔至少回拨时间，或修改偏移量和自动修改后一致
      */
-    OFFSET_MODIFY(new SnowflakeGeneratorOffsetModify());
+    OFFSET_MODIFY(SnowflakeGeneratorOffsetModify.class);
 
-    private SnowflakeGenerator snowflakeGenerator;
+    private Class<? extends SnowflakeGenerator> clazz;
 
-    TimeCallbackStrategy(SnowflakeGenerator snowflakeGenerator) {
-        this.snowflakeGenerator = snowflakeGenerator;
+    TimeCallbackStrategy(Class<? extends SnowflakeGenerator> clazz) {
+        this.clazz = clazz;
     }
 
-    public SnowflakeGenerator getSnowflakeGenerator() {
-        return snowflakeGenerator;
+    public Class<? extends SnowflakeGenerator> getClazz() {
+        return clazz;
     }
 }

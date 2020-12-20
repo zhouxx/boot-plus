@@ -15,29 +15,102 @@
  */
 package com.alilitech.mybatis.jpa.primary.key.snowflake.generator;
 
+import com.alilitech.mybatis.jpa.primary.key.OffsetRepository;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * 削减偏移量
  * @author Zhou Xiaoxiang
- * @since 1.3.0
+ * @since 1.3.1
  */
 public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
+
+    protected static BlockingQueue<OffsetSaveDTO> offsetBlockingQueue;
+
+    private Class<?> entityClass;
+
     @Override
-    public long generate(SnowflakeContext context) {
+    public synchronized long generate(SnowflakeContext context) {
         // 下一个ID生成算法
+        long lastTimestamp = context.getLastTimestamp();
         long currentTimestamp = currentTimestamp();
         // 获取当前时间戳如果小于上次时间戳, 则表示时间出现回滚，减少偏移量，让时间提前
-        if (currentTimestamp < context.getLastTimestamp()) {
-            context.setOffsetByOffset(context.getLastTimestamp() - currentTimestamp);
+        if (currentTimestamp < lastTimestamp) {
+            // 抛弃当前时间戳，offset+1
+            long offsetOffset = lastTimestamp - currentTimestamp + 1;
+            context.setOffset(context.getOffset() - offsetOffset);
+            // 重置lastTimestamp
+            context.setLastTimestamp(-1);
 
-            // 将上次时间戳值刷新
-            return ((currentTimestamp - context.getOffset()) << context.getTimestampLeftShift()) |
-                    (context.getGroupId() << context.getGroupIdShift()) |
-                    (context.getExtraWorkerId() << context.getWorkerIdShift()) |
-                    context.getSequence();
+            if (offsetBlockingQueue != null) {
+                try {
+                    offsetBlockingQueue.put(new OffsetSaveDTO(entityClass, context.getOffset()));
+                } catch (InterruptedException e) {
+                    logger.error("save offset to queue error!");
+                }
+            }
+            logger.warn("Clock is moving backwards. Back time is {} ms. ", lastTimestamp - currentTimestamp);
         }
 
         return calculate(context, currentTimestamp);
     }
+
+
+    public void setOffsetRepositoryAndEntityClass(OffsetRepository offsetRepository, Class<?> entityClass) {
+        this.entityClass = entityClass;
+        if(offsetRepository != null && offsetBlockingQueue == null) {
+            offsetBlockingQueue = new LinkedBlockingDeque<>();
+            new Thread(new SaveOffsetThread(offsetRepository)).start();
+            logger.info("save offset thread started.");
+        }
+    }
+
+    // 保存偏移量的线程
+    public static class SaveOffsetThread implements Runnable {
+        protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+        private OffsetRepository offsetRepository;
+
+
+        public SaveOffsetThread(OffsetRepository offsetRepository) {
+            this.offsetRepository = offsetRepository;
+        }
+
+        @Override
+        public void run() {
+            while (offsetRepository != null) {
+                try {
+                    OffsetSaveDTO offsetSaveDTO = offsetBlockingQueue.take();
+                    logger.info("OffsetRepository save offset: {} for class {} ", offsetSaveDTO.getOffset(), offsetSaveDTO.getEntityClass());
+                    offsetRepository.saveOffset(offsetSaveDTO.getEntityClass(), offsetSaveDTO.getOffset());
+                } catch (InterruptedException e) {
+                    logger.error("take offset from queue error!");
+                }
+            }
+        }
+    }
+
+    private static class OffsetSaveDTO {
+        private Class<?> entityClass;
+        private Long offset;
+
+        public OffsetSaveDTO(Class<?> entityClass, Long offset) {
+            this.entityClass = entityClass;
+            this.offset = offset;
+        }
+
+        public Class<?> getEntityClass() {
+            return entityClass;
+        }
+
+        public Long getOffset() {
+            return offset;
+        }
+
+    }
+
 }

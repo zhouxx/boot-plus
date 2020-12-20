@@ -99,7 +99,8 @@ public class MybatisJpaProperties {
         private long workerId = 1L;
 
         /**
-         * 时间偏移量，默认2010-01-01的时间戳
+         * 时间偏移量，默认2010-01-01的时间戳;
+         * 如果发生了时间回拨，应用重启后请确认此偏移量不会让id重复
          */
         private long offset = 1262275200000L;
 
@@ -109,16 +110,16 @@ public class MybatisJpaProperties {
         private TimeCallbackStrategy timeCallbackStrategy = TimeCallbackStrategy.WAITING;
 
         /**
-         * 当TimeCallbackStrategy是WAITING时，这个时候有允许最大回拨时间
-         * 默认是1秒，超过则报错，会造成无法插入
+         * 当TimeCallbackStrategy是WAITING时，这个时候有允许最大回拨时间，单位毫秒;
+         * 默认是1秒，超过则抛出异常，会造成主键为null，无法插入数据
          */
-        private long maxBackTime = 1L;
+        private long maxBackTime = 1000L;
 
         /**
          * 当TimeCallbackStrategy是EXTRA时，备用workerId
          * 只有时钟回拨的时候才会启用
          */
-        private String extraWorkerId;
+        private long extraWorkerId;
 
         public long getGroupId() {
             return groupId;
@@ -152,11 +153,11 @@ public class MybatisJpaProperties {
             this.maxBackTime = maxBackTime;
         }
 
-        public String getExtraWorkerId() {
+        public long getExtraWorkerId() {
             return extraWorkerId;
         }
 
-        public void setExtraWorkerId(String extraWorkerId) {
+        public void setExtraWorkerId(long extraWorkerId) {
             this.extraWorkerId = extraWorkerId;
         }
 

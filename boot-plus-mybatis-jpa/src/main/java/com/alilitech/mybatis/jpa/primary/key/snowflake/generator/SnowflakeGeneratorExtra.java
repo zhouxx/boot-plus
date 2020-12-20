@@ -15,15 +15,19 @@ public class SnowflakeGeneratorExtra extends AbstractSnowflakeGenerator {
     public synchronized long generate(SnowflakeContext context) {
         // 下一个ID生成算法
         long currentTimestamp = currentTimestamp();
+        long lastTimestamp = context.getLastTimestamp();
         // 获取当前时间戳如果小于上次时间戳, 则表示时间出现回滚，启用备用工作id
-        if (currentTimestamp < context.getLastTimestamp()) {
+        if (currentTimestamp < lastTimestamp) {
+            long workerIdTemp = context.getWorkerId();
+            context.setWorkerId(context.getExtraWorkerId());
+            context.setExtraWorkerId(workerIdTemp);
 
-            // 将上次时间戳值刷新
-            return ((currentTimestamp - context.getOffset()) << context.getTimestampLeftShift()) |
-                    (context.getGroupId() << context.getGroupIdShift()) |
-                    (context.getExtraWorkerId() << context.getWorkerIdShift()) |
-                    context.getSequence();
+            // 切换workerId后重置lastTimestamp
+            context.setLastTimestamp(-1);
+
+            logger.warn("Clock is moving backwards. Back time is {} ms. ", lastTimestamp - currentTimestamp);
         }
+
         return calculate(context, currentTimestamp);
     }
 }
