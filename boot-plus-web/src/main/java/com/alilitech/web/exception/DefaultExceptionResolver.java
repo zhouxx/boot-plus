@@ -17,6 +17,8 @@ package com.alilitech.web.exception;
 
 import com.alilitech.web.WebConfiguration;
 import com.alilitech.util.UnicodeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -32,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final ExceptionHandler exceptionHandler;
 
     public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler) {
@@ -43,11 +47,13 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
         if(exceptionHandler != null) {
             return exceptionHandler.resolveException(request, response, handler, ex);
         }
+        logger.error(ex.getMessage());
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.addHeader(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode("服务器内部错误"));
 
-        return null;
+        // return empty mv
+        return new ModelAndView();
     }
 }
