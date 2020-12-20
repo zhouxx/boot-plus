@@ -313,23 +313,29 @@ public ResponseEntity<AbstractStreamingResponseBody> fileView() {
 }
 ```
 
-## 6.6 校验
+## 6.6 参数校验
 
-校验可以自定义校验结果字段，和根据校验校验结果返回给客户端的不同信息。校验分两种：
+### 6.6.1 校验
+
+校验是指对客户端请求的参数格式或逻辑校验，根据校验校验结果返回给客户端的不同信息。校验分两种：
+
 - 手工校验
 
   手工校验是指在代码里的业务校验。校验不通过可以抛出校验异常。如：`throws new ValidateException("名称已存在")`
-  - 自定义校验处理器
-    
-      通过实现`ValidateHandler`接口，并实现处理验证异常。此处理器只能有一个，并暴露给spring。
-
+  
 - 自动校验
 
   在自动映射的字段上，加上相关的注解，从而实现自动校验。如：`@NotEmpty(message="名称不能为空")`
 
+### 6.6.2 自定义校验处理器
+
+​	通过实现`com.alilitech.web.validate.ValidateHandler`接口，并实现处理验证异常。此处理器只能有一个，并暴露给spring。
+
 ## 6.7 系统异常处理
 
-提供了系统异常处理，也可以自定义异常处理，实现`ExceptionHandler`接口。
+框架提供了全局默认异常处理：打印异常信息，在头部信息里返回`服务器内部错误`
+
+也可以自定义异常处理，实现`com.alilitech.web.exception.ExceptionHandler`接口，并交给spring管理。
 
 # Part7 boot-plus-log
 
@@ -422,7 +428,9 @@ authorizedIncludePattern： 哪个URL需要授权，逗号隔开
 
 * 可快速实现授权与鉴权，无需关注复杂的各种过滤器
 * 集成JWT
-* 实现Stateful Token
+* 实现Stateful Token（有状态Token）
+* 支持多因素认证
+* 支持本地缓存和分布式缓存一键切换
 
 > 注意：由于security模块引入spring cache，所以一定要配置cache名称：
 >
@@ -550,7 +558,7 @@ security:
   
   * addVirtualFilterDefinitions 
   
-    我们可能有这样的需求，一个认证请求会同时验证好多数据，比如登陆时附带验证码的时候，我们需要先验证验证码，再验证用户名和密码。我们可以定义多个`VirtualFilterDefinition`，如：
+    我们可能有这样的需求，一个认证请求会同时验证好多数据，比如登陆时附带验证码的时候，我们需要先验证验证码，再验证用户名和密码（多因素认证，不是多次认证）。我们可以定义多个`VirtualFilterDefinition`，如：
   
     ```java
     virtualFilterDefinitions.add(VirtualFilterDefinition.get().supportedPredicate((servletRequest, servletResponse) -> {
@@ -958,7 +966,7 @@ userMapper.findSpecification((cb, query) -> {
 
 ## 10.8 主键支持
 
-目前支持三种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位）。可如下定义：
+目前支持四种主键类型：自增（IDENTITY）、序列（SEQUENCE）、UUID（32位），SNOWFLAKE（雪花）。可如下定义：
 
 ```java
 public class User {
@@ -971,7 +979,72 @@ public class User {
 }
 ```
 
-## 10.9 自定义主键生成器
+### 10.8.1 雪花算法主键
+
+关于雪花算法的主键配置如下：
+
+```yml
+mybatis:
+  snowflake:
+    group-id: 1                         # 组id
+    worker-id: 1					    # 工作id
+    time-callback-strategy: waiting     # 时间回拨策略（等待，备用工作id，修改偏移量）
+    max-back-time: 1                    # 最大可回拨时间，超出则报异常，表示生成id失败
+    extra-worker-id: 2                  # 备用工作id 只有回拨策略是备用工作id时，必须配置此属性
+    offset:                             # 默认时间偏移量
+```
+
+雪花算法的主键为时间回拨提供了3种处理方式
+
+* WAITING 
+
+  等待回拨时间，此策略适用于客户端允许时间等待的情况
+
+* 备用workerId
+
+  如果workerId有多余的情况，可以启用备用id。备用id只是在时间段重叠部分换了备用workerId，这样备用workerId变成了主workerId，原来的主workerId变成备用workerId。注意此策略不适应用于回拨时间段在同一区间的，若两次回拨的时间区间重叠了，这时候两个workerId都被使用过了，会造成主键重复
+
+* 修改偏移量
+
+  我们设计时间偏移量，在取得当前时间后，会减去偏移量，从而达到较小数值，从而让ID的生成时间更久。时间回拨，无非就是让最终生成的ID变小了，导致ID重复，我们可以考虑修改偏移量来达到ID变大。让偏移量减去回拨时间区间，从而让最终的ID变成和原来的轨迹。
+
+  > 注意，时间偏移量的修改只是在内存中修改了。如果项目重启了，请确认项目的重启间隔大于回拨时间。
+
+  由于现在很多项目使用云原生，会导致项目不间断，也就是说没有重启间隔时间。我们提供了外部存储时间偏移量接口`OffsetRepository`,在实现接口后让spring管理，示例如下：
+
+  ```java
+  @Component
+  public class MyOffsetRepository implements OffsetRepository, EnvironmentAware {
+  
+      private Environment env;
+  
+      @Autowired
+      private RedisTemplate<Object, Object> redisTemplate;
+  
+      @Override
+      public boolean saveOffset(Class<?> entityClass, Long offset) {
+          // 由于是多应用，我们可以采用应用名称来区分不同项目，也可以采用`groupId+workerId`来区分
+          String applicationName = env.getProperty("spring.application.name");
+          redisTemplate.opsForValue().set(applicationName + "." + entityClass.getName(), offset);
+          return true;
+      }
+  
+      @Override
+      public Long getOffset(Class<?> entityClass) {
+          String applicationName = env.getProperty("spring.application.name");
+          Object o = redisTemplate.opsForValue().get(applicationName + "." + entityClass.getName());
+          return (Long) o;
+      }
+  
+      @Override
+      public void setEnvironment(Environment env) {
+          this.env = env;
+      }
+  }
+  
+  ```
+
+### 10.8.2 自定义主键生成规则
 
 现阶段生成id的方式特别多，特别是基于分布式的情况，所以提供了扩展给使用者，让使用者自定义id生成规则。
 
@@ -994,7 +1067,7 @@ public class MyGenerator implements KeyGenerator {
 private String id;
 ```
 
-## 10.10 分页排序支持
+## 10.9 分页排序支持
 
 已经实现了自动物理分页。
 
@@ -1018,7 +1091,7 @@ List<TestUser> findPageByName(Page page, Sort sort， String name);
 >
 > 分页中，只对框架生成的sql提供了count sql优化，自定义的sql暂未做解析优化
 
-## 10.11 默认值触发
+## 10.10 默认值触发
 
 默认值触发是指类似于触发器，在我们插入或更新时候指定某些字段的默认值。而不需要我们每次处理的时候去设置值。
 
@@ -1034,7 +1107,7 @@ private Date createTime;
 private Date updateTime;
 ```
 
-## 10.12 自定义数据库扩展
+## 10.11 自定义数据库扩展
 
 不可能实现所有的关系型数据库，故将数据库的扩展功能交给使用者。
 
@@ -1049,11 +1122,11 @@ public void addDatabase(DatabaseRegistry databaseRegistry) {
 }
 ```
 
-## 10.13 Pageable入参解析
+## 10.12 Pageable入参解析
 
 让排序传入更简单更优雅。若集成swagger，则可以通过swagger-ui查看具体的参数信息
 
-## 10.14 MybatisJpaStartedEvent
+## 10.13 MybatisJpaStartedEvent
 
 提供一个Event，在jpa加载完成后发布一个事件。可以利用此事件执行一些后置方法。
 
