@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -37,8 +35,6 @@ import java.util.List;
  * @since 1.0
  */
 public class DictFormatSerializerModifier extends BeanSerializerModifier {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DictCacheManager dictCacheManager;
@@ -55,7 +51,7 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
                 String targetFiledName = isEmpty(dictFormat.targetFiled()) ? sourceFileName + "Name" : dictFormat.targetFiled();
                 String dicKey = isEmpty(dictFormat.dictKey()) ? sourceFileName : dictFormat.dictKey();
                 String defaultValue = dictFormat.defaultValue();
-                writer.assignSerializer(new DictJsonSerializer(new DictAnnotationConfig(targetFiledName, dicKey, dictFormat.dictKeyToString(), defaultValue)));
+                writer.assignSerializer(new DictJsonSerializer(new DictAnnotationConfig(targetFiledName, dicKey, dictFormat.dictKeyToString(), defaultValue, dictFormat.newTarget())));
             }
         }
 
@@ -86,21 +82,20 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
             // If there is no key or no value, reload the dictionary collector
             dictCacheManager.existAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
 
-//            if(!cacheMap.containsKey(dictAnnotationConfig.getDictKey()) || !cacheMap.get(dictAnnotationConfig.getDictKey()).containsKey(dictKeyStringValue)) {
-//                logger.warn("dict key: {} and value: {} is not in cache, and it will reload all dict collectors.", dictAnnotationConfig.getDictKey(), dictKeyStringValue);
-//                cacheMap.clear();
-//                dictCollectorList.forEach(dictCollector -> cacheMap.putAll(dictCollector.findDictAndValues()));
-//            }
-            gen.writeObject(value);
-
-            // write dictionary value
-            gen.writeFieldName(dictAnnotationConfig.getTargetFiledName());
-            if(dictCacheManager.exist(dictAnnotationConfig.getDictKey())) {
-               Object object = dictCacheManager.getDictValByKey(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
-               gen.writeObject(object);
-            } else {
-               gen.writeObject(dictAnnotationConfig.getDefaultValue());
+            // 如果是新的目标属性，则先写原始的，再写格式化的
+            if(dictAnnotationConfig.isNewTarget()) {
+                gen.writeObject(value);
+                // write dictionary value
+                gen.writeFieldName(dictAnnotationConfig.getTargetFiledName());
             }
+
+            if(dictCacheManager.exist(dictAnnotationConfig.getDictKey())) {
+                Object object = dictCacheManager.getDictValByKey(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
+                gen.writeObject(object);
+            } else {
+                gen.writeObject(dictAnnotationConfig.getDefaultValue());
+            }
+
         }
     }
 
@@ -110,12 +105,14 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
         private final String dictKey;
         private final boolean dictKeyToString;
         private final String defaultValue;
+        private final boolean newTarget;
 
-        DictAnnotationConfig(String targetFiledName, String dictKey, boolean dictKeyToString, String defaultValue) {
+        DictAnnotationConfig(String targetFiledName, String dictKey, boolean dictKeyToString, String defaultValue, boolean newTarget) {
             this.targetFiledName = targetFiledName;
             this.dictKey = dictKey;
             this.dictKeyToString = dictKeyToString;
             this.defaultValue = defaultValue;
+            this.newTarget = newTarget;
         }
 
         String getTargetFiledName() {
@@ -134,6 +131,9 @@ public class DictFormatSerializerModifier extends BeanSerializerModifier {
             return defaultValue;
         }
 
+        public boolean isNewTarget() {
+            return newTarget;
+        }
     }
 
 }

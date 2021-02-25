@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -41,6 +41,10 @@ public @interface DictFormat {
      */
     boolean dictKeyToString() default false;
 
+    /**
+     * 字典值用新的属性输出
+     */
+    boolean newTarget() default true;
 
     /**
      * 目标属性, 一个字典对应有个值，这个也要有个属性存在，默认为dicKey+"Name"

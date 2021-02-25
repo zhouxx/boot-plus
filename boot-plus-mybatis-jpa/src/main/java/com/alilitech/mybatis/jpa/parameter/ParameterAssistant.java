@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class ParameterAssistant {
                     logger.error("Primary key generate failed, check your id generator {}!", keyGenerator.getClass().getName());
                 }
             } else {
-                logger.warn("check primary key config for entity class {}!", entityMetaData.getEntityType().getName());
+                logger.info("The entity class {} do not have the key generator!", entityMetaData.getEntityType().getName());
             }
         }
 

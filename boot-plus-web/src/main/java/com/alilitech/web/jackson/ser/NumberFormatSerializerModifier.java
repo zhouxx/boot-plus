@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,7 +42,11 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
         for (BeanPropertyWriter writer : beanProperties) {
             NumberFormat numberFormat = writer.getAnnotation(NumberFormat.class);
             if (numberFormat != null && this.isNumberType(writer)) {
-                writer.assignSerializer(new NumberJsonSerializer(numberFormat));
+                String sourceFileName = writer.getFullName().getSimpleName();
+                String targetFiledName = isEmpty(numberFormat.targetFiled()) ? sourceFileName + "Name" : numberFormat.targetFiled();
+                NumberFormatConfig numberFormatConfig = new NumberFormatConfig(numberFormat, targetFiledName, null);
+
+                writer.assignSerializer(new NumberJsonSerializer(numberFormatConfig));
             }
         }
 
@@ -56,17 +60,22 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
                 || clazz.equals(Byte.class) || clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Double.class) || clazz.equals(Float.class);
     }
 
+    private static boolean isEmpty(Object str) {
+        return str == null || "".equals(str);
+    }
+
     protected static class NumberJsonSerializer extends JsonSerializer<Object> {
 
-        private final NumberFormat annotation;
+        private final NumberFormatConfig numberFormatConfig;
 
-        NumberJsonSerializer(NumberFormat annotation) {
-            this.annotation = annotation;
+        NumberJsonSerializer(NumberFormatConfig numberFormatConfig) {
+            this.numberFormatConfig = numberFormatConfig;
         }
 
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            if(annotation.pattern().equals("")) {
+            Object formatValue = null;
+            if(numberFormatConfig.getPattern().equals("")) {
                 BigDecimal bigDecimalValue = null;
                 if(value instanceof BigDecimal) {
                     bigDecimalValue = (BigDecimal) value;
@@ -83,12 +92,86 @@ public class NumberFormatSerializerModifier extends BeanSerializerModifier {
                 } else if(value instanceof Byte){
                     bigDecimalValue = new BigDecimal((Byte)value);
                 }
-                bigDecimalValue = bigDecimalValue.setScale(annotation.scale(), annotation.round());
-                gen.writeObject(bigDecimalValue);
+                bigDecimalValue = bigDecimalValue.setScale(numberFormatConfig.getScale(), numberFormatConfig.getRound());
+                formatValue = bigDecimalValue;
+//                gen.writeObject(bigDecimalValue);
             } else {
-                DecimalFormat df = new DecimalFormat(annotation.pattern());
-                gen.writeObject(df.format(value));
+                DecimalFormat df = new DecimalFormat(numberFormatConfig.getPattern());
+                formatValue = df.format(value);
+//                gen.writeObject(df.format(value));
             }
+
+            if(!numberFormatConfig.getPre().equals("")) {
+                formatValue = numberFormatConfig.getPre() + formatValue;
+            }
+
+            if(!numberFormatConfig.getPost().equals("")) {
+                formatValue = formatValue + numberFormatConfig.getPost();
+            }
+
+            if(numberFormatConfig.isNewTarget()) {
+                gen.writeObject(value);
+                gen.writeFieldName(numberFormatConfig.getTargetFiledName());
+            }
+
+            gen.writeObject(formatValue);
+
+        }
+    }
+
+    protected static class NumberFormatConfig {
+        private final String pattern;
+        private final int scale;
+        private final int round;
+
+        private final String pre;
+        private final String post;
+
+        private final String targetFiledName;
+        private final String defaultValue;
+        private final boolean newTarget;
+
+        public NumberFormatConfig(NumberFormat numberFormat, String targetFiledName, String defaultValue) {
+            this.pattern = numberFormat.pattern();
+            this.scale = numberFormat.scale();
+            this.round = numberFormat.round();
+            this.targetFiledName = targetFiledName;
+            this.defaultValue = defaultValue;
+            this.newTarget = numberFormat.newTarget();
+            this.pre = numberFormat.pre();
+            this.post = numberFormat.post();
+        }
+
+        public String getPattern() {
+            return pattern;
+        }
+
+        public int getScale() {
+            return scale;
+        }
+
+        public int getRound() {
+            return round;
+        }
+
+        public String getTargetFiledName() {
+            return targetFiledName;
+        }
+
+        public String getDefaultValue() {
+            return defaultValue;
+        }
+
+        public boolean isNewTarget() {
+            return newTarget;
+        }
+
+        public String getPre() {
+            return pre;
+        }
+
+        public String getPost() {
+            return post;
         }
     }
 }

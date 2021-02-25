@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,5 +44,25 @@ public @interface NumberFormat {
      * 取舍模式，默认4舍五入，参考BigDecimal里的常量
      */
     int round() default BigDecimal.ROUND_HALF_UP;
+
+    /**
+     * 格式化后的值是否用新的属性输出
+     */
+    boolean newTarget() default false;
+
+    /**
+     * 新的目标属性，默认为 原始属性名称+"Name"
+     */
+    String targetFiled() default "";
+
+    /**
+     * 前置拼接，比如单位 $ 等
+     */
+    String pre() default "";
+
+    /**
+     * 后置拼接，比如 % 万元等
+     */
+    String post() default "";
 
 }

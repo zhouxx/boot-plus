@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class BeanUtils {
 		}
 		Map<String, Object> mapRet = new HashMap<>();
 		try {
-			List<TempBean> list = new BeanUtils().findSourceMethod(source, null);
+			List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 			for (TempBean tb : list) {
 				try {
 					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO());
@@ -163,8 +163,8 @@ public class BeanUtils {
 			return;
 		}
 		try {
-			Map<String, TempBean> tbSourceMap = new BeanUtils().findSourceMethodAndTranslateGetNameMap(source);
-			List<TempBean> listTarget = new BeanUtils().findSourceMethod(target, null);
+			Map<String, TempBean> tbSourceMap = BeanUtils.findSourceMethodAndTranslateGetNameMap(source);
+			List<TempBean> listTarget = BeanUtils.findSourceMethod(target, null);
 			for (TempBean tempBean : listTarget) {
 				try {
 					//查找源对象的get方法
@@ -192,8 +192,8 @@ public class BeanUtils {
 	/**
 	 * 查找对象源的get和set方法，包括聚合对象, 并转换成以get方法为key的Map
 	 */
-	protected Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source) throws Exception {
-		List<TempBean> list = this.findSourceMethod(source, null);
+	protected static Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source) throws Exception {
+		List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 		Map<String, TempBean> retMap = new HashMap<>();
 		for(TempBean tb : list) {
 			retMap.put(tb.getFieldDesc().getGetName(), tb);
@@ -204,7 +204,7 @@ public class BeanUtils {
 	/**
 	 * 查找对象源的get和set方法，包括聚合对象
 	 */
-	protected List<TempBean> findSourceMethod(Object source, List<TempBean> list) throws Exception {
+	protected static List<TempBean> findSourceMethod(Object source, List<TempBean> list) throws Exception {
 		if(list == null) {
 			list = new ArrayList<>();
 		}
@@ -252,7 +252,7 @@ public class BeanUtils {
 	/**
 	 * 只取类的第一层，不包括对象里的对象
 	 */
-	protected List<TempBean> findSourceMethod(Object source) {
+	protected static List<TempBean> findSourceMethod(Object source) {
 		List<TempBean> list = new ArrayList<>();
 		Class<?> clazzSource = source.getClass();
 		List<Field> sourceFields = getAllFields(clazzSource, null);
@@ -263,7 +263,7 @@ public class BeanUtils {
 		return list;
 	}
 
-	private boolean isDirectConvert(Class<?> clazz) {
+	private static boolean isDirectConvert(Class<?> clazz) {
 		return String.class.equals(clazz) ||
 				Date.class.equals(clazz) ||
 				java.sql.Date.class.equals(clazz) ||
@@ -277,7 +277,7 @@ public class BeanUtils {
 	/**
 	 * 获得类的所有字段，包括父级字段
 	 */
-	private List<Field> getAllFields(Class<?> clazz, List<Field> list) {
+	private static List<Field> getAllFields(Class<?> clazz, List<Field> list) {
 		if(list == null) {
 			list = new ArrayList<>();
 		}
@@ -298,7 +298,7 @@ public class BeanUtils {
 	/**
 	 * 根据对象和字段名获得这个字段的对象值
 	 */
-	private Object getFieldObject(Field field, Object source) throws InvocationTargetException, IllegalAccessException {
+	private static Object getFieldObject(Field field, Object source) throws InvocationTargetException, IllegalAccessException {
 		String fieldName = field.getName();
 		Method method;
 		try {

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2020 the original author or authors.
+ *    Copyright 2017-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -185,6 +186,8 @@ public class ColumnMetaData {
                     joinColumnMetaData.setExcludes(Arrays.asList(field.getAnnotation(MappedStatement.class).exclude()));
                 } else if(field.getAnnotation(MappedStatement.class).include().length > 0) {
                     joinColumnMetaData.setIncludes(Arrays.asList(field.getAnnotation(MappedStatement.class).include()));
+                } else {  //还有一种情况就是只是定义关联关系，却实际没有任何关联查询
+                    joinColumnMetaData.setIncludes(new ArrayList<>());
                 }
             }
 
