@@ -51,11 +51,11 @@ public class BeanUtils {
 			return null;
 		}
 		Map<String, Object> mapRet = new HashMap<>();
-		List<TempBean> list = new BeanUtils().findSourceMethod(source);
+		List<TempBean> list = BeanUtils.findSourceMethod(source);
 		try {
 			for (TempBean tb : list) {
 				try {
-					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO());
+					Object value = tb.getObject().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getObject());
 					String fieldName = tb.getFieldDesc().getFieldName();
 					mapRet.put(fieldName, value);
 				} catch (NoSuchMethodException | SecurityException e) {
@@ -83,7 +83,7 @@ public class BeanUtils {
 			List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 			for (TempBean tb : list) {
 				try {
-					Object value = tb.getO().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getO());
+					Object value = tb.getObject().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getObject());
 					String fieldName = tb.getFieldDesc().getFieldName();
 					mapRet.put(fieldName, value);
 				} catch (NoSuchMethodException | SecurityException e) {
@@ -102,11 +102,13 @@ public class BeanUtils {
 	 * @param clazz 目标list对象的类
 	 * @return 新的集合
 	 */
-	public static <T> List<T> copyPropertiesList(List<?> source, Class<T> clazz)  {
+	public static <T> List<T> copyPropertiesList(List<?> source, Class<T> clazz, String... ignoreProperties)  {
 		List<T> listRet = new ArrayList<>();
 		if(!CollectionUtils.isEmpty(source)) {
+			// 解析需要忽略的字段
+			IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
 			for (Object o : source) {
-				listRet.add(copyPropertiesDeep(o, clazz));
+				listRet.add(copyPropertiesDeep(o, clazz, ignorePropertyArray));
 			}
 		} else {
 			logger.debug("Source List is empty");
@@ -117,9 +119,9 @@ public class BeanUtils {
 	/**
 	 * support DK1.8 {@link Optional}
 	 */
-	public static <T> Optional<T> copyPropertiesDeep(Optional<?> source, Class<T> clazz) {
+	public static <T> Optional<T> copyPropertiesDeep(Optional<?> source, Class<T> clazz, String... ignoreProperties) {
 		if(source.isPresent()) {
-			T t = copyPropertiesDeep(source.get(), clazz);
+			T t = copyPropertiesDeep(source.get(), clazz, ignoreProperties);
 			return Optional.ofNullable(t);
 		} else {
 			return Optional.empty();
@@ -132,8 +134,7 @@ public class BeanUtils {
 	 * @param clazz 目标对象类
 	 * @return 新的对象
 	 */
-	public static <T> T copyPropertiesDeep(Object source, Class<T> clazz)  {
-
+	public static <T> T copyPropertiesDeep(Object source, Class<T> clazz, String... ignoreProperties)  {
 		if(source == null) {
 			return null;
 		}
@@ -144,16 +145,35 @@ public class BeanUtils {
 		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("init target object error");
 		}
-		copyPropertiesDeep(source, target);
+		// 解析需要忽略的字段
+		IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
+		copyPropertiesDeep(source, target, ignorePropertyArray);
+		return target;
+	}
+
+	private static <T> T copyPropertiesDeep(Object source, Class<T> clazz, IgnoreProperty... ignoreProperties)  {
+		if(source == null) {
+			return null;
+		}
+
+		T target = null;
+		try {
+			target = clazz.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			logger.error("init target object error");
+		}
+		// 解析需要忽略的字段
+		copyPropertiesDeep(source, target, ignoreProperties);
 		return target;
 	}
 
 	/**
 	 * 将源对象的属性（包括聚合对象）拷贝到目标对象，目标对象必须为没有聚合的对象
-	 * @param target 目标对象，不能为空
 	 * @param source 源对象
+	 * @param target 目标对象，不能为空
+	 * @param ignoreProperties 需要忽略的源对象类的字段格式为 比如  [类的简单名称（simpleName).]fieldName）,simpleName 可以忽略表示最外层的类
 	 */
-	public static void copyPropertiesDeep(Object source, Object target) {
+	public static void copyPropertiesDeep(Object source, Object target, String... ignoreProperties) {
 		if(target == null) {
 			logger.debug("Target object is null");
 			return;
@@ -162,8 +182,19 @@ public class BeanUtils {
 			logger.debug("Source object is null");
 			return;
 		}
+		// 解析需要忽略的字段
+		IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
+		copyPropertiesDeep(source, target, ignorePropertyArray);
+	}
+
+	/**
+	 * 将源对象的属性（包括聚合对象）拷贝到目标对象，目标对象必须为没有聚合的对象
+	 * @param target 目标对象，不能为空
+	 * @param source 源对象
+	 */
+	private static void copyPropertiesDeep(Object source, Object target, IgnoreProperty... ignoreProperties) {
 		try {
-			Map<String, TempBean> tbSourceMap = BeanUtils.findSourceMethodAndTranslateGetNameMap(source);
+			Map<String, TempBean> tbSourceMap = BeanUtils.findSourceMethodAndTranslateGetNameMap(source, ignoreProperties);
 			List<TempBean> listTarget = BeanUtils.findSourceMethod(target, null);
 			for (TempBean tempBean : listTarget) {
 				try {
@@ -174,7 +205,7 @@ public class BeanUtils {
 						continue;
 					}
 					Method method = target.getClass().getMethod(tempBean.getFieldDesc().getSetName(), tempBean.getFieldDesc().getClazz());
-					Object value = tempBeanSource.getO().getClass().getMethod(tempBeanSource.getFieldDesc().getGetName(), new Class[]{}).invoke(tempBeanSource.getO());
+					Object value = tempBeanSource.getObject().getClass().getMethod(tempBeanSource.getFieldDesc().getGetName(), new Class[]{}).invoke(tempBeanSource.getObject());
 					//值为空不需要塞
 					if (value == null) {
 						continue;
@@ -192,13 +223,51 @@ public class BeanUtils {
 	/**
 	 * 查找对象源的get和set方法，包括聚合对象, 并转换成以get方法为key的Map
 	 */
-	protected static Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source) throws Exception {
+	protected static Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source, IgnoreProperty... ignoreProperties) throws Exception {
 		List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 		Map<String, TempBean> retMap = new HashMap<>();
-		for(TempBean tb : list) {
-			retMap.put(tb.getFieldDesc().getGetName(), tb);
+
+		// 区分是否有过滤的属性
+		if(ignoreProperties == null || ignoreProperties.length == 0) {
+			for(TempBean tb : list) {
+				retMap.put(tb.getFieldDesc().getGetName(), tb);
+			}
+		} else {
+			for(TempBean tb : list) {
+				boolean flag = false;
+				for(IgnoreProperty ignoreProperty : ignoreProperties) {
+					if(ignoreProperty.equalsWith(tb.getObjectSimpleName(), tb.getFieldDesc().getFieldName())) {
+						flag = true;
+						break;
+					}
+				}
+				if(flag) {
+					continue;
+				}
+				retMap.put(tb.getFieldDesc().getGetName(), tb);
+			}
 		}
+
 		return retMap;
+	}
+
+	protected static IgnoreProperty[] resolveIgnoreProperties(String simpleName, String... ignoreProperties) {
+		if(ignoreProperties == null || ignoreProperties.length == 0) {
+			return null;
+		}
+
+		IgnoreProperty[] ignorePropertyArray = new IgnoreProperty[ignoreProperties.length];
+		for(int i=0; i<ignoreProperties.length; i++) {
+			String ignorePropertyStr = ignoreProperties[i];
+			String[] splitTmp = ignorePropertyStr.split("\\.");
+			if(splitTmp.length == 1) {
+				ignorePropertyArray[i] = new IgnoreProperty(simpleName, splitTmp[0]);
+			} else {
+				ignorePropertyArray[i] = new IgnoreProperty(splitTmp[0], splitTmp[1]);
+			}
+		}
+
+		return ignorePropertyArray;
 	}
 
 	/**
@@ -309,25 +378,55 @@ public class BeanUtils {
 		return method.invoke(source);
 	}
 
+	private static class IgnoreProperty {
+
+		private String simpleName;
+
+		private String property;
+
+		public IgnoreProperty(String simpleName, String property) {
+			this.simpleName = simpleName;
+			this.property = property;
+		}
+
+		public String getSimpleName() {
+			return simpleName;
+		}
+
+		public String getProperty() {
+			return property;
+		}
+
+		public boolean equalsWith(String simpleName, String property) {
+			return simpleName.equals(this.simpleName) && property.equals(this.property);
+		}
+	}
+
 	protected static class TempBean {
 
-		FieldDesc fieldDesc;
+		private FieldDesc fieldDesc;
 
-		private Object o;
+		private Object object;
 
-		public TempBean(FieldDesc fieldDesc, Object o) {
+		private String objectSimpleName;
+
+		public TempBean(FieldDesc fieldDesc, Object object) {
 			this.fieldDesc = fieldDesc;
-			this.o = o;
+			this.object = object;
+			this.objectSimpleName = object.getClass().getSimpleName();
 		}
 
 		public FieldDesc getFieldDesc() {
 			return fieldDesc;
 		}
 
-		public Object getO() {
-			return o;
+		public Object getObject() {
+			return object;
 		}
 
+		public String getObjectSimpleName() {
+			return objectSimpleName;
+		}
 	}
 
 	protected static class FieldDesc {

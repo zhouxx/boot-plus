@@ -79,14 +79,15 @@ public class MethodDefinitionAssistant {
         for(MethodDefinition methodDefinition : mapperDefinition.getMethodDefinitions()) {
             if(methodDefinition.isCompositeResultMap()) {
 
+                // 只是定义关联关系，实际并没有任何真正的关联查询
+                if(joinColumnMetaData.isJoinNothing()) {
+                    continue;
+                }
+
                 //被排除的，和不在包含之内的都不需要查询
                 if(!CollectionUtils.isEmpty(joinColumnMetaData.getExcludes()) && joinColumnMetaData.getExcludes().contains(methodDefinition.getMethodName())) {
                     continue;
                 } else if(!CollectionUtils.isEmpty(joinColumnMetaData.getIncludes()) && !joinColumnMetaData.getIncludes().contains(methodDefinition.getMethodName())) {
-                    continue;
-                }
-                // 只是定义关联关系，实际并没有任何真正的关联查询
-                else if(CollectionUtils.isEmpty(joinColumnMetaData.getExcludes()) && CollectionUtils.isEmpty(joinColumnMetaData.getIncludes())) {
                     continue;
                 }
 

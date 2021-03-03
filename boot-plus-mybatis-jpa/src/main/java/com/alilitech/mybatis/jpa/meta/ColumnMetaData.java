@@ -187,7 +187,7 @@ public class ColumnMetaData {
                 } else if(field.getAnnotation(MappedStatement.class).include().length > 0) {
                     joinColumnMetaData.setIncludes(Arrays.asList(field.getAnnotation(MappedStatement.class).include()));
                 } else {  //还有一种情况就是只是定义关联关系，却实际没有任何关联查询
-                    joinColumnMetaData.setIncludes(new ArrayList<>());
+                    joinColumnMetaData.setJoinNothing(true);
                 }
             }
 

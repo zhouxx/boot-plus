@@ -48,6 +48,10 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
             return exceptionHandler.resolveException(request, response, handler, ex);
         }
         logger.error(ex.getMessage());
+        // 添加可调试的级别，否则在线上无法看到具体的错误堆栈信息
+        if (logger.isDebugEnabled()) {
+            ex.printStackTrace();
+        }
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

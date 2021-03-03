@@ -72,6 +72,8 @@ public class JoinColumnMetaData {
     private List<String> excludes;
 
     private List<String> includes;
+    // 是否没有任何关联的查询，只是定义关联关系
+    private boolean joinNothing = false;
 
     private SubQuery subQuery;
 
@@ -233,6 +235,14 @@ public class JoinColumnMetaData {
 
     public void setIncludes(List<String> includes) {
         this.includes = includes;
+    }
+
+    public boolean isJoinNothing() {
+        return joinNothing;
+    }
+
+    public void setJoinNothing(boolean joinNothing) {
+        this.joinNothing = joinNothing;
     }
 
     public SubQuery getSubQuery() {

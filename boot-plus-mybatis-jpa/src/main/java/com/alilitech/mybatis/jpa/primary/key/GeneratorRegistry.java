@@ -56,7 +56,7 @@ public class GeneratorRegistry {
     public KeyGenerator getOrRegister(Class<?> entityClass, Class<?> generatorClass) {
         if(!cacheMap.containsKey(entityClass)) {
 
-            if(KeyGenerator.class.isAssignableFrom(generatorClass)) {
+            if(!KeyGenerator.class.isAssignableFrom(generatorClass)) {
                 throw new MybatisJpaException("The generate class of primary key must implement from KeyGenerator.");
             }
 
