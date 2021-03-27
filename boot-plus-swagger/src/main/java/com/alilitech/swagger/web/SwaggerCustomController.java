@@ -15,7 +15,6 @@
  */
 package com.alilitech.swagger.web;
 
-import com.alilitech.constants.Profiles;
 import com.alilitech.swagger.web.entity.Definition;
 import com.alilitech.swagger.web.entity.Parameter;
 import com.alilitech.swagger.web.entity.SwaggerEntity;
@@ -30,7 +29,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +57,8 @@ import java.util.Optional;
  */
 @RestController
 @ApiIgnore
-@Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
+@ConditionalOnProperty(value = "springfox.documentation.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnClass({ freemarker.template.Configuration.class })
 public class SwaggerCustomController {
 
     private final DocumentationCache documentationCache;

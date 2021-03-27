@@ -41,7 +41,6 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Profile("!" + Profiles.SPRING_PROFILE_PRODUCTION)
 @Order(Ordered.LOWEST_PRECEDENCE + 10)
 public class MybatisJpaPageableParameterBuilder implements OperationBuilderPlugin {
 

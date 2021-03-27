@@ -71,7 +71,7 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
 
         List<String> sqlParts = Arrays.asList(
                 "<if test=\"_databaseId != 'Oracle'\">",
-                "<foreach item='rowData' index='rowIndex' collection='list' separator=';'>",
+                "<foreach item='rowData' index='rowIndex' collection='collection' separator=';'>",
                 "UPDATE",
                 entityMetaData.getTableName(),
                 "<set>",
@@ -82,7 +82,7 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
                 "</foreach>",
                 "</if>",
                 "<if test=\"_databaseId == 'Oracle'\">",
-                "<foreach item='rowData' index='rowIndex' collection='list' separator=';' open='begin' close='; end;'>",
+                "<foreach item='rowData' index='rowIndex' collection='collection' separator=';' open='begin' close='; end;'>",
                 "UPDATE",
                 entityMetaData.getTableName(),
                 "<set>",

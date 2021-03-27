@@ -15,33 +15,31 @@
  */
 package com.alilitech.swagger;
 
-import com.alilitech.constants.Profiles;
 import com.fasterxml.classmate.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestParameterBuilder;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.schema.TypeNameExtractor;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,10 +57,11 @@ import static java.util.stream.Collectors.toList;
 @ConditionalOnClass(WebMvcConfigurer.class)
 @EnableConfigurationProperties(SwaggerProperties.class)
 @Import({BeanValidatorPluginsConfiguration.class})
-@EnableSwagger2
+@EnableOpenApi
+@ConditionalOnProperty(value = "springfox.documentation.enabled", havingValue = "true", matchIfMissing = true)
 public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware {
 
-    private static final String API_PATH = "api.html";
+    private static final String API_PATH = "/api.html";
 
     private Environment env;
 
@@ -79,7 +78,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController(API_PATH, "swagger-ui/index.html");
+        registry.addRedirectViewController(API_PATH, "/swagger-ui/index.html");
     }
 
     @Bean
@@ -117,7 +116,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
             });
         }
 
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+        Docket docket = new Docket(DocumentationType.OAS_30)
                 .groupName(Docket.DEFAULT_GROUP_NAME)
                 .apiInfo(apiInfo)
                 .forCodeGeneration(true)
@@ -130,6 +129,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
         if(!StringUtils.isEmpty(swaggerProperties.getApiHost())) {
             docket.host(swaggerProperties.getApiHost());
         }
+
         //every api will add parameter
         if(!CollectionUtils.isEmpty(parameters)) {
             docket.globalRequestParameters(parameters);
@@ -147,7 +147,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
             protocol = "https";
         }
         String port = Optional.ofNullable(env.getProperty("server.port")).orElse("8080");
-        logger.debug("Swagger UI : {}://localhost:{}/{}", protocol, port, API_PATH);
+        logger.debug("Swagger UI : {}://localhost:{}{}", protocol, port, API_PATH);
         return docket;
     }
 

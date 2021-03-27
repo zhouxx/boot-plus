@@ -56,7 +56,7 @@ public class PreMapperStatementBuilder4DeleteBatch extends PreMapperStatementBui
                 "WHERE",
                 entityMetaData.getPrimaryColumnMetaData().getColumnName(),
                 "IN",
-                "<foreach collection='list' index='index' item='id' open='(' separator=',' close=')'>",
+                "<foreach collection='collection' index='index' item='id' open='(' separator=',' close=')'>",
                 "#{id}",
                 "</foreach>"
         );

@@ -66,7 +66,7 @@ public class PreMapperStatementBuilder4findAllById extends PreMapperStatementBui
                 "<where>",
                 entityMetaData.getPrimaryColumnMetaData().getColumnName(),
                 "IN",
-                "<foreach item=\"item\" index=\"index\" open=\"(\" separator=\",\" close=\")\" collection=\"list\">",
+                "<foreach item=\"item\" index=\"index\" open=\"(\" separator=\",\" close=\")\" collection=\"collection\">",
                 "#{item}",
                 "</foreach>",
                 "</where>"

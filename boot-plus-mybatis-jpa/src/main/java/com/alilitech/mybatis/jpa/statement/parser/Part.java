@@ -221,7 +221,7 @@ public class Part implements Render {
 
 			if(this.isOneParameter()) {
 				typeValue = typeValue.replaceAll("#\\{0\\}", "#{_parameter}");
-				typeValue = typeValue.replaceAll("@\\{0\\}", "list");
+				typeValue = typeValue.replaceAll("@\\{0\\}", "collection");
 			} else {
 				for(int i=0; i<this.getNumberOfArguments(); i++) {
 					if(StringUtils.isEmpty(context.getArgAlias())) {
@@ -245,17 +245,31 @@ public class Part implements Render {
 
 		List<String> conditions = new ArrayList<>();
 
-		if(testCondition.isNotEmpty()) {
+		// 常规字符串
+		if(testCondition.isNotEmpty() && type != Type.IN) {
 			conditions.add("!= null");
 			conditions.add("!= \"\"");
-		} else if(testCondition.isNotNull() && !testCondition.isNotEmpty()) {
+		}
+		// 集合
+		else if(testCondition.isNotEmpty() && type == Type.IN) {
+			conditions.add("!= null");
+			conditions.add("!= 0");  // 如果是集合表明他是需要判断size()
+		}
+		// 一般对象
+		else if(testCondition.isNotNull() && !testCondition.isNotEmpty()) {
 			conditions.add("!= null");
 		}
 		conditions.addAll(Arrays.asList(testCondition.getConditions()));
 
 		String paraName = this.isOneParameter() ? "_parameter" : "arg" + this.getArgumentIndex();
 
-		List<String> conditionWithArgs = conditions.stream().map(s -> paraName + " " + s).collect(Collectors.toList());
+		List<String> conditionWithArgs = conditions.stream().map(s -> {
+			// 区分集合和单个参数
+			if(type == Type.IN) {
+				return paraName + ".size()" + " " + s;
+			}
+			return paraName + " " + s;
+		}).collect(Collectors.toList());
 
 		//表示有条件
 		if(conditionWithArgs.size() > 0) {
@@ -406,8 +420,6 @@ public class Part implements Render {
 		public int getNumberOfArguments() {
 			return numberOfArguments;
 		}
-
-
 
 		/**
 		 * Callback method to extract the actual propertyPath to be bound from the given part. Strips the keyword from the
