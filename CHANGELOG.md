@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [v1.3.6] 2021.4.12
+
+* mybatis-jpa: 修复bug
+* web: 重构Jackson序列化分为值转换和值格式化，可任意定义多个转换链
+* web: 可配置转换后的字段key
+
 ## [v1.3.5] 2021.3.27
 
 * mybatis-jpa: 参数是集合时支持更多的类型（不单单是list)
