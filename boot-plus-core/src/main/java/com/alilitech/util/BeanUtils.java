@@ -162,7 +162,6 @@ public class BeanUtils {
 		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("init target object error");
 		}
-		// 解析需要忽略的字段
 		copyPropertiesDeep(source, target, ignoreProperties);
 		return target;
 	}

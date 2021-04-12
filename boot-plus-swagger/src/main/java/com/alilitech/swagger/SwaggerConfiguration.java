@@ -78,7 +78,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController(API_PATH, "/swagger-ui/index.html");
+        registry.addRedirectViewController(API_PATH, "/swagger-ui/index.html").setContextRelative(false);
     }
 
     @Bean
@@ -147,7 +147,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
             protocol = "https";
         }
         String port = Optional.ofNullable(env.getProperty("server.port")).orElse("8080");
-        logger.debug("Swagger UI : {}://localhost:{}{}", protocol, port, API_PATH);
+        logger.debug("Swagger UI : {}://localhost:{}/{}", protocol, port, API_PATH);
         return docket;
     }
 
