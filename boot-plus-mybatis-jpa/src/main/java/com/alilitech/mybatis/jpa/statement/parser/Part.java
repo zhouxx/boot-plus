@@ -62,7 +62,6 @@ public class Part implements Render {
 	public Part(String source, Optional<Class> clazz, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
 
 		Assert.hasText(source, "Part source must not be null or empty!");
-		//Assert.notNull(clazz, "Type must not be null!");
 
 		String partToUse = detectAndSetIgnoreCase(source);
 		this.type = Type.fromProperty(partToUse);
@@ -243,33 +242,30 @@ public class Part implements Render {
 			return;
 		}
 
-		List<String> conditions = new ArrayList<>();
+		// 一个参数设置为_parameter
+		// 如果是集合，强制设置成arg_,集合没有_parameter参数
+		String paraName = this.isOneParameter() ? (type == Type.IN ? "arg" + this.getArgumentIndex() : "_parameter") : "arg" + this.getArgumentIndex();
+
+		List<ConditionWithArg> conditions = new ArrayList<>();
 
 		// 常规字符串
 		if(testCondition.isNotEmpty() && type != Type.IN) {
-			conditions.add("!= null");
-			conditions.add("!= \"\"");
+			conditions.add(new ConditionWithArg(paraName, "!= null"));
+			conditions.add(new ConditionWithArg(paraName, "!= \"\""));
 		}
 		// 集合
 		else if(testCondition.isNotEmpty() && type == Type.IN) {
-			conditions.add("!= null");
-			conditions.add("!= 0");  // 如果是集合表明他是需要判断size()
+			conditions.add(new ConditionWithArg(paraName, "!= null"));
+			conditions.add(new ConditionWithArg(paraName + ".size()", "> 0"));  // 如果是集合表明他是需要判断size()
 		}
 		// 一般对象
 		else if(testCondition.isNotNull() && !testCondition.isNotEmpty()) {
-			conditions.add("!= null");
+			conditions.add(new ConditionWithArg(paraName, "!= null"));
 		}
-		conditions.addAll(Arrays.asList(testCondition.getConditions()));
 
-		String paraName = this.isOneParameter() ? "_parameter" : "arg" + this.getArgumentIndex();
+		conditions.addAll(Arrays.stream(testCondition.getConditions()).map(s -> new ConditionWithArg(paraName, s)).collect(Collectors.toList()));
 
-		List<String> conditionWithArgs = conditions.stream().map(s -> {
-			// 区分集合和单个参数
-			if(type == Type.IN) {
-				return paraName + ".size()" + " " + s;
-			}
-			return paraName + " " + s;
-		}).collect(Collectors.toList());
+		List<String> conditionWithArgs = conditions.stream().map(ConditionWithArg::toString).collect(Collectors.toList());
 
 		//表示有条件
 		if(conditionWithArgs.size() > 0) {
@@ -505,5 +501,30 @@ public class Part implements Render {
 			this.conditions = conditions;
 		}
 
+	}
+
+	static class ConditionWithArg {
+
+		private String argName;
+
+		private String condition;
+
+		public ConditionWithArg(String argName, String condition) {
+			this.argName = argName;
+			this.condition = condition;
+		}
+
+		public String getArgName() {
+			return argName;
+		}
+
+		public String getCondition() {
+			return condition;
+		}
+
+		@Override
+		public String toString() {
+			return argName + " " + condition;
+		}
 	}
 }
