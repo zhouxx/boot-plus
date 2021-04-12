@@ -16,37 +16,17 @@
 package com.alilitech.web.jackson.anotation;
 
 import java.lang.annotation.*;
-import java.math.BigDecimal;
-
 
 /**
- * 数字格式化序列化扩展，此注解必须用在属性上，不用在getter方法上
- *
+ * real json serialize properties
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 1.3.6
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface NumberFormat {
+public @interface SerializerFormat {
 
-    /**
-     * 格式化格式,如果引用此样式，则强制设置成此样式的格式，并转换成字符串
-     */
-    String pattern() default "";
-
-    /**
-     * 保留几位小数，默认是2位
-     */
-    int scale() default 2;
-
-    /**
-     * 取舍模式，默认4舍五入，参考BigDecimal里的常量
-     */
-    int round() default BigDecimal.ROUND_HALF_UP;
-
-
-    // ----- 默认提供了格式化的所有属性，如果SerializerFormat和NumberFormat同时存在，则SerializerFormat无效
     /**
      * 属性原始值是否转String输出
      */
@@ -81,5 +61,6 @@ public @interface NumberFormat {
      * 默认值，当值是转换后的值是null的时候显示的默认值
      */
     String defaultNullValue() default "";
+
 
 }

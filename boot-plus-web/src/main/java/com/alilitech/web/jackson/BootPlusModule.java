@@ -17,9 +17,7 @@ package com.alilitech.web.jackson;
 
 import com.alilitech.web.JsonProperties;
 import com.alilitech.web.jackson.deser.NumberFormatDeserializerModifier;
-import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
-import com.alilitech.web.jackson.ser.NullBeanSerializerModifier;
-import com.alilitech.web.jackson.ser.NumberFormatSerializerModifier;
+import com.alilitech.web.jackson.ser.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -31,13 +29,13 @@ public class BootPlusModule extends SimpleModule {
 
     private final JsonProperties jsonProperties;
 
-    private final DictFormatSerializerModifier dictFormatSerializerModifier;
+    private final CompositeSerializerModifier compositeSerializerModifier;
 
     public BootPlusModule(JsonProperties jsonProperties,
-                          DictFormatSerializerModifier dictFormatSerializerModifier) {
+                          CompositeSerializerModifier compositeSerializerModifier) {
         super(BootPlusModule.class.getName(), new Version(1, 0, 0, null, null, null));
         this.jsonProperties = jsonProperties;
-        this.dictFormatSerializerModifier = dictFormatSerializerModifier;
+        this.compositeSerializerModifier = compositeSerializerModifier;
 
     }
 
@@ -46,8 +44,8 @@ public class BootPlusModule extends SimpleModule {
         super.setupModule(context);
 
         //SerializerModifier
-        context.addBeanSerializerModifier(new NumberFormatSerializerModifier());
-        context.addBeanSerializerModifier(dictFormatSerializerModifier);
+//        context.addBeanSerializerModifier(new NumberFormatSerializerModifier());
+        context.addBeanSerializerModifier(compositeSerializerModifier);
         context.addBeanSerializerModifier(new NullBeanSerializerModifier(jsonProperties.isDefaultNull(), jsonProperties.getDefaultNullValue()));
 
         //DeserializerModifier

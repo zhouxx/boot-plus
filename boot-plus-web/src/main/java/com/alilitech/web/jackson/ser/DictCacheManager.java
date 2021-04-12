@@ -52,9 +52,9 @@ public class DictCacheManager {
     }
 
     public void existAndRefresh(String dictKey, String value) {
-        boolean existFlog = cacheMap.containsKey(dictKey) && cacheMap.get(dictKey).containsKey(value);
+        boolean existFlag = cacheMap.containsKey(dictKey) && cacheMap.get(dictKey).containsKey(value);
 
-        if(existFlog) {
+        if(existFlag) {
             return;
         }
 

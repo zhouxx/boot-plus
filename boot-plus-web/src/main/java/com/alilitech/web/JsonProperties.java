@@ -36,6 +36,11 @@ public class JsonProperties {
      */
     private String defaultNullValue;
 
+    /**
+     * 如果属性是格式化后产生的新的属性，key的格式
+     */
+    private String targetFiledKeyFormat = "{}Format";
+
     public boolean isDefaultNull() {
         return defaultNull;
     }
@@ -52,4 +57,11 @@ public class JsonProperties {
         this.defaultNullValue = defaultNullValue;
     }
 
+    public String getTargetFiledKeyFormat() {
+        return targetFiledKeyFormat;
+    }
+
+    public void setTargetFiledKeyFormat(String targetFiledKeyFormat) {
+        this.targetFiledKeyFormat = targetFiledKeyFormat;
+    }
 }

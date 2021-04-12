@@ -17,8 +17,8 @@ package com.alilitech.web;
 
 import com.alilitech.web.exception.DefaultExceptionResolver;
 import com.alilitech.web.jackson.BootPlusModule;
+import com.alilitech.web.jackson.ser.CompositeSerializerModifier;
 import com.alilitech.web.jackson.ser.DictCacheManager;
-import com.alilitech.web.jackson.ser.DictFormatSerializerModifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +38,7 @@ import java.util.List;
  * @since 1.2.4
  */
 @EnableConfigurationProperties({CorsProperties.class, JsonProperties.class})
-@Import({DictCacheManager.class, DictFormatSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
+@Import({DictCacheManager.class, CompositeSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
 public class WebConfiguration implements WebMvcConfigurer {
 
     public static final String TIP_KEY = "message";

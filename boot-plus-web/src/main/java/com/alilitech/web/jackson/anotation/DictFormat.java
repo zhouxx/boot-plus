@@ -37,28 +37,45 @@ public @interface DictFormat {
     String dictKey() default "";
 
     /**
-     * 字典的属性原始值是否转String输出
+     * 禁用缓存  暂时未实现
      */
-    boolean dictKeyToString() default false;
+    boolean disableCache() default false;
+
+    // ----- 默认提供了格式化的所有属性，如果SerializerFormat和DictFormat同时存在，则SerializerFormat无效
+    /**
+     * 属性原始值是否转String输出
+     */
+    boolean originalValueToString() default false;
 
     /**
-     * 字典值用新的属性输出
+     * 格式化后的值是否用新的属性输出
      */
     boolean newTarget() default true;
 
     /**
-     * 目标属性, 一个字典对应有个值，这个也要有个属性存在，默认为dicKey+"Name"
+     * 新的目标属性，默认为 原始属性名称+"Format"
      */
     String targetFiled() default "";
 
     /**
-     * 默认值，当字典里没有对应的值时，显示的字典值
+     * 前置拼接，比如单位 $ 等
      */
-    String defaultValue() default "";
+    String pre() default "";
 
     /**
-     * 禁用缓存  暂时未实现
+     * 后置拼接，比如 % 万元等
      */
-    boolean disableCache() default true;
+    String post() default "";
+
+    /**
+     * 是否开启默认值转换
+     */
+    boolean defaultNull() default false;
+
+    /**
+     * 默认值，当值是转换后的值是null的时候显示的默认值
+     */
+    String defaultNullValue() default "";
+
 
 }

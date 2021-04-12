@@ -63,13 +63,13 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
         //如果类上定义了，则在取类定义的值，如果类没定义，则取全局
         String classDefaultNullValue = defaultNullValue;
 
-        NullFormat jacksonFormat = beanDesc.getClassAnnotations().get(NullFormat.class);
+        NullFormat nullFormat = beanDesc.getClassAnnotations().get(NullFormat.class);
 
-        if(jacksonFormat != null) {
-            if(!jacksonFormat.defaultNull()) {
+        if(nullFormat != null) {
+            if(!nullFormat.defaultNull()) {
                 return beanProperties;
             } else {
-                classDefaultNullValue = jacksonFormat.defaultNullValue();
+                classDefaultNullValue = nullFormat.defaultNullValue();
             }
         }
 
