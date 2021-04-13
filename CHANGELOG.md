@@ -3,7 +3,7 @@
 ## [v1.3.6] 2021.4.12
 
 * mybatis-jpa: 修复bug
-* mybatis-jpa: mybaties-starter升级至2.1.3
+* mybatis-jpa: mybatis-starter升级至2.1.3
 * web: 重构Jackson序列化分为值转换和值格式化，可任意定义多个转换链
 * web: 可配置转换后的字段key
 
