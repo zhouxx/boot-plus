@@ -1,4 +1,4 @@
- <a href="https://www.apache.org/licenses/LICENSE-2.0"><img alt="code style" src="https://img.shields.io/badge/license-Apache%202-4EB1BA.svg?style=flat-square"></a>
+ [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)  [![Maven central](https://img.shields.io/maven-central/v/com.alilitech/boot-plus?color=brightgreen)](https://maven-badges.herokuapp.com/maven-central/com.alilitech/boot-plus) 
 
 # 简介
 
@@ -13,14 +13,13 @@ Spring Boot虽然提供了方便地开发，但实际在项目开发中还是有
 
 Boot-plus是基于Spring Boot构建的框架，提供了全套解决方案，使其开发更方便，更简单。但其不改变其原有功能，只做扩展。可单独引用各个子模块，而且对原来已有业务完全不影响。
 
-> **欢迎右上角 Star，你的鼓励是我们不断更新代码的动力**
+> 🎉 **欢迎右上角 Star，你的鼓励是我们不断更新代码的动力**
 
 # 链接
 
-| 说明 | 链接直达                                                     | 备注           |
-| ---- | ------------------------------------------------------------ | -------------- |
-| 文档 | [在线文档](https://zhouxx.github.io/boot-plus/#/README)      | 参考文档       |
-| 实例 | [部分实例]( https://github.com/zhouxx/boot-plus-mybatis-jpa-samples) | 更快了解和上手 |
+  [⚡️在线文档](https://zhouxx.github.io/boot-plus/#/README)
+
+  [🚀部分实例]( https://github.com/zhouxx/boot-plus-mybatis-jpa-samples)
 
 # 特性
 
