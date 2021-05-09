@@ -23,6 +23,7 @@ import java.beans.Transient;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,8 +63,8 @@ public class BeanUtils {
 					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
 				}
 			}
-		} catch (Exception e) {
-			logger.error("copy occur error: {}", e.getMessage());
+		} catch (Throwable e) {
+			logger.error("copy occur error", e);
 		}
 		return mapRet;
 	}
@@ -90,8 +91,8 @@ public class BeanUtils {
 					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
 				}
 			}
-		}catch (Exception e) {
-			logger.error("copy occur error: {}", e.getMessage());
+		}catch (Throwable e) {
+			logger.error("copy occur error", e);
 		}
 		return mapRet;
 	}
@@ -143,7 +144,7 @@ public class BeanUtils {
 		try {
 			target = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			logger.error("init target object error");
+			logger.error("Instance target object error!");
 		}
 		// 解析需要忽略的字段
 		IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
@@ -160,7 +161,7 @@ public class BeanUtils {
 		try {
 			target = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			logger.error("init target object error");
+			logger.error("Instance target object error!");
 		}
 		copyPropertiesDeep(source, target, ignoreProperties);
 		return target;
@@ -214,8 +215,8 @@ public class BeanUtils {
 					logger.debug(tempBean.getFieldDesc().getSetName() + " is not exist, not covert!");
 				}
 			}
-		} catch (Exception e) {
-			logger.error("copy occur error: {}", e.getMessage());
+		} catch (Throwable e) {
+			logger.error("copy occur error", e);
 		}
 	}
 
@@ -332,12 +333,13 @@ public class BeanUtils {
 	}
 
 	private static boolean isDirectConvert(Class<?> clazz) {
-		return String.class.equals(clazz) ||
-				Date.class.equals(clazz) ||
-				java.sql.Date.class.equals(clazz) ||
+		return clazz.isPrimitive() ||
+				String.class.equals(clazz) ||
 				Number.class.isAssignableFrom(clazz) ||
 				Boolean.class.equals(clazz) ||
-				clazz.isPrimitive() ||
+				Date.class.isAssignableFrom(clazz) ||
+				Temporal.class.isAssignableFrom(clazz) ||
+				Character.class.equals(clazz) ||
 				clazz.isEnum() ||
 				Class.class.equals(clazz);
 	}
