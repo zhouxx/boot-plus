@@ -32,19 +32,29 @@ public class MapperDefinitionRegistry {
 
     private final Map<Type, MapperDefinition> entityMapperRelation = new ConcurrentHashMap<>();
 
-    public MapperDefinitionRegistry() {
+    private static final MapperDefinitionRegistry mapperDefinitionRegistry = new MapperDefinitionRegistry();
+
+    private MapperDefinitionRegistry() {
     }
 
-    public Class register(Class<?> mapperClass) {
+    public static MapperDefinitionRegistry getInstance() {
+        return mapperDefinitionRegistry;
+    }
+
+    /**
+     * register mapper class and return entity class
+     * @param mapperClass
+     * @return
+     */
+    public Class<?> register(Class<?> mapperClass) {
         synchronized (entityMapperRelation) {
             MapperDefinition mapperDefinition = new MapperDefinition(mapperClass);
             Type entityType = mapperDefinition.getGenericType().getDomainType();
             if (entityType instanceof Class) {
-                Class type = (Class) entityType;
+                Class<?> type = (Class<?>) entityType;
                 if (!type.isAnonymousClass() && !type.isInterface() && !type.isMemberClass()) {
                     entityMapperRelation.put(entityType, mapperDefinition);
                 }
-
                 return type;
             }
         }

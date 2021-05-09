@@ -16,8 +16,8 @@
 package com.alilitech.mybatis.jpa;
 
 import com.alilitech.mybatis.jpa.meta.EntityMetaData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -32,24 +32,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EntityMetaDataRegistry {
 
-    private final Logger logger = LoggerFactory.getLogger(EntityMetaDataRegistry.class);
+    private final Log log = LogFactory.getLog(EntityMetaDataRegistry.class);
 
-    private final Map<Class, EntityMetaData> entityMetaDataMap = new ConcurrentHashMap<>();
+    private final Map<Class<?>, EntityMetaData> entityMetaDataMap = new ConcurrentHashMap<>();
 
-    private static final EntityMetaDataRegistry entityMetaDataFactory = new EntityMetaDataRegistry();
+    private static final EntityMetaDataRegistry entityMetaDataRegistry = new EntityMetaDataRegistry();
 
     private EntityMetaDataRegistry() {
     }
 
     public static EntityMetaDataRegistry getInstance() {
-        return entityMetaDataFactory;
+        return entityMetaDataRegistry;
     }
 
-    public void register(Class entityClass) {
+    public void register(Class<?> entityClass) {
         synchronized (entityMetaDataMap) {
             EntityMetaData entityMetaData = new EntityMetaData(entityClass);
             if(entityMetaData.getPrimaryColumnMetaData() == null) {
-                logger.warn("The domain class called '{}' do not have a primary key.", entityClass.getName());
+                log.warn("The domain class called '" + entityClass.getName() + "' do not have a primary key.");
             }
             entityMetaDataMap.put(entityClass, entityMetaData);
         }

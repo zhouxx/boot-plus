@@ -24,12 +24,12 @@ import com.alilitech.mybatis.jpa.statement.PreMapperStatement;
 import com.alilitech.mybatis.jpa.statement.PreMapperStatementFactory;
 import com.alilitech.mybatis.jpa.util.ResultMapIdUtils;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +43,8 @@ import java.util.List;
  */
 public class JpaMapperStatementBuilder {
 
-    private final Logger logger = LoggerFactory.getLogger(JpaMapperStatementBuilder.class);
+    private Log log = LogFactory.getLog(JpaMapperStatementBuilder.class);
 
-    /** mybatis */
     protected MapperBuilderAssistant builderAssistant;
 
     protected Configuration configuration;
@@ -59,27 +58,26 @@ public class JpaMapperStatementBuilder {
     }
 
     public void build() {
-        /*String resource = mapperDefinition.getResource1();
-        if (!configuration.isResourceLoaded(resource)) {
-            configuration.addLoadedResource(resource);
-            //bindMapperForNamespace();
-        }*/
         builderAssistant.setCurrentNamespace(mapperDefinition.getNameSpace());
-        //构造基础BaseResult
+        // 构造基础BaseResult
         baseResultMapHandle();
 
         for (MethodDefinition methodDefinition : mapperDefinition.getMethodDefinitions()) {
 
-            if(!configuration.hasStatement(builderAssistant.getCurrentNamespace() + "." + methodDefinition.getMethodName())) {
+            if(!configuration.hasStatement(methodDefinition.getStatementId())) {
 
-                String statement = builderAssistant.getCurrentNamespace() + "." + methodDefinition.getMethodName();
+                String statementId = methodDefinition.getStatementId();
 
-                logger.trace("add statement==>" + statement);
+                log.trace("add statement==>" + statementId);
 
                 // add to statement registry
-                AutoGenerateStatementRegistry.getInstance().addStatement(statement);
+                AutoGenerateStatementRegistry.getInstance().addStatement(statementId);
 
                 PreMapperStatement preMapperStatement = PreMapperStatementFactory.getInstance().createPreMapperStatement(configuration, builderAssistant, methodDefinition, mapperDefinition.getGenericType());
+
+                if(preMapperStatement == null) {
+                    continue;
+                }
 
                 builderAssistant.addMappedStatement(
                         preMapperStatement.getId(),

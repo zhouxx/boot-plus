@@ -19,8 +19,8 @@ import com.alilitech.mybatis.jpa.meta.ColumnMetaData;
 import com.alilitech.mybatis.jpa.meta.EntityMetaData;
 import com.alilitech.mybatis.jpa.meta.JoinColumnMetaData;
 import com.alilitech.mybatis.jpa.util.CommonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class JoinColumnMetaDataAssistant {
 
-    private final Logger logger = LoggerFactory.getLogger(JoinColumnMetaDataAssistant.class);
+    private Log log = LogFactory.getLog(JoinColumnMetaDataAssistant.class);
 
     private final EntityMetaData entityMetaData;
 
@@ -61,7 +61,7 @@ public class JoinColumnMetaDataAssistant {
 
                 //校验相关配置，只做警告处理
                 if(joinColumnMetaData.getJoinType() == JoinType.OneToMany && StringUtils.isEmpty(joinColumnMetaData.getMappedProperty())) {
-                    logger.warn("{} property => {}, 'OneToMany' config does not provide mappedBy property", entityMetaData.getEntityType().getName(), columnMetaData.getColumnName());
+                    log.warn(entityMetaData.getEntityType().getName() + " property => " + columnMetaData.getColumnName() + ", 'OneToMany' config does not provide mappedBy property");
                 }
 
                 String referencedProperty;
@@ -115,7 +115,7 @@ public class JoinColumnMetaDataAssistant {
 
                     //如果关联的没有提供JoinTable,使用两个表的联合，并给出警告
                     if(StringUtils.isEmpty(referencedJoinColumn.getJoinTableName())) {
-                        logger.warn("{} property => {}, 'ManyToMany' config does not provide joinTableName", referencedEntityMetaData.getEntityType().getName(), referencedColumnMetaData.getColumnName());
+                        log.warn(referencedEntityMetaData.getEntityType().getName() + " property => " + referencedColumnMetaData.getColumnName() + ", 'ManyToMany' config does not provide joinTableName");
                     }
 
                     //property是关联类的InverseProperty

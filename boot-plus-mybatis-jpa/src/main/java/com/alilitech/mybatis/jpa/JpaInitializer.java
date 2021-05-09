@@ -40,7 +40,7 @@ public class JpaInitializer {
 
     protected final EntityMetaDataRegistry entityMetaDataRegistry = EntityMetaDataRegistry.getInstance();
 
-    protected final MapperDefinitionRegistry mapperDefinitionRegistry = new MapperDefinitionRegistry();
+    protected final MapperDefinitionRegistry mapperDefinitionRegistry = MapperDefinitionRegistry.getInstance();
 
     public JpaInitializer(Configuration configuration) {
 
@@ -52,17 +52,17 @@ public class JpaInitializer {
         Collection<Class<?>> mapperClasses = configuration.getMapperRegistry().getMappers();
 
         for(Class<?> mapperClass : mapperClasses) {
-            //If mapper is not extend from Mapper, not register
+            // If mapper is not extend from Mapper, not register
             if(!Mapper.class.isAssignableFrom(mapperClass)) {
                 continue;
             }
 
-            //if mapper has NoMapperBean, not register
+            // if mapper has NoMapperBean, not register
             if(mapperClass.isAnnotationPresent(NoMapperBean.class)) {
                 continue;
             }
 
-            Class entityType = mapperDefinitionRegistry.register(mapperClass);
+            Class<?> entityType = mapperDefinitionRegistry.register(mapperClass);
             entityMetaDataRegistry.register(entityType);
         }
     }

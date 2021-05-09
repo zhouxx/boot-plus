@@ -31,12 +31,12 @@ public class SubQueryContainer {
 
     private final Map<String, SubQuery> subQueryMap = new ConcurrentHashMap<>();
 
-    private static final SubQueryContainer likeContainer = new SubQueryContainer();
+    private static final SubQueryContainer subQueryContainer = new SubQueryContainer();
 
     private SubQueryContainer() {}
 
     public static SubQueryContainer getInstance() {
-        return likeContainer;
+        return subQueryContainer;
     }
 
     public void put(String key, SubQuery subQuery) {

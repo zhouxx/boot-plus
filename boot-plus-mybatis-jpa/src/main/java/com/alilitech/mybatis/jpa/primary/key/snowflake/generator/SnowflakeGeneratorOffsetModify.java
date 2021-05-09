@@ -17,8 +17,8 @@ package com.alilitech.mybatis.jpa.primary.key.snowflake.generator;
 
 import com.alilitech.mybatis.jpa.primary.key.OffsetRepository;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -51,10 +51,10 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
                 try {
                     offsetBlockingQueue.put(new OffsetSaveDTO(entityClass, context.getOffset()));
                 } catch (InterruptedException e) {
-                    logger.error("save offset to queue error!");
+                    log.error("save offset to queue error!", e);
                 }
             }
-            logger.warn("Clock is moving backwards. Back time is {} ms. ", lastTimestamp - currentTimestamp);
+            log.warn("Clock is moving backwards. Back time is " + (lastTimestamp - currentTimestamp) + " ms.");
         }
 
         return calculate(context, currentTimestamp);
@@ -66,15 +66,14 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
         if(offsetRepository != null && offsetBlockingQueue == null) {
             offsetBlockingQueue = new LinkedBlockingDeque<>();
             new Thread(new SaveOffsetThread(offsetRepository)).start();
-            logger.info("save offset thread started.");
+            log.debug("save offset thread started.");
         }
     }
 
     // 保存偏移量的线程
     public static class SaveOffsetThread implements Runnable {
-        protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+        protected final Log log = LogFactory.getLog(this.getClass());
         private OffsetRepository offsetRepository;
-
 
         public SaveOffsetThread(OffsetRepository offsetRepository) {
             this.offsetRepository = offsetRepository;
@@ -85,10 +84,10 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
             while (offsetRepository != null) {
                 try {
                     OffsetSaveDTO offsetSaveDTO = offsetBlockingQueue.take();
-                    logger.info("OffsetRepository save offset: {} for class {} ", offsetSaveDTO.getOffset(), offsetSaveDTO.getEntityClass());
+                    log.debug("OffsetRepository save offset: " + offsetSaveDTO.getOffset() + " for class '" + offsetSaveDTO.getEntityClass() +"'");
                     offsetRepository.saveOffset(offsetSaveDTO.getEntityClass(), offsetSaveDTO.getOffset());
                 } catch (InterruptedException e) {
-                    logger.error("take offset from queue error!");
+                    log.error("take offset from queue error!", e);
                 }
             }
         }

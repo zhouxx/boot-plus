@@ -18,12 +18,15 @@ package com.alilitech.mybatis.jpa.parameter;
 import com.alilitech.mybatis.jpa.anotation.Trigger;
 import com.alilitech.mybatis.jpa.meta.ColumnMetaData;
 import com.alilitech.mybatis.jpa.meta.EntityMetaData;
-import com.alilitech.mybatis.jpa.primary.key.*;
+import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
+import com.alilitech.mybatis.jpa.primary.key.KeyGenerator;
+import com.alilitech.mybatis.jpa.primary.key.KeyGenerator4Auto;
+import com.alilitech.mybatis.jpa.primary.key.SnowflakeKeyGeneratorBuilder;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.reflection.MetaObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +43,7 @@ import java.util.Map;
  */
 public class ParameterAssistant {
 
-    private final Logger logger = LoggerFactory.getLogger(ParameterAssistant.class);
+    private final Log log = LogFactory.getLog(ParameterAssistant.class);
 
     public Collection<Object> getParameters(Object parameter) {
         Collection<Object> parameters = null;
@@ -99,10 +102,10 @@ public class ParameterAssistant {
                     Object idValue = keyGenerator.generate();
                     metaObject.setValue(entityMetaData.getPrimaryColumnMetaData().getProperty(), idValue);
                 } catch (Exception e) {
-                    logger.error("Primary key generate failed, check your id generator {}!", keyGenerator.getClass().getName());
+                    log.error("Primary key generate failed, check your id generator '" + keyGenerator.getClass() + "'", e);
                 }
             } else {
-                logger.info("The entity class {} do not have the key generator!", entityMetaData.getEntityType().getName());
+                log.warn("The entity '" + entityMetaData.getEntityType() + "' do not have the key generator!");
             }
         }
 
@@ -119,7 +122,7 @@ public class ParameterAssistant {
                         try {
                             obj = trigger.valueClass().getMethod(trigger.methodName()).invoke(trigger.valueClass().newInstance());
                         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
-                            logger.error("{} trigger failed, check your trigger method: {}. And the exception is {}", columnMetaData.getProperty(), trigger.valueClass().getName() + "." + trigger.methodName() ,e.getMessage());
+                            log.error(columnMetaData.getProperty() + " trigger failed, check your trigger method: " + trigger.valueClass().getName() + "." + trigger.methodName(), e);
                         }
                         metaObject.setValue(columnMetaData.getProperty(), obj);
                     }

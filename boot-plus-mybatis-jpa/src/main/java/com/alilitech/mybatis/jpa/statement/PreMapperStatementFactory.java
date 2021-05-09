@@ -20,9 +20,9 @@ import com.alilitech.mybatis.jpa.definition.MethodDefinition;
 import com.alilitech.mybatis.jpa.exception.StatementNotSupportException;
 import com.alilitech.mybatis.jpa.statement.support.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PreMapperStatementFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(PreMapperStatementFactory.class);
+    private final Log log = LogFactory.getLog(PreMapperStatementFactory.class);
 
     private static PreMapperStatementFactory preMapperStatementFactory;
 
@@ -87,20 +87,17 @@ public class PreMapperStatementFactory {
             throw new StatementNotSupportException(methodDefinition.getNameSpace(), methodDefinition.getMethodName());
         }
 
-        Constructor constructor = null;
-        try {
-            constructor = cacheMap.get(methodType).getConstructor(Configuration.class, MapperBuilderAssistant.class, MethodType.class);
-        } catch (NoSuchMethodException e) {
-            logger.error(e.getMessage());
-        }
         PreMapperStatementBuilder preMapperStatementBuilder = null;
         try {
+            Constructor<?> constructor = cacheMap.get(methodType).getConstructor(Configuration.class, MapperBuilderAssistant.class, MethodType.class);
             preMapperStatementBuilder = (PreMapperStatementBuilder) constructor.newInstance(configuration, builderAssistant, methodType);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            logger.error(e.getMessage());
+            return preMapperStatementBuilder.buildPreMapperStatement(methodDefinition, genericType);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            log.error("instance 'PreMapperStatementBuilder' error: ", e);
         }
 
-        return preMapperStatementBuilder.buildPreMapperStatement(methodDefinition, genericType);
+        return null;
+
     }
 
 }

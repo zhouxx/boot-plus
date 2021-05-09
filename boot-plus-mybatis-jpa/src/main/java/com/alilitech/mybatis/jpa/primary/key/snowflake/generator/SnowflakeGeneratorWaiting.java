@@ -30,7 +30,7 @@ public class SnowflakeGeneratorWaiting extends AbstractSnowflakeGenerator {
             } else {
                 throw new RuntimeException(String.format("Clock moved backwards. Refusing to generate id for %d milliseconds", lastTimestamp - currentTimestamp));
             }
-            logger.warn("Clock is moving backwards. Back time is {} ms. ", lastTimestamp - currentTimestamp);
+            log.warn("Clock is moving backwards. Back time is " + (lastTimestamp - currentTimestamp) + " ms.");
         }
 
         return calculate(context, currentTimestamp);

@@ -20,6 +20,7 @@ import com.alilitech.mybatis.jpa.definition.MapperDefinition;
 import com.alilitech.mybatis.jpa.definition.MethodDefinition;
 import com.alilitech.mybatis.jpa.definition.ParameterDefinition;
 import com.alilitech.mybatis.jpa.meta.JoinColumnMetaData;
+import com.alilitech.mybatis.jpa.util.CommonUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -46,9 +47,9 @@ public class MethodDefinitionAssistant {
         String methodName;
         //直接关联，适用于OneToOne or OneToMany
         if(StringUtils.isEmpty(joinColumnMetaData.getJoinTableName())) {
-            methodName = "findWith" + joinColumnMetaData.getReferencedProperty().substring(0, 1).toUpperCase() + joinColumnMetaData.getReferencedProperty().substring(1);
+            methodName = "findWith" + CommonUtils.upperFirst(joinColumnMetaData.getReferencedProperty());
         } else {
-            methodName = "findJoinWith" + joinColumnMetaData.getReferencedProperty().substring(0, 1).toUpperCase() + joinColumnMetaData.getReferencedProperty().substring(1);
+            methodName = "findJoinWith" + CommonUtils.upperFirst(joinColumnMetaData.getReferencedProperty());
         }
 
         MethodDefinition referencedMethodDefinition = new MethodDefinition(referencedMapperDefinition.getNameSpace(), methodName);
@@ -94,12 +95,12 @@ public class MethodDefinitionAssistant {
                 String nestedSelect = referencedMapperDefinition.getNameSpace() + "." + methodName;
 
                 JoinStatementDefinition joinStatementDefinition = new JoinStatementDefinition(
-                        (Class) joinColumnMetaData.getJoinEntityType(),
+                        (Class<?>) joinColumnMetaData.getJoinEntityType(),
                         joinColumnMetaData.getCurrentProperty(),
                         joinColumnMetaData.getColumnName(),
                         nestedSelect);
                 if(!joinColumnMetaData.isCollection()) {
-                    joinStatementDefinition.setJavaType((Class) joinColumnMetaData.getJoinEntityType());
+                    joinStatementDefinition.setJavaType((Class<?>) joinColumnMetaData.getJoinEntityType());
                 }
 
                 methodDefinition.getJoinStatementDefinitions().add(joinStatementDefinition);

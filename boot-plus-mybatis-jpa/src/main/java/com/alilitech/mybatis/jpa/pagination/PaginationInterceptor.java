@@ -19,6 +19,8 @@ import com.alilitech.mybatis.MybatisJpaProperties;
 import com.alilitech.mybatis.dialect.SqlDialectFactory;
 import com.alilitech.mybatis.jpa.AutoGenerateStatementRegistry;
 import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -28,13 +30,10 @@ import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +47,7 @@ import java.util.regex.Pattern;
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class PaginationInterceptor implements Interceptor {
 
-    private final Logger logger = LoggerFactory.getLogger(PaginationInterceptor.class);
+    private final Log log = LogFactory.getLog(PaginationInterceptor.class);
 
     private static Pattern fromPattern = Pattern.compile("\\sfrom\\s");
 
@@ -102,7 +101,7 @@ public class PaginationInterceptor implements Interceptor {
                     sqlDialectFactory = new SqlDialectFactory(databaseProductName);
 
                     if(sqlDialectFactory.getDatabaseType() == null) {
-                        logger.warn("The databaseId of current connection used auto dialect do not has databaseType in com.alilitech.mybatis.jpa.DatabaseTypeRegistry, it will use mybatis configuration's databaseId!");
+                        log.warn("The databaseId of current connection used auto dialect do not has databaseType in com.alilitech.mybatis.jpa.DatabaseTypeRegistry, it will use mybatis configuration's databaseId!");
                         // get the configuration and instantiate a SqlDialectFactory
                         Configuration configuration = (Configuration) metaObject.getValue("delegate.configuration");
                         sqlDialectFactory = new SqlDialectFactory(configuration.getDatabaseId());
@@ -123,16 +122,6 @@ public class PaginationInterceptor implements Interceptor {
         metaObject.setValue("delegate.rowBounds.offset", RowBounds.NO_ROW_OFFSET);
         metaObject.setValue("delegate.rowBounds.limit", RowBounds.NO_ROW_LIMIT);
         return invocation.proceed();
-    }
-
-    @Override
-    public Object plugin(Object target) {
-        return Plugin.wrap(target, this);
-    }
-
-    @Override
-    public void setProperties(Properties properties) {
-        properties.list(System.out);
     }
 
     /**
@@ -183,8 +172,7 @@ public class PaginationInterceptor implements Interceptor {
             }
             page.setTotal(total);
         } catch (Exception e) {
-            logger.error("select count occur error: {}", e.getMessage());
-            e.printStackTrace();
+            log.error("select total count occur error", e);
         }
     }
 }

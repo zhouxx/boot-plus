@@ -68,7 +68,7 @@ public class MybatisJpaXMLScriptBuilder extends BaseBuilder {
     public SqlSource parseScriptNode() {
         MixedSqlNode rootSqlNode = parseDynamicTags(context);
         SqlSource sqlSource = null;
-        //这里跟原来的不一样
+        // 这里跟原来的不一样
         if (isDynamic) {
             sqlSource = new MybatisJpaDynamicSqlSource(configuration, rootSqlNode, parameterType);
         } else {

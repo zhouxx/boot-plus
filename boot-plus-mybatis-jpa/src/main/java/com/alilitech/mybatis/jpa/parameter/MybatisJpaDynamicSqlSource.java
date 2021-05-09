@@ -49,7 +49,8 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
 
     @Override
     public BoundSql getBoundSql(Object parameterObject) {
-        //转换排序参数
+        // 以下操作是在${ }转换前需要操作的
+        // 转换排序参数
         if(parameterObject instanceof Sort && domainType != null) {
             Sort sort = (Sort) parameterObject;
             for(Order order : sort.getOrders()) {
@@ -73,7 +74,7 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
             });
         }
 
-        //转换规格查询参数
+        // 转换规格查询参数
         if(parameterObject instanceof Specification && domainType != null) {
             Specification specification = (Specification) parameterObject;
 

@@ -19,8 +19,8 @@ import com.alilitech.mybatis.MybatisJpaProperties;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGenerator;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGeneratorOffsetModify;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 /**
  * to build snowflake key generator
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SnowflakeKeyGeneratorBuilder {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Log log = LogFactory.getLog(this.getClass());
 
     private static final SnowflakeKeyGeneratorBuilder snowflakeKeyGeneratorBuilder = new SnowflakeKeyGeneratorBuilder();
 
@@ -43,7 +43,7 @@ public class SnowflakeKeyGeneratorBuilder {
     }
 
     public KeyGenerator4Snowflake build(Class<?> entityClass) {
-        logger.info("Snowflake key generator build for class {}", entityClass.getName());
+        log.debug("Snowflake key generator build for class '" + entityClass +  "'");
         SnowflakeContext snowflakeContext = null;
         switch (mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy()) {
             case WAITING:
@@ -68,7 +68,7 @@ public class SnowflakeKeyGeneratorBuilder {
         try {
             snowflakeGenerator = mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy().getClazz().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            logger.error("New SnowflakeGenerator Object failed");
+            log.error("New SnowflakeGenerator Object failed");
             throw new RuntimeException(e);
         }
 

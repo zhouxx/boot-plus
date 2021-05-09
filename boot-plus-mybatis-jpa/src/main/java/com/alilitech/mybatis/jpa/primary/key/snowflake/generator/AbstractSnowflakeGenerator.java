@@ -2,8 +2,8 @@ package com.alilitech.mybatis.jpa.primary.key.snowflake.generator;
 
 
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 /**
  * @author Wang Chengyang
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractSnowflakeGenerator implements SnowflakeGenerator {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Log log = LogFactory.getLog(this.getClass());
 
     // 获取系统时间戳
     protected long currentTimestamp() {

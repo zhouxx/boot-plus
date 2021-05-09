@@ -25,7 +25,7 @@ public class SnowflakeGeneratorExtra extends AbstractSnowflakeGenerator {
             // 切换workerId后重置lastTimestamp
             context.setLastTimestamp(-1);
 
-            logger.warn("Clock is moving backwards. Back time is {} ms. ", lastTimestamp - currentTimestamp);
+            log.warn("Clock is moving backwards. Back time is " + (lastTimestamp - currentTimestamp) + " ms. ");
         }
 
         return calculate(context, currentTimestamp);

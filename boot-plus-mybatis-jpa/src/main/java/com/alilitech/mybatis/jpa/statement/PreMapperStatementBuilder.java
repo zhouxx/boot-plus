@@ -35,11 +35,11 @@ import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.executor.keygen.SelectKeyGenerator;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import java.util.List;
  */
 public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
-    protected Logger logger = LoggerFactory.getLogger(PreMapperStatementBuilder.class);
+    protected Log log = LogFactory.getLog(this.getClass());
 
     protected MapperBuilderAssistant builderAssistant;
 
@@ -85,7 +85,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         LanguageDriver langDriver = getLanguageDriver(null);
 
         String scriptString = buildSQL();
-        logger.trace("script==>" + scriptString);
+        log.trace("script==>" + scriptString);
         SqlSource sqlSource = this.buildSqlSource(scriptString, langDriver);
 
         preMapperStatement.setId(id);
@@ -128,7 +128,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         if (lang != null) {
             langClass = resolveClass(lang);
         }
-        return builderAssistant.getLanguageDriver(langClass);
+        return builderAssistant.getConfiguration().getLanguageDriver(langClass);
     }
 
     /**
@@ -270,7 +270,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
             String resultMapId = buildResultMap();
             preMapperStatement.setResultMap(resultMapId);
         } else {
-            preMapperStatement.setResultType((Class)genericType.getDomainType());
+            preMapperStatement.setResultType((Class<?>)genericType.getDomainType());
         }
     }
 
