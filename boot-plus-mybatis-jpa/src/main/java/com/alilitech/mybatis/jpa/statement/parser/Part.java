@@ -52,6 +52,8 @@ public class Part implements Render {
 
 	private int argumentIndex;
 
+	private Class<?> argumentType;
+
 	/**
 	 * Creates a new {@link Part} from the given method name part, the {@link Class} the part originates from and the
 	 * start parameter argumentIndex.
@@ -84,6 +86,8 @@ public class Part implements Render {
 
 		//设置当前参数索引
 		this.argumentIndex = argumentIndex.get();
+		//设置参数类型
+		argumentType = methodDefinition.getParameterDefinitions().get(argumentIndex.get()).getParameterClass();
 
 		//拿到testCondition
 		this.testCondition = getCondition(this.argumentIndex, methodDefinition);
@@ -220,7 +224,11 @@ public class Part implements Render {
 
 			if(this.isOneParameter()) {
 				typeValue = typeValue.replaceAll("#\\{0\\}", "#{_parameter}");
-				typeValue = typeValue.replaceAll("@\\{0\\}", "collection");
+				if(argumentType.isArray()) {
+					typeValue = typeValue.replaceAll("@\\{0\\}", "array");
+				} else {
+					typeValue = typeValue.replaceAll("@\\{0\\}", "collection");
+				}
 			} else {
 				for(int i=0; i<this.getNumberOfArguments(); i++) {
 					if(StringUtils.isEmpty(context.getArgAlias())) {
@@ -253,10 +261,14 @@ public class Part implements Render {
 			conditions.add(new ConditionWithArg(paraName, "!= null"));
 			conditions.add(new ConditionWithArg(paraName, "!= \"\""));
 		}
-		// 集合
+		// 集合和数组
 		else if(testCondition.isNotEmpty() && type == Type.IN) {
 			conditions.add(new ConditionWithArg(paraName, "!= null"));
-			conditions.add(new ConditionWithArg(paraName + ".size()", "> 0"));  // 如果是集合表明他是需要判断size()
+			if(argumentType.isArray()) {
+				conditions.add(new ConditionWithArg(paraName + ".length", "> 0"));  // 如果是集合表明他是需要判断size()
+			} else {
+				conditions.add(new ConditionWithArg(paraName + ".size()", "> 0"));  // 如果是集合表明他是需要判断size()
+			}
 		}
 		// 一般对象
 		else if(testCondition.isNotNull() && !testCondition.isNotEmpty()) {
