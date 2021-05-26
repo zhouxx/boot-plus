@@ -59,7 +59,7 @@ public class DictCacheManager {
         }
 
         if(!cacheMap.containsKey(dictKey)) {
-            logger.warn("dict key: {} and value: {} is not in cache, and it will reload all dict collectors.", dictKey, value);
+            logger.warn("dict key: {} is not in cache, and it will reload all dict collectors.", dictKey);
             cacheMap.clear();
             dictCollectors.forEach(dictCollector -> {
                 Map<String, Map<String, Object>> dictAndValues = dictCollector.findDictAndValues();
@@ -72,6 +72,7 @@ public class DictCacheManager {
         }
         // Do not consider the situation of moving from this collector to other collector
         else if(!cacheMap.get(dictKey).containsKey(value)) {
+            logger.warn("dict key: {} and value: {} is not in cache, and it will reload.", dictKey, value);
             DictCollector dictCollector = collectorMapping.get(dictKey);
             cacheMap.putAll(dictCollector.findDictAndValues());
         }
