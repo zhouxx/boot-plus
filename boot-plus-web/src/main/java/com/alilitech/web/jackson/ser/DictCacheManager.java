@@ -72,8 +72,8 @@ public class DictCacheManager {
         }
         // Do not consider the situation of moving from this collector to other collector
         else if(!cacheMap.get(dictKey).containsKey(value)) {
-            logger.warn("dict key: {} and value: {} is not in cache, and it will reload.", dictKey, value);
             DictCollector dictCollector = collectorMapping.get(dictKey);
+            logger.warn("dict key: {} and value: {} is not in cache, and it will reload with {}.", dictKey, value, dictCollector.getClass());
             cacheMap.putAll(dictCollector.findDictAndValues());
         }
 
