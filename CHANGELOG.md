@@ -9,7 +9,7 @@
 * mybatis-jpa: 优化日志打印，使用mybatis的日志打印
 * mybatis-jpa: in的参数支持传入数组
 * web: 优化全局异常的日志打印
-* web: 优化字典收集的日志打印，方便定位是哪个字段引起的日志收集
+* web: 优化字典收集的日志打印，方便定位是哪个字段引起的字典收集
 * core: BeanUtils支持更多的类型直接拷贝
 * security: 解决当token失效后，不能手动logout的问题
 
