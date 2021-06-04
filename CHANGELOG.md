@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## [v1.3.7] 2021.6.4
+
+* mybatis-jpa: 分离查总数和物理分页查询。
+* mybatis-jpa: 如果查总数是0，则物理分页查询忽略
+* mybatis-jpa: 如果传入分页对象是null。则表示不分页
+* mybatis-jpa: 查总数使用mybatis的executor查询，方便让一级缓存和二级缓存生效
+* mybatis-jpa: 优化日志打印，使用mybatis的日志打印
+* mybatis-jpa: in的参数支持传入数组
+* web: 优化全局异常的日志打印
+* web: 优化字典收集的日志打印，方便定位是哪个字段引起的日志收集
+* core: BeanUtils支持更多的类型直接拷贝
+* security: 解决当token失效后，不能手动logout的问题
+
 ## [v1.3.6] 2021.4.12
 
 * mybatis-jpa: 修复bug
