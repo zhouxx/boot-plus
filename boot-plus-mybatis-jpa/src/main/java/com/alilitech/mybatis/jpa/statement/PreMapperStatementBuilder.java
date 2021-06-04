@@ -301,7 +301,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
                     null,
                     null
             );
-
             mappings.add(resultMapping);
         }
 

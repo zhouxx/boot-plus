@@ -58,9 +58,9 @@ public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor
         }
 
         if(basePackages == null || basePackages.length == 0) {
-            logger.warn("Mybatis mapper scanner init, scan packages count: {}", 0);
+            logger.warn("Mybatis Jpa mapper scanner init, scan packages count: {}", 0);
         } else {
-            logger.info("Mybatis mapper scanner init, scan packages count: {}", basePackages.length);
+            logger.info("Mybatis Jpa mapper scanner init, scan packages count: {}", basePackages.length);
         }
     }
 

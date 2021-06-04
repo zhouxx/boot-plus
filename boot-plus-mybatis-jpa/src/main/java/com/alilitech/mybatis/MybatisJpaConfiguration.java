@@ -20,12 +20,11 @@ import com.alilitech.mybatis.dialect.PaginationDialectRegistry;
 import com.alilitech.mybatis.jpa.DatabaseIdProviderImpl;
 import com.alilitech.mybatis.jpa.DatabaseTypeRegistry;
 import com.alilitech.mybatis.jpa.pagination.PaginationInterceptor;
+import com.alilitech.mybatis.jpa.pagination.PrePaginationInterceptor;
 import com.alilitech.mybatis.jpa.parameter.MybatisJpaConfigurationCustomizer;
 import com.alilitech.mybatis.jpa.primary.key.GeneratorRegistry;
 import com.alilitech.mybatis.jpa.primary.key.OffsetRepository;
 import com.alilitech.mybatis.jpa.primary.key.SnowflakeKeyGeneratorBuilder;
-import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
-import com.alilitech.mybatis.jpa.primary.key.snowflake.TimeCallbackStrategy;
 import com.alilitech.mybatis.spring.DatabaseRegistry;
 import com.alilitech.mybatis.spring.MybatisJpaConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -85,6 +84,12 @@ public class MybatisJpaConfiguration {
     @Bean
     public MybatisJpaConfigurationCustomizer mybatisJpaConfigurationCustomizer() {
         return new MybatisJpaConfigurationCustomizer();
+    }
+
+    // add version: 1.3.7
+    @Bean
+    public PrePaginationInterceptor prePaginationInterceptor() {
+        return new PrePaginationInterceptor();
     }
 
     @Bean

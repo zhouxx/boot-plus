@@ -17,25 +17,22 @@ package com.alilitech.mybatis.jpa.pagination;
 
 import com.alilitech.mybatis.MybatisJpaProperties;
 import com.alilitech.mybatis.dialect.SqlDialectFactory;
-import com.alilitech.mybatis.jpa.AutoGenerateStatementRegistry;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
-import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
-import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -48,10 +45,6 @@ import java.util.regex.Pattern;
 public class PaginationInterceptor implements Interceptor {
 
     private final Log log = LogFactory.getLog(PaginationInterceptor.class);
-
-    private static Pattern fromPattern = Pattern.compile("\\sfrom\\s");
-
-    private static Pattern orderPattern = Pattern.compile("\\sorder\\s+by\\s");
 
     private MybatisJpaProperties mybatisJpaProperties;
 
@@ -82,18 +75,12 @@ public class PaginationInterceptor implements Interceptor {
         String originalSql = boundSql.getSql();
 
         if (rowBounds instanceof Pagination) {
-            Pagination page = (Pagination) rowBounds;
-
-            // add since v1.2.5
-            Connection connection = (Connection) invocation.getArgs()[0];
-            if(page.isSelectCount()) {
-                String sqlCount = buildCountSql(originalSql, mappedStatement.getId());
-                this.queryTotal(sqlCount, mappedStatement, boundSql, page, connection);
-            }
+            Pagination<?> page = (Pagination<?>) rowBounds;
 
             // determine whether the paging dialect is actively set or auto set by config
             // add since v1.2.7
-            SqlDialectFactory sqlDialectFactory = null;
+            Connection connection = (Connection) invocation.getArgs()[0];
+            SqlDialectFactory sqlDialectFactory;
             if(page.getDatabaseType() == null) {
                 // add since v1.2.8 use autoDialect
                 if(this.mybatisJpaProperties.getPage().isAutoDialect()) {
@@ -117,62 +104,11 @@ public class PaginationInterceptor implements Interceptor {
             }
             originalSql = sqlDialectFactory.buildPaginationSql(page, originalSql);
         }
-
+        // 替换成分页sql
         metaObject.setValue("delegate.boundSql.sql", originalSql);
+        // 取消逻辑分页
         metaObject.setValue("delegate.rowBounds.offset", RowBounds.NO_ROW_OFFSET);
         metaObject.setValue("delegate.rowBounds.limit", RowBounds.NO_ROW_LIMIT);
         return invocation.proceed();
-    }
-
-    /**
-     * according to the original sql to build `count sql`
-     * @param originalSql original sql
-     * @return count sql
-     */
-    private String buildCountSql(String originalSql, String statement) {
-        // only auto generate statement optimize select count sql
-        if(AutoGenerateStatementRegistry.getInstance().contains(statement)) {
-            String loweredString = originalSql.toLowerCase();
-
-            // order matcher to optimize `order by`
-            Matcher orderMatcher = orderPattern.matcher(loweredString);
-            if(orderMatcher.find()) {
-                originalSql = originalSql.substring(0, orderMatcher.start());
-                loweredString = loweredString.substring(0, orderMatcher.start());
-            }
-
-            Matcher fromMatcher = fromPattern.matcher(loweredString);
-            if (fromMatcher.find()) {
-                return "SELECT COUNT(*)" + originalSql.substring(fromMatcher.start());
-            } else {
-                return String.format("SELECT COUNT(*) FROM ( %s ) TOTAL", originalSql);
-            }
-        }
-
-        // custom sql
-        return String.format("SELECT COUNT(*) FROM ( %s ) TOTAL", originalSql);
-    }
-
-    /**
-     * query the total number of records
-     * @param sql sql
-     * @param mappedStatement mappedStatement
-     * @param boundSql boundSql
-     * @param page page
-     */
-    protected void queryTotal(String sql, MappedStatement mappedStatement, BoundSql boundSql, Pagination page, Connection connection) {
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            DefaultParameterHandler parameterHandler = new DefaultParameterHandler(mappedStatement, boundSql.getParameterObject(), boundSql);
-            parameterHandler.setParameters(statement);
-            long total = 0;
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    total = resultSet.getLong(1);
-                }
-            }
-            page.setTotal(total);
-        } catch (Exception e) {
-            log.error("select total count occur error", e);
-        }
     }
 }
