@@ -147,7 +147,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
             protocol = "https";
         }
         String port = Optional.ofNullable(env.getProperty("server.port")).orElse("8080");
-        logger.debug("Swagger UI : {}://localhost:{}/{}", protocol, port, API_PATH);
+        logger.debug("Swagger UI : {}://localhost:{}{}", protocol, port, API_PATH);
         return docket;
     }
 
