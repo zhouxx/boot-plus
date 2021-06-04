@@ -61,6 +61,11 @@ public class SecurityTokenUtils extends TokenUtils {
     public Authentication getAuthentication(String token) {
         BizUser bizUser = (BizUser) cacheManager.getCache(SECURITY_CACHE_NAME).get(token, bizClass);
 
+        // if the token is expired, return null
+        if(bizUser == null) {
+            return null;
+        }
+
         Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 
         if(!CollectionUtils.isEmpty(bizUser.getRoles())) {

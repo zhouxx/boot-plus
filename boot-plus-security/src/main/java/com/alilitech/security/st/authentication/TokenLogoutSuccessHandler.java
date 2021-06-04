@@ -48,8 +48,11 @@ public class TokenLogoutSuccessHandler implements LogoutSuccessHandler {
         if(authentication == null) {
             authentication = securityTokenUtils.getAuthentication(token);
         }
-        securityTokenUtils.removeToken(token);
-        BizUser bizUser = ((SecurityUser) authentication.getPrincipal()).getBizUser();
+        BizUser bizUser = null;
+        if(authentication != null) {
+            securityTokenUtils.removeToken(token);
+            bizUser = ((SecurityUser) authentication.getPrincipal()).getBizUser();
+        }
         extensibleSecurity.logoutSuccess(request, response, bizUser);
     }
 }
