@@ -15,6 +15,7 @@
  */
 package com.alilitech.web.file;
 
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 
@@ -37,6 +39,8 @@ import java.nio.charset.StandardCharsets;
 public class FileDownloadStreamingResponseBody extends AbstractStreamingResponseBody<FileDownloadStreamingResponseBody> {
 
     protected String fileName;
+
+    protected Charset charset = StandardCharsets.UTF_8;
 
     public FileDownloadStreamingResponseBody(InputStream inputStream) {
         super(inputStream);
@@ -59,28 +63,18 @@ public class FileDownloadStreamingResponseBody extends AbstractStreamingResponse
         return this;
     }
 
+    public FileDownloadStreamingResponseBody charset(Charset charset) {
+        this.charset = charset;
+        return this;
+    }
+
     @Override
     public ResponseEntity<FileDownloadStreamingResponseBody> toResponseEntity() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
-        String userAgent = request.getHeader("User-Agent");
-
-        String attachFileName = fileName;
-
-        try {
-            // 针对IE或者以IE为内核的浏览器：
-            if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {
-                attachFileName = java.net.URLEncoder.encode(attachFileName, "UTF-8");
-            } else { // 非IE浏览器的处理：
-                attachFileName = new String(attachFileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-            }
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage());
-        }
-
+        ContentDisposition contentDisposition = ContentDisposition.builder("attachment").filename(this.fileName, charset).build();
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .header("Content-Disposition", "attachment;filename=" + attachFileName)
+                .header("Content-Disposition", contentDisposition.toString())
                 .body(this);
     }
 }

@@ -15,11 +15,13 @@
  */
 package com.alilitech.web.file;
 
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -49,7 +51,11 @@ public class FileViewStreamingResponseBody extends AbstractStreamingResponseBody
 
     @Override
     public ResponseEntity<FileViewStreamingResponseBody> toResponseEntity() {
-        return ResponseEntity.ok().contentType(mediaType).body(this);
+        ContentDisposition contentDisposition = ContentDisposition.builder("inline").build();
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header("Content-Disposition", contentDisposition.toString())
+                .body(this);
     }
 
 
