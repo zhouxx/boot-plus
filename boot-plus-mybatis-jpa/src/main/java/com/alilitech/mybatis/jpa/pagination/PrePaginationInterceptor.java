@@ -60,6 +60,8 @@ public class PrePaginationInterceptor implements Interceptor {
 
     private static Pattern orderPattern = Pattern.compile("\\sorder\\s+by\\s");
 
+    public static final String STATEMENT_ID_POSTFIX = "_count";
+
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object rowBounds = invocation.getArgs()[2];
@@ -155,7 +157,7 @@ public class PrePaginationInterceptor implements Interceptor {
 
         // construct 'count MappedStatement'
         MappedStatement.Builder builder =
-                new MappedStatement.Builder(ms.getConfiguration(), ms.getId() + "_count", new BoundSqlSqlSource(countBoundSql), ms.getSqlCommandType());
+                new MappedStatement.Builder(ms.getConfiguration(), ms.getId() + STATEMENT_ID_POSTFIX, new BoundSqlSqlSource(countBoundSql), ms.getSqlCommandType());
         builder.resource(ms.getResource());
         builder.fetchSize(ms.getFetchSize());
         builder.statementType(ms.getStatementType());

@@ -55,6 +55,9 @@ public class MethodDefinition {
     //返回复合resultMap(是否是复合查询）
     private boolean compositeResultMap;
 
+    // 传入的Page对象的index
+    private int pageIndex = -1;
+
     //传入的Sort对象index
     private int sortIndex = -1;
 
@@ -240,6 +243,7 @@ public class MethodDefinition {
         int count = 0;
         for (ParameterDefinition parameterDefinition : parameterDefinitions) {
             if (parameterDefinition.isPage()) {
+                pageIndex = parameterDefinition.getIndex();
                 continue;
             }
 
@@ -258,6 +262,10 @@ public class MethodDefinition {
 
     public String getStatementId() {
         return nameSpace + "." + methodName;
+    }
+
+    public boolean hasPage() {
+        return pageIndex > -1;
     }
 
 }

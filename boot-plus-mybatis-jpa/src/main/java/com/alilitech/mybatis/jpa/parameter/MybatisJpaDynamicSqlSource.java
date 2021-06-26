@@ -59,7 +59,7 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
                 order.setProperty(columnName);
             }
         } else if(parameterObject instanceof MapperMethod.ParamMap && domainType != null) {
-            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+            MapperMethod.ParamMap<?> paramMap = (MapperMethod.ParamMap<?>) parameterObject;
             paramMap.forEach((key, value) -> {
                 if(value instanceof Sort) {
                     Sort sort = (Sort) value;
@@ -76,13 +76,13 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
 
         // 转换规格查询参数
         if(parameterObject instanceof Specification && domainType != null) {
-            Specification specification = (Specification) parameterObject;
+            Specification<?> specification = (Specification<?>) parameterObject;
 
-            CriteriaBuilder cb = new CriteriaBuilder(domainType);
+            CriteriaBuilder<?> cb = new CriteriaBuilder<>(domainType);
 
-            CriteriaQuery query = new CriteriaQuery(domainType);
+            CriteriaQuery<?> query = new CriteriaQuery<>(domainType);
 
-            PredicateExpression predicate = specification.toPredicate(cb, query);
+            PredicateExpression<?> predicate = specification.toPredicate(cb, query);
 
             if(predicate != null) {
                 query.where(predicate);

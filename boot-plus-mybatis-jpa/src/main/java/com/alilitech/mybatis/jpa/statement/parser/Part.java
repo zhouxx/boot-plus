@@ -18,6 +18,7 @@ package com.alilitech.mybatis.jpa.statement.parser;
 import com.alilitech.mybatis.jpa.LikeContainer;
 import com.alilitech.mybatis.jpa.anotation.IfTest;
 import com.alilitech.mybatis.jpa.definition.MethodDefinition;
+import com.alilitech.mybatis.jpa.pagination.PrePaginationInterceptor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -97,17 +98,26 @@ public class Part implements Render {
 
 		// 将like的信息放入缓存中，后面需要改变其参数
 		if(this.getLikeType() != null) {
+			String key = methodDefinition.getStatementId();
+			String countKey = key + PrePaginationInterceptor.STATEMENT_ID_POSTFIX;
+
 			if(this.oneParameter) {
-				String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + "._parameter";
-				LikeContainer.getInstance().put(key, this.getLikeType());
+				countKey += "._parameter";
+				key += "._parameter";
 			} else {
-				String key = methodDefinition.getNameSpace() + "." + methodDefinition.getMethodName() + ".arg" + this.getArgumentIndex();
-				LikeContainer.getInstance().put(key, this.getLikeType());
+				countKey += (".arg" + this.getArgumentIndex());
+				key += (".arg" + this.getArgumentIndex());
 			}
+			LikeContainer.getInstance().put(key, this.getLikeType());
+
+			// 如果有分页的话需要存储分页相关的key
+			if(methodDefinition.hasPage()) {
+				LikeContainer.getInstance().put(countKey, this.getLikeType());
+			}
+
 		}
-
-
 	}
+
 	//根据参数索引获得IfCondition
 	private TestCondition getCondition(int index, MethodDefinition methodDefinition) {
 		//先读取方法的IfTest
@@ -246,7 +256,6 @@ public class Part implements Render {
 			context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? propertyPath.getColumnName() : context.getVariableAlias() + "." + propertyPath.getColumnName());
 			context.renderBlank();
 			context.renderString(typeValue);
-			// String.format("And %s %s", propertyPath.getColumnName(), typeValue);
 			return;
 		}
 
@@ -481,8 +490,6 @@ public class Part implements Render {
 
 		private String[] conditions;
 
-		public TestCondition() {}
-
 		public TestCondition(boolean notNull, boolean notEmpty, String[] conditions) {
 			this.notNull = notNull;
 			this.notEmpty = notEmpty;
@@ -493,24 +500,12 @@ public class Part implements Render {
 			return notNull;
 		}
 
-		public void setNotNull(boolean notNull) {
-			this.notNull = notNull;
-		}
-
 		public boolean isNotEmpty() {
 			return notEmpty;
 		}
 
-		public void setNotEmpty(boolean notEmpty) {
-			this.notEmpty = notEmpty;
-		}
-
 		public String[] getConditions() {
 			return conditions;
-		}
-
-		public void setConditions(String[] conditions) {
-			this.conditions = conditions;
 		}
 
 	}

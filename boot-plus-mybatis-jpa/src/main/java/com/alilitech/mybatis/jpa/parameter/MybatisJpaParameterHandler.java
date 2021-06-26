@@ -16,6 +16,7 @@
 package com.alilitech.mybatis.jpa.parameter;
 
 import com.alilitech.mybatis.jpa.LikeContainer;
+import com.alilitech.mybatis.jpa.statement.parser.LikeType;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -50,40 +51,17 @@ public class MybatisJpaParameterHandler extends DefaultParameterHandler {
                 MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
                 paramMap.forEach((key, value) -> {
                     String likeKey = methodId + "." + key;
-                    if(likeContainer.isExist(likeKey) && value != null) {
-                        switch (likeContainer.get(likeKey)) {
-                            case BEFORE: {
-                                paramMap.put(key, "%" + value);
-                                break;
-                            }
-                            case AFTER: {
-                                paramMap.put(key, value + "%");
-                                break;
-                            }
-                            case CONTAIN: {
-                                paramMap.put(key, "%" + value + "%");
-                                break;
-                            }
-                        }
+                    if(likeContainer.isExist(likeKey)
+                            && needTransfer(value)) {
+                        Object setVal = transferValue(likeContainer.get(likeKey), value);
+                        paramMap.put(key, setVal);
                     }
                 });
             } else { // 单参数
                 String likeKey = methodId + "._parameter";
-                if(likeContainer.isExist(likeKey)) {
-                    switch (likeContainer.get(likeKey)) {
-                        case BEFORE: {
-                            parameterObject = "%" + parameterObject;
-                            break;
-                        }
-                        case AFTER: {
-                            parameterObject = parameterObject + "%";
-                            break;
-                        }
-                        case CONTAIN: {
-                            parameterObject = "%" + parameterObject + "%";
-                            break;
-                        }
-                    }
+                if(likeContainer.isExist(likeKey)
+                        && needTransfer(parameterObject)) {
+                    parameterObject = transferValue(likeContainer.get(likeKey), parameterObject);
                     // 单个参数，必须手动设置，否则无效。因为传参的是值，不是引用
                     boundSql.setAdditionalParameter("_parameter", parameterObject);
                 }
@@ -91,4 +69,30 @@ public class MybatisJpaParameterHandler extends DefaultParameterHandler {
         }
         return parameterObject;
     }
+
+    // 是否需要转换
+    private static boolean needTransfer(Object value) {
+        return value != null &&   // value为null的情况不处理
+                !(value.toString().startsWith("%") || value.toString().endsWith("%"));  // value已经前后有了%说明参数已经处理过了
+    }
+
+    // 转成成占位的值
+    private static Object transferValue(LikeType likeType, Object value) {
+        switch (likeType) {
+            case BEFORE: {
+                value = "%" + value;
+                break;
+            }
+            case AFTER: {
+                value = value + "%";
+                break;
+            }
+            case CONTAIN: {
+                value = "%" + value + "%";
+                break;
+            }
+        }
+        return value;
+    }
+
 }

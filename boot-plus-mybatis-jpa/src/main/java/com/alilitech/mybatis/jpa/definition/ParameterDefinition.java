@@ -91,23 +91,14 @@ public class ParameterDefinition {
     }
 
     public boolean isPage() {
-        if(RowBounds.class.isAssignableFrom(parameterClass)) {
-            return true;
-        }
-        return false;
+        return RowBounds.class.isAssignableFrom(parameterClass);
     }
 
     public boolean isSpecification() {
-        if(Specification.class.isAssignableFrom(parameterClass)) {
-            return true;
-        }
-        return false;
+        return Specification.class.isAssignableFrom(parameterClass);
     }
 
     public boolean isSort() {
-        if(parameterClass.equals(Sort.class)) {
-            return true;
-        }
-        return false;
+        return parameterClass.equals(Sort.class);
     }
 }
