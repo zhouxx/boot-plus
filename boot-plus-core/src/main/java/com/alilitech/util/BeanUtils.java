@@ -55,13 +55,13 @@ public class BeanUtils {
 		List<TempBean> list = BeanUtils.findSourceMethod(source);
 		try {
 			for (TempBean tb : list) {
-				try {
-					Object value = tb.getObject().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getObject());
-					String fieldName = tb.getFieldDesc().getFieldName();
+//				try {
+					Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
+					String fieldName = tb.fieldDesc.fieldName;
 					mapRet.put(fieldName, value);
-				} catch (NoSuchMethodException | SecurityException e) {
-					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-				}
+//				} catch ( SecurityException e) {
+//					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
+//				}
 			}
 		} catch (Throwable e) {
 			logger.error("copy occur error", e);
@@ -83,15 +83,15 @@ public class BeanUtils {
 		try {
 			List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 			for (TempBean tb : list) {
-				try {
-					Object value = tb.getObject().getClass().getMethod(tb.getFieldDesc().getGetName(), new Class[]{}).invoke(tb.getObject());
-					String fieldName = tb.getFieldDesc().getFieldName();
+//				try {
+					Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
+					String fieldName = tb.fieldDesc.fieldName;
 					mapRet.put(fieldName, value);
-				} catch (NoSuchMethodException | SecurityException e) {
-					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-				}
+//				} catch (SecurityException e) {
+//					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
+//				}
 			}
-		}catch (Throwable e) {
+		} catch (Throwable e) {
 			logger.error("copy occur error", e);
 		}
 		return mapRet;
@@ -196,24 +196,20 @@ public class BeanUtils {
 		try {
 			Map<String, TempBean> tbSourceMap = BeanUtils.findSourceMethodAndTranslateGetNameMap(source, ignoreProperties);
 			List<TempBean> listTarget = BeanUtils.findSourceMethod(target, null);
-			for (TempBean tempBean : listTarget) {
-				try {
-					//查找源对象的get方法
-					TempBean tempBeanSource = tbSourceMap.get(tempBean.getFieldDesc().getGetName());
-					//若不存在，则直接跳过
-					if (tempBeanSource == null) {
-						continue;
-					}
-					Method method = target.getClass().getMethod(tempBean.getFieldDesc().getSetName(), tempBean.getFieldDesc().getClazz());
-					Object value = tempBeanSource.getObject().getClass().getMethod(tempBeanSource.getFieldDesc().getGetName(), new Class[]{}).invoke(tempBeanSource.getObject());
-					//值为空不需要塞
-					if (value == null) {
-						continue;
-					}
-					method.invoke(target, value);
-				} catch (NoSuchMethodException | SecurityException e) {
-					logger.debug(tempBean.getFieldDesc().getSetName() + " is not exist, not covert!");
+			for (TempBean tempBeanTarget : listTarget) {
+				//查找源对象的get方法
+				TempBean tempBeanSource = tbSourceMap.get(tempBeanTarget.fieldDesc.getterName);
+				//若不存在，则直接跳过
+				if (tempBeanSource == null) {
+					continue;
 				}
+				Method setterMethod = tempBeanTarget.fieldDesc.setterMethod;
+				Object value = tempBeanSource.fieldDesc.getterMethod.invoke(tempBeanSource.object);
+				//值为空不需要塞
+				if (value == null) {
+					continue;
+				}
+				setterMethod.invoke(target, value);
 			}
 		} catch (Throwable e) {
 			logger.error("copy occur error", e);
@@ -230,13 +226,13 @@ public class BeanUtils {
 		// 区分是否有过滤的属性
 		if(ignoreProperties == null || ignoreProperties.length == 0) {
 			for(TempBean tb : list) {
-				retMap.put(tb.getFieldDesc().getGetName(), tb);
+				retMap.put(tb.fieldDesc.getterName, tb);
 			}
 		} else {
 			for(TempBean tb : list) {
 				boolean flag = false;
 				for(IgnoreProperty ignoreProperty : ignoreProperties) {
-					if(ignoreProperty.equalsWith(tb.getObjectSimpleName(), tb.getFieldDesc().getFieldName())) {
+					if(ignoreProperty.equalsWith(tb.objectSimpleName, tb.fieldDesc.fieldName)) {
 						flag = true;
 						break;
 					}
@@ -244,7 +240,7 @@ public class BeanUtils {
 				if(flag) {
 					continue;
 				}
-				retMap.put(tb.getFieldDesc().getGetName(), tb);
+				retMap.put(tb.fieldDesc.getterName, tb);
 			}
 		}
 
@@ -303,12 +299,12 @@ public class BeanUtils {
 
 		for(FieldDesc fieldDesc : descList) {
 
-			if(isDirectConvert(fieldDesc.getClazz())) {
-				TempBean tempBean = new TempBean(fieldDesc, source);
-				list.add(tempBean);
+			if(isDirectConvert(fieldDesc.type)) {
+//				TempBean tempBean = new TempBean(fieldDesc, source);
+				list.add(new TempBean(fieldDesc, source));
 			} else {
-				Field field = source.getClass().getDeclaredField(fieldDesc.getFieldName());
-				Object nextO = getFieldObject(field, source);
+//				Field field = source.getClass().getDeclaredField(fieldDesc.getFieldName());
+				Object nextO = getFieldObject(fieldDesc, source);
 				if (nextO != null) {
 					findSourceMethod(nextO, list);
 				}
@@ -357,7 +353,6 @@ public class BeanUtils {
 				list.add(field);
 			}
 		}
-		// list.addAll(Arrays.asList(fields));
 		if(!"Object".equals(clazz.getSuperclass().getSimpleName())) {
 			getAllFields(clazz.getSuperclass(), list);
 		}
@@ -368,12 +363,9 @@ public class BeanUtils {
 	/**
 	 * 根据对象和字段名获得这个字段的对象值
 	 */
-	private static Object getFieldObject(Field field, Object source) throws InvocationTargetException, IllegalAccessException {
-		String fieldName = field.getName();
-		Method method;
-		try {
-			method = source.getClass().getMethod(JavaBeansUtil.getGetterMethodName(fieldName, field.getType().getSimpleName()));
-		} catch (NoSuchMethodException e) {
+	private static Object getFieldObject(FieldDesc fieldDesc, Object source) throws InvocationTargetException, IllegalAccessException {
+		Method method = fieldDesc.getterMethod;
+		if(method == null) {
 			return null;
 		}
 		return method.invoke(source);
@@ -390,20 +382,12 @@ public class BeanUtils {
 			this.property = property;
 		}
 
-		public String getSimpleName() {
-			return simpleName;
-		}
-
-		public String getProperty() {
-			return property;
-		}
-
 		public boolean equalsWith(String simpleName, String property) {
 			return simpleName.equals(this.simpleName) && property.equals(this.property);
 		}
 	}
 
-	protected static class TempBean {
+	private static class TempBean {
 
 		private FieldDesc fieldDesc;
 
@@ -416,67 +400,35 @@ public class BeanUtils {
 			this.object = object;
 			this.objectSimpleName = object.getClass().getSimpleName();
 		}
-
-		public FieldDesc getFieldDesc() {
-			return fieldDesc;
-		}
-
-		public Object getObject() {
-			return object;
-		}
-
-		public String getObjectSimpleName() {
-			return objectSimpleName;
-		}
 	}
 
-	protected static class FieldDesc {
+	private static class FieldDesc {
 
 		private String fieldName;
 		/** getter method name */
-		private String getName;
+		private String getterName;
 		/** setter method name */
-		private String setName;
-		/** 参数或返回值类型 */
-		private Class<?> clazz;
+		private String setterName;
+		/** getter method */
+		private Method getterMethod;
+		/** setter method */
+		private Method setterMethod;
+		/** type */
+		private Class<?> type;
 
 		public FieldDesc(Field field) {
 			this.fieldName = field.getName();
-			this.getName = JavaBeansUtil.getGetterMethodName(fieldName, field.getType().getSimpleName());
-			this.setName = JavaBeansUtil.getSetterMethodName(fieldName);
-			this.clazz = field.getType();
-		}
+			this.getterName = JavaBeansUtil.getGetterMethodName(fieldName, field.getType().getSimpleName());
+			this.setterName = JavaBeansUtil.getSetterMethodName(fieldName);
 
-		public String getFieldName() {
-			return fieldName;
-		}
+			try {
+				getterMethod = field.getDeclaringClass().getMethod(getterName);
+				setterMethod = field.getDeclaringClass().getMethod(setterName, field.getType());
+			} catch (NoSuchMethodException e) {
+				logger.error("Do not find getter or setter method for the field '{}' of the Class '{}'", this.fieldName, field.getDeclaringClass().getName());
+			}
 
-		public void setFieldName(String fieldName) {
-			this.fieldName = fieldName;
-		}
-
-		public String getGetName() {
-			return getName;
-		}
-
-		public void setGetName(String getName) {
-			this.getName = getName;
-		}
-
-		public String getSetName() {
-			return setName;
-		}
-
-		public void setSetName(String setName) {
-			this.setName = setName;
-		}
-
-		public Class<?> getClazz() {
-			return clazz;
-		}
-
-		public void setClazz(Class<?> clazz) {
-			this.clazz = clazz;
+			this.type = field.getType();
 		}
 	}
 
