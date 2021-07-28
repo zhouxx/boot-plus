@@ -15,7 +15,7 @@
  */
 package com.alilitech.generate;
 
-import com.alilitech.generate.utils.ColumnUtils;
+import com.alilitech.generate.utils.StyleConvertUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,6 +51,10 @@ public class TableColumn {
     private boolean primary;
 
     public String getProperty() {
-        return ColumnUtils.getJavaStyle(columnName);
+        return StyleConvertUtils.getLowerCamelCaseStyle(columnName);
+    }
+
+    public boolean isStandardUnderscore() {
+        return StyleConvertUtils.isStandardUnderscore(columnName);
     }
 }

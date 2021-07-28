@@ -19,6 +19,7 @@ import com.alilitech.generate.config.DataSourceConfig;
 import com.alilitech.generate.config.GlobalConfig;
 import com.alilitech.generate.config.TableConfig;
 import com.alilitech.generate.definition.ClassDefinition;
+import com.alilitech.generate.definition.ClassType;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -65,7 +66,7 @@ public class GeneratorMojo extends AbstractMojo {
         AtomicReference<String> resourcePath = new AtomicReference<>();
         resources.forEach(resource -> {
             String directory = ((Resource) resource).getDirectory();
-            if(new File(directory + "/" + xmlPath).exists()) {
+            if(new File(directory + File.separator + xmlPath).exists()) {
                 resourcePath.set(directory);
                 return;
             }
@@ -74,27 +75,43 @@ public class GeneratorMojo extends AbstractMojo {
 
         //解析
         //InputStream inputStream = new FileInputStream(new File(resourcePath + "/" + xmlPath));
-        XmlParser xmlParser = new XmlParser(resourcePath.get() + "/" + xmlPath);
+        XmlParser xmlParser = new XmlParser(resourcePath.get() + File.separator + xmlPath);
         DataSourceConfig dataSourceConfig = xmlParser.parseText("config.datasource", DataSourceConfig.class);
         GlobalConfig globalConfig = xmlParser.parseText("config.properties", GlobalConfig.class);
 
         List<TableConfig> tableConfigs = xmlParser.parseListAttribute("config.tables.table", TableConfig.class);
         List<ClassDefinition> classDefinitions = GeneratorUtils.process(dataSourceConfig, globalConfig, tableConfigs);
-        classDefinitions.forEach(classDefinition -> {
+        for (int i=0; i<classDefinitions.size(); i++) {
+            ClassDefinition classDefinition = classDefinitions.get(i);
             try {
                 //建立文件夹
-                String fileDirectory = srcPath + "/" + classDefinition.getPackageName().replaceAll("\\.", "/");
+                String fileDirectory = srcPath + File.separator + classDefinition.getPackageName().replaceAll("\\.", "/");
                 File fileDir = new File(fileDirectory);
-                if(!fileDir.exists()) {
-                    fileDir.mkdirs();
+                if (!fileDir.exists()) {
+                    boolean mkdirs = fileDir.mkdirs();
+                    if(!mkdirs) {
+                        throw new MojoFailureException("无法根据包路径建立文件夹");
+                    }
                 }
                 //输出文件
-                File fileJava = new File(fileDirectory + "/" + classDefinition.getClassName() + ".java");
-                //classDefinition.out(System.out);
-                classDefinition.out(new FileOutputStream(fileJava));
+                File fileJava = new File(fileDirectory + File.separator + classDefinition.getClassName() + ".java");
+
+                // 判断是否要输出磁盘文件
+                int tableIndex = i/2;
+                TableConfig tableConfig = tableConfigs.get(tableIndex);
+                if(!fileJava.exists()) {
+                    classDefinition.out(new FileOutputStream(fileJava));
+                    continue;
+                }
+                if(fileJava.exists() && classDefinition.getClassType() == ClassType.DOMAIN && tableConfig.isOverrideDomain()) {
+                    classDefinition.out(new FileOutputStream(fileJava));
+                }
+                if(fileJava.exists() && classDefinition.getClassType() == ClassType.MAPPER && tableConfig.isOverrideMapper()) {
+                    classDefinition.out(new FileOutputStream(fileJava));
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new MojoFailureException("生成文件失败", e);
             }
-        });
+        }
     }
 }

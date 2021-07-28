@@ -28,6 +28,7 @@ import com.alilitech.mybatis.jpa.parameter.GenerationType;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -146,12 +147,10 @@ public class GeneratorUtils {
 
         tables.forEach(table -> {
 
-            Map<String, byte[]> extendMap = getExtend(table);
-
             //domain
             ClassDefinition domainClassDefinition = covertDomain(table, globalConfig.getPackageName());
             classDefinitions.add(domainClassDefinition);
-            Class<?> domainClass = loadClass(extendMap, classDefinitions);
+            Class<?> domainClass = loadClass(new HashMap<>(), classDefinitions);
             domainClassDefinition.addAnnotation("Getter").addAnnotation("Setter").addImport("lombok.Getter").addImport("lombok.Setter");
 
             //mapper
@@ -165,10 +164,6 @@ public class GeneratorUtils {
     private static Class<?> covertDomain(Integer columnType) {
 
         switch (columnType) {
-            case Types.CHAR :
-            case Types.VARCHAR :
-            case Types.LONGVARCHAR :
-                return String.class;
             case Types.DATE :
             case Types.TIMESTAMP:
             case Types.TIME :
@@ -192,32 +187,9 @@ public class GeneratorUtils {
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
                 return Byte[].class;
-                default :
-                    return String.class;
+            default :
+                return String.class;
         }
-    }
-
-    private static Map<String, byte[]> getExtend(Table table) {
-        Map<String, byte[]> map = new HashMap<>();
-        //set extend
-        /*String extend = table.getTableConfig().getExtend();
-        byte[] bytes = null;
-        try {
-            Class<?> aClass = Class.forName(extend);
-            String className = aClass.getName();
-            String classAsPath = className.replace('.', '/') + ".class";
-            InputStream stream = aClass.getClassLoader().getResourceAsStream(classAsPath);
-            bytes = new byte[stream.available()];
-            IOUtils.readFully(stream, bytes);
-            map.put(extend, bytes);
-            //classDefinition.addExtend(aClass);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-        return map;
     }
 
     private static ClassDefinition covertDomain(Table table, String globalPackageName) {
@@ -225,8 +197,6 @@ public class GeneratorUtils {
         ClassDefinition classDefinition = new ClassDefinition(table.getTableConfig().getDomainName());
         classDefinition.setClassType(ClassType.DOMAIN).setPackageName(globalPackageName + "." + ClassType.DOMAIN.getType());
         classDefinition.addAnnotation(new AnnotationDefinition(javax.persistence.Table.class).addProperty("name", table.getTableConfig().getTableName()));
-
-        // classDefinition.addExtend(table.getTableConfig().getExtend());
 
         table.getTableColumns().forEach(tableColumn -> {
             FieldDefinition fieldDefinition = new FieldDefinition(tableColumn.getColumnType(), tableColumn.getProperty());
@@ -238,6 +208,12 @@ public class GeneratorUtils {
             if(tableColumn.getRemark() != null && !tableColumn.getRemark().equals("")) {
                 fieldDefinition.addComment(tableColumn.getRemark());
             }
+
+            // 判断是否要加@Column注解
+            if(!tableColumn.isStandardUnderscore() && !table.getTableConfig().isIgnoreNoStandardUnderscore()) {
+                fieldDefinition.addAnnotation(new AnnotationDefinition(Column.class).addProperty("name", tableColumn.getColumnName()));
+            }
+
             classDefinition.addFieldDefinition(fieldDefinition);
         });
         return classDefinition;

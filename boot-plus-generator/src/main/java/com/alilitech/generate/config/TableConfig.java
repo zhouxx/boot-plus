@@ -15,7 +15,7 @@
  */
 package com.alilitech.generate.config;
 
-import com.alilitech.generate.utils.ColumnUtils;
+import com.alilitech.generate.utils.StyleConvertUtils;
 
 /**
  * @author Zhou Xiaoxiang
@@ -23,17 +23,36 @@ import com.alilitech.generate.utils.ColumnUtils;
  */
 public class TableConfig {
 
+    /**
+     * 表名
+     */
     private String tableName;
 
+    /**
+     * 实体类名称
+     */
     private String domainName;
 
-    private boolean override;
+    /**
+     * 文件存在时是否覆盖针对Domain
+     */
+    private boolean overrideDomain = true;
+
+    /**
+     * 文件存在时是否覆盖针对Mapper
+     */
+    private boolean overrideMapper = false;
+
+    /**
+     * 忽略非标准的下划线
+     */
+    private boolean ignoreNoStandardUnderscore = false;
 
     public TableConfig() {
     }
 
     public TableConfig(String tableName) {
-        this(tableName, ColumnUtils.getJavaStyle(tableName));
+        this(tableName, StyleConvertUtils.getUpperCamelCaseStyle(tableName));
     }
 
     public TableConfig(String tableName, String domainName) {
@@ -50,6 +69,9 @@ public class TableConfig {
     }
 
     public String getDomainName() {
+        if(domainName == null || domainName.equals("")) {
+            return StyleConvertUtils.getUpperCamelCaseStyle(tableName);
+        }
         return domainName;
     }
 
@@ -57,12 +79,27 @@ public class TableConfig {
         this.domainName = domainName;
     }
 
-    public boolean isOverride() {
-        return override;
+    public boolean isOverrideDomain() {
+        return overrideDomain;
     }
 
-    public void setOverride(boolean override) {
-        this.override = override;
+    public void setOverrideDomain(boolean overrideDomain) {
+        this.overrideDomain = overrideDomain;
     }
 
+    public boolean isOverrideMapper() {
+        return overrideMapper;
+    }
+
+    public void setOverrideMapper(boolean overrideMapper) {
+        this.overrideMapper = overrideMapper;
+    }
+
+    public boolean isIgnoreNoStandardUnderscore() {
+        return ignoreNoStandardUnderscore;
+    }
+
+    public void setIgnoreNoStandardUnderscore(boolean ignoreNoStandardUnderscore) {
+        this.ignoreNoStandardUnderscore = ignoreNoStandardUnderscore;
+    }
 }

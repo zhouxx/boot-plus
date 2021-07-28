@@ -19,11 +19,26 @@ package com.alilitech.generate.utils;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class ColumnUtils {
+public class StyleConvertUtils {
 
-    public static String getJavaStyle(String column) {
+    /**
+     * 将下划线格式转换成大驼峰
+     */
+    public static String getUpperCamelCaseStyle(String source) {
         StringBuilder ret = new StringBuilder();
-        String arr[] = column.split("_");
+        String[] arr = source.split("_");
+        for (String s : arr) {
+            ret.append(initUpper(s));
+        }
+        return ret.toString();
+    }
+
+    /**
+     * 将下划线格式转换成小驼峰
+     */
+    public static String getLowerCamelCaseStyle(String source) {
+        StringBuilder ret = new StringBuilder();
+        String[] arr = source.split("_");
         for(int i=0; i<arr.length; i++) {
             if(i == 0) {
                 ret.append(arr[i]);
@@ -32,6 +47,22 @@ public class ColumnUtils {
             }
         }
         return ret.toString();
+    }
+
+    /**
+     * 判断是否是一个标准的下划线字符串
+     * 主要判断一串数字前是否有下划线
+     */
+    public static boolean isStandardUnderscore(String source) {
+        char[] ch = source.toCharArray();
+        for(int i=0; i<ch.length; i++) {
+            if((ch[i] >= '0' && ch[i] <= '9')
+                    && (i-1) > -1
+                    && ch[i-1] != '_') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

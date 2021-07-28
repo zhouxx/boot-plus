@@ -76,6 +76,9 @@ public class XmlParser {
             t = clazz.newInstance();
             for(Field field : clazz.getDeclaredFields()) {
                 String text = element.elementText(field.getName());
+                if(text == null) {
+                    continue;
+                }
                 field.setAccessible(true);
                 field.set(t, covertFieldValue(text, field));
             }
@@ -101,6 +104,9 @@ public class XmlParser {
             t = clazz.newInstance();
             for(Field field : clazz.getDeclaredFields()) {
                 String text = element.attributeValue(field.getName());
+                if(text == null) {
+                    continue;
+                }
                 field.setAccessible(true);
                 field.set(t, covertFieldValue(text, field));
             }
@@ -131,6 +137,9 @@ public class XmlParser {
                 t = clazz.newInstance();
                 for(Field field : declaredFields) {
                     String text = temp.attributeValue(field.getName());
+                    if(text == null) {
+                        continue;
+                    }
                     field.setAccessible(true);
                     field.set(t, covertFieldValue(text, field));
                 }
