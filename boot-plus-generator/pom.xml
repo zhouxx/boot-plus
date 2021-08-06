@@ -3,7 +3,7 @@
     <parent>
         <artifactId>boot-plus</artifactId>
         <groupId>com.alilitech</groupId>
-        <version>1.3.7</version>
+        <version>1.3.8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>boot-plus-generator</artifactId>
@@ -34,18 +34,7 @@
             <groupId>com.alilitech</groupId>
             <artifactId>boot-plus-mybatis-jpa</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alilitech</groupId>
-            <artifactId>boot-plus-web</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alilitech</groupId>
-            <artifactId>boot-plus-log</artifactId>
-            <version>${project.parent.version}</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
