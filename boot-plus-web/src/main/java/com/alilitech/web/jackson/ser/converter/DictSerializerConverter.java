@@ -17,7 +17,10 @@ package com.alilitech.web.jackson.ser.converter;
 
 
 import com.alilitech.web.jackson.ser.DictCacheManager;
+import com.alilitech.web.jackson.ser.DictThreadHolder;
 import com.alilitech.web.jackson.ser.SerializerConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * dict converter
@@ -25,6 +28,8 @@ import com.alilitech.web.jackson.ser.SerializerConverter;
  * @since 1.3.6
  */
 public class DictSerializerConverter implements SerializerConverter<Object> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DictCacheManager dictCacheManager;
 
@@ -41,12 +46,16 @@ public class DictSerializerConverter implements SerializerConverter<Object> {
         // to be matched the cache key, converted the dictionary key string
         String dictKeyStringValue = value == null ? null : value.toString();
 
+        String holderKey = dictAnnotationConfig.getDictKey() + "." + dictKeyStringValue;
+        if(DictThreadHolder.exist(holderKey)) {
+            logger.debug("The dictionary '{}' does not exist, the dictionary will not be collected in this thread", holderKey);
+            return null;
+        }
         // If there is no key or no value, reload the dictionary collector
-        dictCacheManager.existAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
-
-        if(dictCacheManager.exist(dictAnnotationConfig.getDictKey())) {
+        if(dictCacheManager.existAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue)) {
             return dictCacheManager.getDictValByKey(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
         } else {
+            DictThreadHolder.put(holderKey);
             return null;
         }
     }

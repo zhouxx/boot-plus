@@ -51,37 +51,68 @@ public class DictCacheManager {
         }
     }
 
-    public void existAndRefresh(String dictKey, String value) {
+    /**
+     * 判断字典是否存在，不存在则刷新至缓存
+     * @param dictKey  字典key
+     * @param value    字典的值对应的key
+     * @return         字典key在从收集器收集完后收否存在，后续无需再判断key是否存在，减少IO次数
+     */
+    public boolean existAndRefresh(String dictKey, String value) {
         boolean existFlag = cacheMap.containsKey(dictKey) && cacheMap.get(dictKey).containsKey(value);
 
         if(existFlag) {
-            return;
+            return true;
         }
 
         if(!cacheMap.containsKey(dictKey)) {
             logger.warn("dict key: {} is not in cache, and it will reload all dict collectors.", dictKey);
             cacheMap.clear();
-            dictCollectors.forEach(dictCollector -> {
+
+            // 字典key是否存在
+            boolean exitKey = false;
+
+            for (DictCollector dictCollector : dictCollectors) {
                 Map<String, Map<String, Object>> dictAndValues = dictCollector.findDictAndValues();
                 cacheMap.putAll(dictAndValues);
                 // save mapping
-                dictAndValues.forEach((key, val) -> {
+                for (Map.Entry<String, Map<String, Object>> entry : dictAndValues.entrySet()) {
+                    String key = entry.getKey();
+                    Map<String, Object> valMap = entry.getValue();
                     collectorMapping.put(key, dictCollector);
-                });
-            });
+
+                    if (!exitKey && key.equals(dictKey) && valMap.containsKey(value)) {
+                        exitKey = true;
+                    }
+                }
+            }
+            return exitKey;
         }
         // Do not consider the situation of moving from this collector to other collector
         else if(!cacheMap.get(dictKey).containsKey(value)) {
             DictCollector dictCollector = collectorMapping.get(dictKey);
             logger.warn("dict key: {} and value: {} is not in cache, and it will reload with {}.", dictKey, value, dictCollector.getClass());
-            cacheMap.putAll(dictCollector.findDictAndValues());
+
+            Map<String, Map<String, Object>> dictAndValues = dictCollector.findDictAndValues();
+
+            cacheMap.putAll(dictAndValues);
+            // save mapping
+            for (Map.Entry<String, Map<String, Object>> entry : dictAndValues.entrySet()) {
+                String key = entry.getKey();
+                Map<String, Object> valMap = entry.getValue();
+
+                if (key.equals(dictKey) && valMap.containsKey(value)) {
+                    return true;
+                }
+            }
         }
 
+        return false;
+
     }
 
-    public boolean exist(String dictKey) {
-        return cacheMap.containsKey(dictKey);
-    }
+//    public boolean exist(String dictKey) {
+//        return cacheMap.containsKey(dictKey);
+//    }
 
     public Object getDictValByKey(String dictKey, String value) {
         return cacheMap.get(dictKey).get(value);
