@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [v1.3.8] 2021.8.6
+
+* mybatis-jpa: 修复`delete like`失效的问题
+* mybatis-jpa: 修改分页查总数时like失效的问题
+* web: 文件下载和查看的请求返回符合`RFC 6226'标准
+* web: 优化同一个请求里会因为某个字段字典缺失造成频繁字典收集，造成的性能下降
+* core: 优化BeanUtils，减少反射，提升性能
+* generator: 生成java文件时更智能，比如是否覆盖等
+
 ## [v1.3.7] 2021.6.4
 
 * mybatis-jpa: 分离查总数和物理分页查询。
