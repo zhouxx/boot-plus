@@ -19,6 +19,7 @@ import com.alilitech.log.aop.LogExtension;
 import com.alilitech.log.aop.LoggingAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.lang.Nullable;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -40,5 +41,10 @@ public class LogConfiguration implements WebMvcConfigurer {
     @Bean
     public LoggingAspect loggingAspect(@Nullable LogExtension logExtension) {
         return new LoggingAspect(logExtension);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new ClearRequestIdInterceptor());
     }
 }
