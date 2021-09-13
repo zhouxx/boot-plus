@@ -19,7 +19,6 @@ import com.alilitech.log.aop.LogExtension;
 import com.alilitech.log.aop.LoggingAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.lang.Nullable;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -34,8 +33,8 @@ public class LogConfiguration implements WebMvcConfigurer {
         registry.addResourceHandler("log.html")
                 .addResourceLocations("classpath:/");
 
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/resources/webjars/");
+//        registry.addResourceHandler("/webjars/**")
+//                .addResourceLocations("classpath:/resources/webjars/");
     }
 
     @Bean
@@ -43,8 +42,4 @@ public class LogConfiguration implements WebMvcConfigurer {
         return new LoggingAspect(logExtension);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ClearRequestIdInterceptor());
-    }
 }
