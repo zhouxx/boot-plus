@@ -17,6 +17,7 @@ package com.alilitech.log;
 
 import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.alilitech.web.ThreadLocalContainer;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -32,6 +33,10 @@ import java.util.UUID;
 public class ThreadRequestIdConverter extends ClassicConverter {
 
     public static final ThreadLocal<String> requestIdThreadLocal = new ThreadLocal<>();
+
+    public ThreadRequestIdConverter() {
+        ThreadLocalContainer.getInstance().addThreadLocal(requestIdThreadLocal);
+    }
 
     public String convert(ILoggingEvent event) {
         // 非请求且未设置requestId的情况下，直接返回线程名称

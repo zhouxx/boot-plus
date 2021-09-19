@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.List;
  * @since 1.2.4
  */
 @EnableConfigurationProperties({CorsProperties.class, JsonProperties.class})
-@Import({JacksonInterceptor.class, DictCacheManager.class, CompositeSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
+@Import({DictCacheManager.class, CompositeSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
 public class WebConfiguration implements WebMvcConfigurer {
 
     public static final String TIP_KEY = "message";
@@ -64,6 +65,17 @@ public class WebConfiguration implements WebMvcConfigurer {
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         objectMapper.registerModule(bootPlusModule);
         return objectMapper;
+    }
+
+    @Bean
+    public ThreadLocalContainer threadLocalContainer() {
+        return ThreadLocalContainer.getInstance();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new JacksonInterceptor());
+        registry.addInterceptor(new ThreadLocalInterceptor());
     }
 
     @Override

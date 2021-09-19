@@ -13,21 +13,33 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.log;
+package com.alilitech.web;
 
-import org.springframework.web.servlet.HandlerInterceptor;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.3.9
  */
-public class ClearRequestIdInterceptor implements HandlerInterceptor {
+public class ThreadLocalContainer {
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        ThreadRequestIdConverter.requestIdThreadLocal.remove();
+    private Set<ThreadLocal<?>> threadLocalList = new HashSet<>();
+
+    public static ThreadLocalContainer threadLocalContainer = new ThreadLocalContainer();
+
+    private ThreadLocalContainer() {
+    }
+
+    public static ThreadLocalContainer getInstance() {
+        return threadLocalContainer;
+    }
+
+    public void addThreadLocal(ThreadLocal<?> threadLocal) {
+        threadLocalList.add(threadLocal);
+    }
+
+    public void removeAll() {
+        threadLocalList.forEach(ThreadLocal::remove);
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.alilitech.web.exception;
 
+import com.alilitech.web.ThreadLocalContainer;
 import com.alilitech.web.WebConfiguration;
 import com.alilitech.util.UnicodeUtils;
 import org.slf4j.Logger;
@@ -49,6 +50,9 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
         }
         // 添加可调试的级别，否则在线上无法看到具体的错误堆栈信息
         logger.error("resolve exception print.", ex);
+
+        // 错误返回前清空所有的threadLocal
+        ThreadLocalContainer.getInstance().removeAll();
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
