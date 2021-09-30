@@ -38,7 +38,7 @@ public class DefaultDynamicDataSource extends DynamicRoutingDataSource {
         return dataSourceKey;
     }
 
-    public void addDataSource(String lookupKey, String driverClassName, String url,
+    public void saveDataSource(String lookupKey, String driverClassName, String url,
                                  String username, String password) {
 
         DataSourceProperties dataSourceProperties = new DataSourceProperties();
@@ -52,8 +52,8 @@ public class DefaultDynamicDataSource extends DynamicRoutingDataSource {
         resolvedDataSources.put(lookupKey, dataSource);
     }
 
-    public void addDataSource(String lookupKey, String url, String username, String password) {
-        this.addDataSource(lookupKey, null, url, username, password);
+    public void saveDataSource(String lookupKey, String url, String username, String password) {
+        this.saveDataSource(lookupKey, null, url, username, password);
     }
 
     public void removeDataSource(String lookupKey) {

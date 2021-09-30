@@ -21,10 +21,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.beans.factory.support.*;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.bind.*;
 import org.springframework.boot.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
@@ -99,20 +96,18 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
             registry.registerBeanDefinition("defaultDataSource", abstractBeanDefinition);
 
             // Create a new dynamic data source and register it as a system data source
-            GenericBeanDefinition dynamicBeanDefinition = new GenericBeanDefinition();
-            dynamicBeanDefinition.setBeanClass(DefaultDynamicDataSource.class);
-            dynamicBeanDefinition.setSynthetic(true);
-            dynamicBeanDefinition.setPrimary(true);
+            BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DefaultDynamicDataSource.class);
+            beanDefinitionBuilder.addPropertyReference("defaultTargetDataSource", "defaultDataSource");
+            beanDefinitionBuilder.setPrimary(true);
 
             // initialized routing list
             Map<Object, Object> targetDataSources = new HashMap<>();
             // Initialize the configured dataSource list, under 'spring.datasource' and start with 'ds' is the dataSource
             addConfigDataSource(targetDataSources);
 
-            MutablePropertyValues mpv = dynamicBeanDefinition.getPropertyValues();
-            //mpv.addPropertyValue("defaultTargetDataSource", defaultDataSource);
-            mpv.addPropertyValue("targetDataSources", targetDataSources);
-            registry.registerBeanDefinition(DATASOURCE_BEAN_NAME, dynamicBeanDefinition);
+            beanDefinitionBuilder.addPropertyValue("targetDataSources", targetDataSources);
+
+            registry.registerBeanDefinition(DATASOURCE_BEAN_NAME, beanDefinitionBuilder.getBeanDefinition());
         }
 
     }

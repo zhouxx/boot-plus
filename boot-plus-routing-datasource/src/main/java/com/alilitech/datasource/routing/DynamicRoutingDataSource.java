@@ -21,7 +21,6 @@ import org.springframework.jdbc.datasource.lookup.DataSourceLookup;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,8 +50,8 @@ public abstract class DynamicRoutingDataSource extends AbstractDataSource implem
 
     /**
      * default datasource
+     * beanName is "defaultDataSource"
      */
-    @Resource(name = "defaultDataSource")
     private Object defaultTargetDataSource;
 
     private boolean lenientFallback = true;
@@ -62,7 +61,6 @@ public abstract class DynamicRoutingDataSource extends AbstractDataSource implem
     protected Map<Object, DataSource> resolvedDataSources;
 
     private DataSource resolvedDefaultDataSource;
-
 
     /**
      * Specify the map of target DataSources, with the lookup key as key.
