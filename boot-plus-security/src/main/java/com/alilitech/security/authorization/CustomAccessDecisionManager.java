@@ -18,6 +18,7 @@ package com.alilitech.security.authorization;
 import com.alilitech.security.SecurityBizMessageSource;
 import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -25,6 +26,8 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.Collection;
 
@@ -35,6 +38,16 @@ import java.util.Collection;
 public class CustomAccessDecisionManager implements AccessDecisionManager {
 
     protected MessageSourceAccessor messages = SecurityBizMessageSource.getAccessor();
+
+    private final LocaleResolver localeResolver;
+
+    public CustomAccessDecisionManager(@Nullable LocaleResolver localeResolver) {
+        if(localeResolver == null) {
+            this.localeResolver = new AcceptHeaderLocaleResolver();
+        } else {
+            this.localeResolver = localeResolver;
+        }
+    }
 
     @Override
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
@@ -47,7 +60,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
                 throw new AccessDeniedException(messages.getMessage(
                         "Authorization.NotAllowed",
                         new Object[]{requestURI},
-                        "Authorization is not allowed for {0}!"));
+                        "Authorization is not allowed for {0}!", localeResolver.resolveLocale(fi.getRequest())));
             }
             String needCode = attribute.getAttribute();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
@@ -60,7 +73,7 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         throw new AccessDeniedException(messages.getMessage(
                 "Authorization.NotAllowed",
                 new Object[] { requestURI },
-                "Authorization is not allowed for {0}!"));
+                "Authorization is not allowed for {0}!", localeResolver.resolveLocale(fi.getRequest())));
     }
 
     public boolean supports(ConfigAttribute attribute) {

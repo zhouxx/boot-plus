@@ -23,8 +23,10 @@ import com.alilitech.security.authorization.TokenAccessDeniedHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.web.servlet.LocaleResolver;
 
 /**
  * @author Zhou Xiaoxiang
@@ -58,13 +60,13 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public CustomAccessDecisionManager customAccessDecisionManager() {
-        return new CustomAccessDecisionManager();
+    public CustomAccessDecisionManager customAccessDecisionManager(@Nullable LocaleResolver localeResolver) {
+        return new CustomAccessDecisionManager(localeResolver);
     }
 
     @Bean
-    public CustomSecurityMetadataSource customSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties) {
-        return new CustomSecurityMetadataSource(extensibleSecurity, securityBizProperties);
+    public CustomSecurityMetadataSource customSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties, @Nullable LocaleResolver localeResolver) {
+        return new CustomSecurityMetadataSource(extensibleSecurity, securityBizProperties, localeResolver);
     }
 
 }

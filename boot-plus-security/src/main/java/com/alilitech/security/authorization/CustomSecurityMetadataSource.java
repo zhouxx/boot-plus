@@ -22,6 +22,7 @@ import com.alilitech.security.authentication.SecurityUser;
 import com.alilitech.security.domain.BizResource;
 import com.alilitech.security.domain.BizUser;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -31,6 +32,8 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -49,11 +52,18 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 
     private final SecurityBizProperties securityBizProperties;
 
+    private final LocaleResolver localeResolver;
+
     private final Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMap = new HashMap<>();
 
-    public CustomSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties) {
+    public CustomSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties,@Nullable LocaleResolver localeResolver) {
         this.extensibleSecurity = extensibleSecurity;
         this.securityBizProperties = securityBizProperties;
+        if(localeResolver == null) {
+            this.localeResolver = new AcceptHeaderLocaleResolver();
+        } else {
+            this.localeResolver = localeResolver;
+        }
     }
 
     @Override
@@ -105,7 +115,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
                 throw new AccessDeniedException(messages.getMessage(
                         "Authorization.Failure",
                         new Object[] {request.getRequestURI()},
-                        "Authorization failure, make sure you can get roles for resource of {0}!"));
+                        "Authorization failure, make sure you can get roles for resource of {0}!", localeResolver.resolveLocale(request)));
             } else {
                 roles = bizResource.getRoles();
                 requestMatcher = bizResource.getRequestMatcher();

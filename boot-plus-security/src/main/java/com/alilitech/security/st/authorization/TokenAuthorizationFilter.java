@@ -24,6 +24,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.LocaleResolver;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -44,9 +45,12 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
 
     private final ExtensibleSecurity extensibleSecurity;
 
-    public TokenAuthorizationFilter(SecurityTokenUtils securityTokenUtils, ExtensibleSecurity extensibleSecurity) {
+    private final LocaleResolver localeResolver;
+
+    public TokenAuthorizationFilter(SecurityTokenUtils securityTokenUtils, ExtensibleSecurity extensibleSecurity, LocaleResolver localeResolver) {
         this.extensibleSecurity = extensibleSecurity;
         this.securityTokenUtils = securityTokenUtils;
+        this.localeResolver = localeResolver;
     }
 
     @Override
@@ -59,7 +63,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
             throw new AccessDeniedException(messages.getMessage(
                     "Token.Empty",
                     new Object[] {request.getRequestURI()},
-                    "Token error, please check for {0}!"));
+                    "Token error, please check for {0}!", localeResolver.resolveLocale(request)));
         }
 
 
@@ -68,7 +72,7 @@ public class TokenAuthorizationFilter extends OncePerRequestFilter {
             throw new AccessDeniedException(messages.getMessage(
                     "Token.Invalid",
                     new Object[] {request.getRequestURI()},
-                    "Token error, please check for {0}!"));
+                    "Token error, please check for {0}!", localeResolver.resolveLocale(request)));
         }
 
         //covert token to authentication

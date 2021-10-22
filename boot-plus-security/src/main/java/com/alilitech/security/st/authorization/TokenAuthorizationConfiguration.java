@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 /**
  * @author Zhou Xiaoxiang
@@ -32,10 +34,16 @@ public class TokenAuthorizationConfiguration extends AuthorizationConfiguration 
     @Autowired
     private SecurityTokenUtils securityTokenUtils;
 
+    @Autowired(required = false)
+    private LocaleResolver localeResolver;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-        http.addFilterBefore(new TokenAuthorizationFilter(securityTokenUtils, extensibleSecurity), FilterSecurityInterceptor.class);
+        if(this.localeResolver == null) {
+            this.localeResolver = new AcceptHeaderLocaleResolver();
+        }
+        http.addFilterBefore(new TokenAuthorizationFilter(securityTokenUtils, extensibleSecurity, localeResolver), FilterSecurityInterceptor.class);
     }
 
 }
