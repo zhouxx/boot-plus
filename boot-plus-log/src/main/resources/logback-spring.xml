@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="com/alilitech/log/base.xml"/>
+
+    <springProperty name="enableThreadLocal" source="logging.enableThreadLocal" defaultValue="true"/>
+
+    <!-- if-then-else form -->
+    <if condition="${enableThreadLocal}">
+        <then>
+            <include resource="com/alilitech/log/base.xml"/>
+        </then>
+        <else>
+            <include resource="org/springframework/boot/logging/logback/base.xml"/>
+        </else>
+    </if>
+
 </configuration>
 

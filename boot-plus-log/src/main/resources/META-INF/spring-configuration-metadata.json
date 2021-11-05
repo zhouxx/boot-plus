@@ -5,6 +5,12 @@
       "type": "java.lang.Boolean",
       "sourceType": "com.alilitech.log.aop.LoggingAspect",
       "defaultValue": false
+    },
+    {
+      "name": "logging.enableThreadLocal",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.alilitech.log.aop.LoggingAspect",
+      "defaultValue": true
     }
   ]
 }
