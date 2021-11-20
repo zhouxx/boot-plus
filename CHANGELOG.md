@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [v1.3.9] 2021.11.20
+
+* log:  提供了基于线程的日志打印，支持同一个线程输出同一个ID，对于日志更好的定位
+* log: 提供了一个开关，支持关闭基于线程的日志打印
+* security:  基于LocaleResolver实现国际化的信息提示
+* web: 提供一个ThreadLocalContainer，在请求完成后自动清除线程副本
+* all: 优化代码更合规
+
 ## [v1.3.8] 2021.8.6
 
 * mybatis-jpa: 修复`delete like`失效的问题
