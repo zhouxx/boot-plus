@@ -48,6 +48,22 @@ public class PreMapperStatementBuilder4Insert extends PreMapperStatementBuilder 
 
     @Override
     protected String buildSQL() {
+        SQL sql = new SQL().INSERT_INTO(entityMetaData.getTableName());
+
+        for (ColumnMetaData columnMeta : entityMetaData.getColumnMetaDataMap().values()) {
+            //自增主键不在插入列
+            if(columnMeta.isPrimaryKey() && columnMeta.getIdGenerationType() == GenerationType.IDENTITY) {
+                continue;
+            }
+            if(columnMeta.isJoin()) {
+                continue;
+            }
+            sql.VALUES(columnMeta.getColumnName(), StatementAssistant.resolveSqlParameterBySysFunction(columnMeta, SqlCommandType.INSERT));
+        }
+
+        return sql.toString();
+
+        /**
         return new SQL() {
             {
                 INSERT_INTO(entityMetaData.getTableName());
@@ -63,6 +79,7 @@ public class PreMapperStatementBuilder4Insert extends PreMapperStatementBuilder 
                 }
             }
         }.toString();
+         */
     }
 
     protected Class<?> getParameterTypeClass() {

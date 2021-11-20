@@ -15,15 +15,12 @@
  */
 package com.alilitech.swagger;
 
-import com.alilitech.constants.Profiles;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Pageable;
 import springfox.documentation.builders.RequestParameterBuilder;
-import springfox.documentation.schema.TypeNameExtractor;
 import springfox.documentation.service.ParameterType;
 import springfox.documentation.service.RequestParameter;
 import springfox.documentation.service.ResolvedMethodParameter;
@@ -42,13 +39,9 @@ import java.util.List;
 @Order(Ordered.LOWEST_PRECEDENCE + 10)
 public class DataPageableParameterBuilder implements OperationBuilderPlugin {
 
-    private final TypeNameExtractor nameExtractor;
-    private final TypeResolver resolver;
     private final ResolvedType pageableType;
 
-    public DataPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
-        this.nameExtractor = nameExtractor;
-        this.resolver = resolver;
+    public DataPageableParameterBuilder(TypeResolver resolver) {
         this.pageableType = resolver.resolve(Pageable.class);
     }
 
@@ -61,55 +54,16 @@ public class DataPageableParameterBuilder implements OperationBuilderPlugin {
             ResolvedType resolvedType = methodParameter.getParameterType();
 
             if (pageableType.getTypeName().equals(resolvedType.getTypeName())) {
-//                ParameterContext parameterContext = new ParameterContext(methodParameter,
-//                        new ParameterBuilder(),
-//                        context.getDocumentationContext(),
-//                        context.getGenericsNamingStrategy(),
-//                        context);
-//                Function<ResolvedType, ? extends ModelReference> factory = createModelRefFactory(parameterContext);
-//
-//                ModelReference intModel = factory.apply(resolver.resolve(Integer.TYPE));
-//                ModelReference stringModel = factory.apply(resolver.resolve(List.class, String.class));
-
                 parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("page").description("Page number/第几页").build());
                 parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("size").description("Page size/每页数量").build());
                 parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("sort").description("Sorting criteria in the format: property(,asc or desc). "
                         + "Default sort order is ascending. "
                         + "Multiple sort criteria are supported.").build());
 
-
-//                parameters.add(new ParameterBuilder()
-//                        .parameterType("query").name("page").modelRef(intModel)
-//                        .description("Page number/第几页")
-//                        .build());
-//                parameters.add(new ParameterBuilder()
-//                        .parameterType("query").name("size").modelRef(intModel)
-//                        .description("Page size/每页数量")
-//                        .build());
-//                parameters.add(new ParameterBuilder()
-//                        .parameterType("query")
-//                        .name("sort")
-//                        .modelRef(stringModel)
-//                        .allowMultiple(true)
-//                        .description("Sorting criteria in the format: property(,asc or desc). "
-//                                + "Default sort order is ascending. "
-//                                + "Multiple sort criteria are supported.")
-//                        .build());
                 context.operationBuilder().requestParameters(parameters);
             }
         }
     }
-
-//    private Function<ResolvedType, ? extends ModelReference> createModelRefFactory(ParameterContext context) {
-//        ModelContext modelContext = inputParam(
-//                context.getGroupName(),
-//                context.resolvedMethodParameter().getParameterType(),
-//                context.getDocumentationType(),
-//                context.getAlternateTypeProvider(),
-//                context.getGenericNamingStrategy(),
-//                context.getIgnorableParameterTypes());
-//        return ResolvedTypes.modelRefFactory(modelContext, nameExtractor);
-//    }
 
     @Override
     public boolean supports(DocumentationType delimiter) {

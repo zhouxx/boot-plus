@@ -23,6 +23,7 @@ import com.alilitech.mybatis.jpa.domain.Direction;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +46,7 @@ public class CriteriaBuilder<T> {
         return new CompoundPredicateExpression<>(PredicateExpression.BooleanOperator.OR, predicates);
     }
 
+    @SuppressWarnings("java:S1221")
     public PredicateExpression<T> equal(String property, Object value) {
         return this.buildPredicate(property, new EqualExpression<>(), value);
     }
@@ -118,26 +120,28 @@ public class CriteriaBuilder<T> {
     }
 
     private PredicateExpression<T> buildPredicate(String property, OperatorExpression<T> operator, Object ...values) {
-        VariableExpression variable = new VariableExpression<>(domainClass, property);
+        VariableExpression<T> variable = new VariableExpression<>(domainClass, property);
         if(values != null && values.length > 0) {
-            List<ParameterExpression<T>> parameters = Arrays.stream(values).map(value -> new ParameterExpression<T>(value)).collect(Collectors.toList());
+            List<ParameterExpression<T>> parameters = Arrays.stream(values).map((Function<Object, ParameterExpression<T>>) ParameterExpression::new).collect(Collectors.toList());
             return new SinglePredicateExpression<>(variable, operator, parameters);
         } else {
             return new SinglePredicateExpression<>(variable, operator);
         }
     }
 
+    /**
     private PredicateExpression<T> buildPredicate(VariableExpression<T> variable, OperatorExpression<T> operator, ParameterExpression<T> ...parameters) {
         return new SinglePredicateExpression<>(variable, operator, parameters);
     }
+     */
 
     public OrderExpression<T> desc(String property) {
-        VariableExpression variable = new VariableExpression<>(domainClass, property);
+        VariableExpression<T> variable = new VariableExpression<>(domainClass, property);
         return new OrderExpression<>(variable, Direction.DESC);
     }
 
     public OrderExpression<T> asc(String property) {
-        VariableExpression variable = new VariableExpression<>(domainClass, property);
+        VariableExpression<T> variable = new VariableExpression<>(domainClass, property);
         return new OrderExpression<>(variable, Direction.ASC);
     }
 }

@@ -32,22 +32,22 @@ public class DefaultCacheTemplate extends AbstractCacheTemplate {
 
     @Override
     public void setTTLConfig(String cacheName, long timeout, TimeUnit unit) {
-
+        // default cache do have ttl or tti property
     }
 
     @Override
     public void setTTIConfig(String cacheName, long timeout, TimeUnit unit) {
-
+        // default cache do have ttl or tti property
     }
 
     @Override
     public void clearTTLConfig(String cacheName) {
-
+        // default cache do have ttl or tti property
     }
 
     @Override
     public void clearTTIConfig(String cacheName) {
-
+        // default cache do have ttl or tti property
     }
 
     @Override

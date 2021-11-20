@@ -39,9 +39,6 @@ public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor
 
     private Environment environment;
 
-    public MybatisMapperScanner() {
-    }
-
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
@@ -66,7 +63,7 @@ public class MybatisMapperScanner implements BeanDefinitionRegistryPostProcessor
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
+        // do nothing
     }
 
     @Override

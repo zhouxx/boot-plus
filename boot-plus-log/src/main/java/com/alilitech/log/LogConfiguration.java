@@ -33,8 +33,10 @@ public class LogConfiguration implements WebMvcConfigurer {
         registry.addResourceHandler("log.html")
                 .addResourceLocations("classpath:/");
 
-//        registry.addResourceHandler("/webjars/**")
-//                .addResourceLocations("classpath:/resources/webjars/");
+/**
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/resources/webjars/");
+*/
     }
 
     @Bean

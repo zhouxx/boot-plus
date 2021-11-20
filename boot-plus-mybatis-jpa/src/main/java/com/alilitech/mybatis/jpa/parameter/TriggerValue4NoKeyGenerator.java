@@ -56,8 +56,4 @@ public class TriggerValue4NoKeyGenerator extends NoKeyGenerator {
         }
     }
 
-    @Override
-    public void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
-        super.processAfter(executor, ms, stmt, parameter);
-    }
 }

@@ -69,7 +69,7 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
         String operation = "SELECT";
         String selectPart = entityMetaData.getColumnNames();
 
-        if(partTree.isCountProjection()) {
+        if(partTree.isCountProjection() || partTree.isExistsProjection()) {
             selectPart = "COUNT(*)";
             resultType = methodDefinition.getReturnType();
         } else if(partTree.isDelete()) {
@@ -77,9 +77,6 @@ public class PreMapperStatementBuilder4Find extends PreMapperStatementBuilder {
             selectPart = "";
             resultType = methodDefinition.getReturnType();
             delete = true;
-        } else if(partTree.isExistsProjection()) {
-            selectPart = "COUNT(*)";
-            resultType = methodDefinition.getReturnType();
         }
         //剩下的就是常规查询了
         else {

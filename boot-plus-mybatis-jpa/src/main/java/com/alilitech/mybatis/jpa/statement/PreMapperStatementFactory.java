@@ -54,21 +54,21 @@ public class PreMapperStatementFactory {
                     preMapperStatementFactory = new PreMapperStatementFactory();
 
                     //注册相关类型的builder
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.other, PreMapperStatementBuilder4Find.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findSpecification, PreMapperStatementBuilder4FindSpecification.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findById, PreMapperStatementBuilder4FindById.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findAll, PreMapperStatementBuilder4FindAll.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findAllById, PreMapperStatementBuilder4findAllById.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.findJoin, PreMapperStatementBuilder4FindJoin.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.insert, PreMapperStatementBuilder4Insert.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.insertSelective, PreMapperStatementBuilder4InsertSelective.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.update, PreMapperStatementBuilder4Update.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.updateSelective, PreMapperStatementBuilder4UpdateSelective.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.deleteById, PreMapperStatementBuilder4DeleteById.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.insertBatch, PreMapperStatementBuilder4InsertBatch.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.updateBatch, PreMapperStatementBuilder4UpdateBatch.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.deleteBatch, PreMapperStatementBuilder4DeleteBatch.class);
-                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.existsById, PreMapperStatementBuilder4ExistsById.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.OTHER, PreMapperStatementBuilder4Find.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.FIND_SPECIFICATION, PreMapperStatementBuilder4FindSpecification.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.FIND_BY_ID, PreMapperStatementBuilder4FindById.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.FIND_ALL, PreMapperStatementBuilder4FindAll.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.FIND_ALL_BY_ID, PreMapperStatementBuilder4findAllById.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.FIND_JOIN, PreMapperStatementBuilder4FindJoin.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.INSERT, PreMapperStatementBuilder4Insert.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.INSERT_SELECTIVE, PreMapperStatementBuilder4InsertSelective.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.UPDATE, PreMapperStatementBuilder4Update.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.UPDATE_SELECTIVE, PreMapperStatementBuilder4UpdateSelective.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.DELETE_BY_ID, PreMapperStatementBuilder4DeleteById.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.INSERT_BATCH, PreMapperStatementBuilder4InsertBatch.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.UPDATE_BATCH, PreMapperStatementBuilder4UpdateBatch.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.DELETE_BATCH, PreMapperStatementBuilder4DeleteBatch.class);
+                    preMapperStatementFactory.registerPreMapperStatementBuilder(MethodType.EXISTS_BY_ID, PreMapperStatementBuilder4ExistsById.class);
                 }
             }
         }

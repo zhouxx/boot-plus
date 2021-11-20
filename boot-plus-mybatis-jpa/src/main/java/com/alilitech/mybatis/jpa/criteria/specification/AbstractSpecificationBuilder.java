@@ -30,7 +30,7 @@ public abstract class AbstractSpecificationBuilder<T> implements SpecificationBu
 
     protected SpecificationBuilder<T> specificationBuilder;
 
-    public AbstractSpecificationBuilder(SpecificationBuilder<T> specificationBuilder) {
+    protected AbstractSpecificationBuilder(SpecificationBuilder<T> specificationBuilder) {
         this.specificationBuilder = specificationBuilder;
     }
 

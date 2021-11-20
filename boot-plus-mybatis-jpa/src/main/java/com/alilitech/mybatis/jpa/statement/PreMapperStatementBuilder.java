@@ -68,7 +68,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
     //设置返回值，自定义查询的时候部分需要确定返回值
     protected Class<?> resultType;
 
-    public PreMapperStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, MethodType methodType) {
+    protected PreMapperStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, MethodType methodType) {
         super(configuration);
         this.methodType = methodType;
         this.builderAssistant = builderAssistant;
@@ -142,7 +142,7 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         if(ParameterType.ID == methodType.getParameterType()) {
             String paramExpression = entityMetaData.getPrimaryColumnMetaData().getProperty();
             paramExpression = Character.toUpperCase(paramExpression.charAt(0)) + paramExpression.substring(1);
-            expression = expression.replaceAll("ById", "By" + paramExpression);
+            expression = expression.replace("ById", "By" + paramExpression);
         }
 
         return new PartTree(expression, entityMetaData.getEntityType(), methodDefinition);

@@ -31,8 +31,8 @@ import java.util.List;
 @NoMapperBean
 public interface PageMapper<T, ID> extends CrudMapper<T, ID> {
 
-    List<T> findAllPage(Pageable pageable);
+    List<T> findAllPage(Pageable<T> pageable);
 
-    List<T> findAllPageSort(Pageable pageable, Sort sort);
+    List<T> findAllPageSort(Pageable<T> pageable, Sort sort);
 
 }

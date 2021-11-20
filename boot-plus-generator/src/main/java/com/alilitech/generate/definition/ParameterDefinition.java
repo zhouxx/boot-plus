@@ -44,7 +44,7 @@ public class ParameterDefinition {
         return this;
     }
 
-    public ParameterDefinition setTypeClass(Class typeClass) {
+    public ParameterDefinition setTypeClass(Class<?> typeClass) {
         this.type = typeClass.getSimpleName();
         this.addImport(typeClass);
         return this;
@@ -58,7 +58,7 @@ public class ParameterDefinition {
         return this;
     }
 
-    public ParameterDefinition addImport(Class importClass) {
+    public ParameterDefinition addImport(Class<?> importClass) {
         if(importClass.getTypeName().startsWith("java.lang")) {
             return this;
         }

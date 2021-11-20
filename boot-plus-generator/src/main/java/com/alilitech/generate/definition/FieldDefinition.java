@@ -47,7 +47,7 @@ public class FieldDefinition {
         this.name = name;
     }
 
-    public FieldDefinition(Class type, String name) {
+    public FieldDefinition(Class<?> type, String name) {
         this(type.getSimpleName(), name);
         this.addImport(type);
     }
@@ -75,7 +75,7 @@ public class FieldDefinition {
         return type;
     }
 
-    public FieldDefinition setTypeClass(Class typeClass) {
+    public FieldDefinition setTypeClass(Class<?> typeClass) {
         this.type = typeClass.getSimpleName();
         this.addImport(typeClass);
         return this;
@@ -119,7 +119,7 @@ public class FieldDefinition {
         return this;
     }
 
-    public FieldDefinition addImport(Class importClass) {
+    public FieldDefinition addImport(Class<?> importClass) {
         if(importClass.getTypeName().startsWith("java.lang")) {
             return this;
         }

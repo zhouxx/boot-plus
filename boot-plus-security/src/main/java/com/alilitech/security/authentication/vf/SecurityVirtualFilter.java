@@ -68,11 +68,11 @@ public class SecurityVirtualFilter extends AbstractAuthenticationProcessingFilte
 
         try {
             authResult = attemptAuthentication(request, response);
-            // if (authResult == null) {
-                // return immediately as subclass has indicated that it hasn't completed
-                // authentication
-            // return;
-            // }
+             /** if (authResult == null) {
+                 return immediately as subclass has indicated that it hasn't completed
+                 authentication
+             return;
+             }*/
             sessionStrategy.onAuthentication(authResult, request, response);
         }
         catch (InternalAuthenticationServiceException failed) {

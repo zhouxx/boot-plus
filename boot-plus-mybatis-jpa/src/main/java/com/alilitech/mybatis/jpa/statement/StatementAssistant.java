@@ -39,66 +39,66 @@ public class StatementAssistant {
 	 */
 	public static MethodType resolveMethodType(MethodDefinition definition) {
 		String methodName = definition.getMethodName();
-		if (methodName.equals(MethodType.insertBatch.getType())) {
-			return MethodType.insertBatch;
+		if (methodName.equals(MethodType.INSERT_BATCH.getType())) {
+			return MethodType.INSERT_BATCH;
 		}
 
-		if (methodName.equals(MethodType.insertSelective.getType())) {
-			return MethodType.insertSelective;
+		if (methodName.equals(MethodType.INSERT_SELECTIVE.getType())) {
+			return MethodType.INSERT_SELECTIVE;
 		}
 
-		if (methodName.equals(MethodType.insert.getType())) {
-			return MethodType.insert;
+		if (methodName.equals(MethodType.INSERT.getType())) {
+			return MethodType.INSERT;
 		}
 
-		if (methodName.equals(MethodType.updateBatch.getType())) {
-			return MethodType.updateBatch;
+		if (methodName.equals(MethodType.UPDATE_BATCH.getType())) {
+			return MethodType.UPDATE_BATCH;
 		}
 
-		if (methodName.equals(MethodType.updateSelective.getType())) {
-			return MethodType.updateSelective;
+		if (methodName.equals(MethodType.UPDATE_SELECTIVE.getType())) {
+			return MethodType.UPDATE_SELECTIVE;
 		}
 
-		if (methodName.equals(MethodType.update.getType())) {
-			return MethodType.update;
+		if (methodName.equals(MethodType.UPDATE.getType())) {
+			return MethodType.UPDATE;
 		}
 
 		// findAllPage, findAllPageSort, findAll
-		if (methodName.startsWith(MethodType.findAllPage.getType())
-				|| methodName.equals(MethodType.findAll.getType())) {
-			return MethodType.findAll;
+		if (methodName.startsWith(MethodType.FIND_ALL_PAGE.getType())
+				|| methodName.equals(MethodType.FIND_ALL.getType())) {
+			return MethodType.FIND_ALL;
 		}
 
-		if (methodName.equals(MethodType.findAllById.getType())) {
-			return MethodType.findAllById;
+		if (methodName.equals(MethodType.FIND_ALL_BY_ID.getType())) {
+			return MethodType.FIND_ALL_BY_ID;
 		}
 
-		if (methodName.equals(MethodType.deleteBatch.getType())) {
-			return MethodType.deleteBatch;
+		if (methodName.equals(MethodType.DELETE_BATCH.getType())) {
+			return MethodType.DELETE_BATCH;
 		}
 
-		if (methodName.equals(MethodType.deleteById.getType())) {
-			return MethodType.deleteById;
+		if (methodName.equals(MethodType.DELETE_BY_ID.getType())) {
+			return MethodType.DELETE_BY_ID;
 		}
 
-		if (methodName.equals(MethodType.findById.getType())) {
-			return MethodType.findById;
+		if (methodName.equals(MethodType.FIND_BY_ID.getType())) {
+			return MethodType.FIND_BY_ID;
 		}
 
-		if (methodName.startsWith(MethodType.findJoin.getType())) {
-			return MethodType.findJoin;
+		if (methodName.startsWith(MethodType.FIND_JOIN.getType())) {
+			return MethodType.FIND_JOIN;
 		}
 
-		if (methodName.equals(MethodType.existsById.getType())) {
-			return MethodType.existsById;
+		if (methodName.equals(MethodType.EXISTS_BY_ID.getType())) {
+			return MethodType.EXISTS_BY_ID;
 		}
 
 		if (definition.isSpecification()) {
-			return MethodType.findSpecification;
+			return MethodType.FIND_SPECIFICATION;
 		}
 
 		// 其它
-		return MethodType.other;
+		return MethodType.OTHER;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class StatementAssistant {
 	public static String resolveSqlParameterBySysFunction(ColumnMetaData columnMeta, SqlCommandType sqlCommandType, String alias) {
 		if(columnMeta.getTriggers() != null) {
 			for(Trigger trigger : columnMeta.getTriggers()) {
-				if(trigger.triggerType() == sqlCommandType && trigger.valueType() == TriggerValueType.DatabaseFunction) {
+				if(trigger.triggerType() == sqlCommandType && trigger.valueType() == TriggerValueType.DATABASE_FUNCTION) {
 					return trigger.value();
 				}
 			}

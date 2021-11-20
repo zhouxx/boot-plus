@@ -44,13 +44,6 @@ public class PreMapperStatementBuilder4findAllById extends PreMapperStatementBui
 
         setNoKeyGenerator(preMapperStatement);
 
-        /*if(methodDefinition.isCompositeResultMap()) {
-            String resultMapId = buildResultMap();
-            preMapperStatement.setCompositeResultMap(resultMapId);
-        } else {
-            preMapperStatement.setResultType((Class)genericType.getDomainType());
-        }*/
-
         setFindResultIdOrType(preMapperStatement, genericType);
     }
 

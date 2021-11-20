@@ -13,30 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.validate;
+package com.alilitech.web.valid;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class ValidateException extends RuntimeException {
+public class ValidException extends RuntimeException {
 
-    public ValidateException() {
+    public ValidException() {
     }
 
-    public ValidateException(String message) {
+    public ValidException(String message) {
         super(message);
     }
 
-    public ValidateException(String message, Throwable cause) {
+    public ValidException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ValidateException(Throwable cause) {
+    public ValidException(Throwable cause) {
         super(cause);
     }
 
-    public ValidateException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public ValidException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

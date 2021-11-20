@@ -62,11 +62,11 @@ public class CompositeSerializerModifier extends BeanSerializerModifier {
             AnnotationMap annotationMap = writer.getMember().getAllAnnotations();
             List<Annotation> annotations = parseAnnotations(annotationMap);
 
-            if(annotations.size() == 0) {
+            if(annotations.isEmpty()) {
                 continue;
             }
 
-            List<SerializerConverter<?>> serializerConverters = new ArrayList<>();
+            List<SerializerConverter> serializerConverters = new ArrayList<>();
 
             JsonFormatter jsonFormatter = null;
             // 默认的fieldName
@@ -77,11 +77,11 @@ public class CompositeSerializerModifier extends BeanSerializerModifier {
             for(Annotation annotation : annotations) {
 
                 if(annotation instanceof SerializerConvert) {
-                    Class<? extends SerializerConverter<?>>[] convertClasses = ((SerializerConvert) annotation).convertClasses();
+                    Class<? extends SerializerConverter>[] convertClasses = ((SerializerConvert) annotation).convertClasses();
 
-                    for(Class<? extends SerializerConverter<?>> serializerClass : convertClasses) {
+                    for(Class<? extends SerializerConverter> serializerClass : convertClasses) {
                         try {
-                            SerializerConverter<?> serializerConverter = serializerClass.newInstance();
+                            SerializerConverter serializerConverter = serializerClass.newInstance();
                             serializerConverters.add(serializerConverter);
                         } catch (InstantiationException | IllegalAccessException e) {
                             logger.error(e.getMessage());

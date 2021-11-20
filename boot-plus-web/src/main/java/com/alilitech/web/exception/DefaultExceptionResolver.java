@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ExceptionHandler exceptionHandler;
 

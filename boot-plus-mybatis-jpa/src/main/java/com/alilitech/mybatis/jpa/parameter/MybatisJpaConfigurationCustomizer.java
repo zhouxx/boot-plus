@@ -17,7 +17,6 @@ package com.alilitech.mybatis.jpa.parameter;
 
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
-import org.springframework.stereotype.Component;
 
 
 /**

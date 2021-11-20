@@ -26,7 +26,7 @@ public class ThreadLocalContainer {
 
     private Set<ThreadLocal<?>> threadLocalList = new HashSet<>();
 
-    public static ThreadLocalContainer threadLocalContainer = new ThreadLocalContainer();
+    public static final ThreadLocalContainer threadLocalContainer = new ThreadLocalContainer();
 
     private ThreadLocalContainer() {
     }

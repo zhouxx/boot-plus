@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class CompositeJsonSerializer extends JsonSerializer<Object> {
 
-    private List<SerializerConverter<?>> serializerConverters = new ArrayList<>();
+    private List<SerializerConverter> serializerConverters = new ArrayList<>();
 
     private JsonFormatter jsonFormatter;
 
@@ -39,12 +39,12 @@ public class CompositeJsonSerializer extends JsonSerializer<Object> {
         this.jsonFormatter = jsonFormatter;
     }
 
-    public CompositeJsonSerializer addConverter(SerializerConverter<?> serializerConverter) {
+    public CompositeJsonSerializer addConverter(SerializerConverter serializerConverter) {
         serializerConverters.add(serializerConverter);
         return this;
     }
 
-    public CompositeJsonSerializer addAllConvert(Collection<SerializerConverter<?>> serializerConverters) {
+    public CompositeJsonSerializer addAllConvert(Collection<SerializerConverter> serializerConverters) {
         this.serializerConverters.addAll(serializerConverters);
         return this;
     }
@@ -55,7 +55,7 @@ public class CompositeJsonSerializer extends JsonSerializer<Object> {
 
         Object currentValue = gen.getCurrentValue();
 
-        if(serializerConverters.size() > 0) {
+        if(!serializerConverters.isEmpty()) {
             for(SerializerConverter serializerConverter : serializerConverters) {
                 tmpValue = serializerConverter.doConvert(tmpValue, currentValue);
             }
@@ -64,7 +64,7 @@ public class CompositeJsonSerializer extends JsonSerializer<Object> {
         if(jsonFormatter == null) {
             gen.writeObject(tmpValue);
         } else {
-            jsonFormatter.serialize(value, tmpValue, gen, serializers);
+            jsonFormatter.serialize(value, tmpValue, gen);
         }
     }
 }

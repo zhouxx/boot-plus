@@ -38,13 +38,15 @@ public abstract class AbstractCacheTemplate implements CacheTemplate<Object, Obj
 
     @Override
     public Object read(String cacheName, Object key) {
-        Cache.ValueWrapper valueWrapper = cacheManager.getCache(cacheName).get(key);
+        Cache cache = cacheManager.getCache(cacheName);
+        Cache.ValueWrapper valueWrapper = cache != null ? cache.get(key) : null;
         return valueWrapper != null ? valueWrapper.get() : null;
     }
 
     @Override
     public Object read(String cacheName, Object key, Class<?> clazz) {
-        return cacheManager.getCache(cacheName).get(key, clazz);
+        Cache cache = cacheManager.getCache(cacheName);
+        return cache != null ? cache.get(key, clazz) : null;
     }
 
     @Override
@@ -54,7 +56,10 @@ public abstract class AbstractCacheTemplate implements CacheTemplate<Object, Obj
 
     @Override
     public void write(String cacheName, Object key, Object value) {
-        cacheManager.getCache(cacheName).put(key, value);
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.put(key, value);
+        }
     }
 
     @Override
@@ -64,6 +69,9 @@ public abstract class AbstractCacheTemplate implements CacheTemplate<Object, Obj
 
     @Override
     public void invalid(String cacheName, Object key) {
-        cacheManager.getCache(cacheName).evict(key);
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.evict(key);
+        }
     }
 }

@@ -58,8 +58,4 @@ public class TriggerValue4Jdbc3KeyGenerator extends Jdbc3KeyGenerator {
         }
     }
 
-    @Override
-    public void processAfter(Executor executor, MappedStatement ms, Statement stmt, Object parameter) {
-        super.processAfter(executor, ms, stmt, parameter);
-    }
 }

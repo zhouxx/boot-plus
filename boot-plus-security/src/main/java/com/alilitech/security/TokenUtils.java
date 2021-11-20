@@ -15,17 +15,22 @@
  */
 package com.alilitech.security;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
 public abstract class TokenUtils {
 
+    protected final Log logger = LogFactory.getLog(getClass());
+
     protected SecurityBizProperties securityBizProperties;
 
-    protected Class bizClass;
+    protected Class<?> bizClass;
 
-    public TokenUtils(SecurityBizProperties securityBizProperties) {
+    protected TokenUtils(SecurityBizProperties securityBizProperties) {
         this.securityBizProperties = securityBizProperties;
         try {
             this.bizClass = Class.forName(securityBizProperties.getBizUserClassName());

@@ -66,6 +66,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         }
     }
 
+    @SuppressWarnings("java:S1168")
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         FilterInvocation fi = (FilterInvocation) object;
@@ -79,6 +80,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         return null;
     }
 
+    @SuppressWarnings("java:S1168")
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         return null;
@@ -150,9 +152,9 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
     }
 
     private boolean isMatchRequest(HttpServletRequest request) {
-        Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMap = getRequestMatchersPermitAllMap();
+        Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMapTmp = getRequestMatchersPermitAllMap();
         AtomicBoolean isMatch = new AtomicBoolean(false);
-        requestMatchersPermitAllMap.forEach((requestMatcher, configAttributes) -> {
+        requestMatchersPermitAllMapTmp.forEach((requestMatcher, configAttributes) -> {
             if(requestMatcher.matches(request)) {
                 isMatch.set(true);
             }

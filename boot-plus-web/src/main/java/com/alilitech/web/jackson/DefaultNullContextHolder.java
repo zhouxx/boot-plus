@@ -20,6 +20,9 @@ package com.alilitech.web.jackson;
  */
 public class DefaultNullContextHolder {
 
+    private DefaultNullContextHolder() {
+    }
+
     private static final ThreadLocal<Boolean> contextHolder = new ThreadLocal<>();
 
     public static void set(Boolean defaultNull) {
@@ -28,6 +31,10 @@ public class DefaultNullContextHolder {
 
     public static Boolean get() {
         return contextHolder.get();
+    }
+
+    public static void remove() {
+        contextHolder.remove();
     }
 
 }

@@ -26,6 +26,9 @@ import java.lang.reflect.Field;
  */
 public class ColumnUtils {
 
+    private ColumnUtils() {
+    }
+
     /**
      * 获取列名
      * 注解优先，{@link Column} name属性值。

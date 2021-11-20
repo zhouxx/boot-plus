@@ -178,7 +178,7 @@ public class PrePaginationInterceptor implements Interceptor {
         // use Executor to doQuery
         List<Object> retList = executor.query(countMs, originalBoundSql.getParameterObject(), RowBounds.DEFAULT, null);
 
-        if(retList.size() > 0) {
+        if(!retList.isEmpty()) {
             return (Long) retList.get(0);
         } else {
             // count search must do not effect page query

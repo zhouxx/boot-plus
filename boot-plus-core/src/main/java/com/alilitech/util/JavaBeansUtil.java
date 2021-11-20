@@ -21,6 +21,9 @@ package com.alilitech.util;
  */
 public class JavaBeansUtil {
 
+    private JavaBeansUtil() {
+    }
+
     /**
      * 根据属性名称和java类型，获取对应的getter方法名
      */
@@ -46,10 +49,9 @@ public class JavaBeansUtil {
     private static StringBuilder covertMethodPost(String property) {
         StringBuilder sb = new StringBuilder();
         sb.append(property);
-        if (Character.isLowerCase(sb.charAt(0))) {
-            if (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1))) {
-                sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
-            }
+        if (Character.isLowerCase(sb.charAt(0))
+                && (sb.length() == 1 || !Character.isUpperCase(sb.charAt(1)))) {
+            sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
         }
         return sb;
     }

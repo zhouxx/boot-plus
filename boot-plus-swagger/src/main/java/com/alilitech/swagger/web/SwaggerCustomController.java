@@ -80,16 +80,8 @@ public class SwaggerCustomController {
         //=====================引用swagger部分
         String groupName = Optional.ofNullable(swaggerGroup).orElse(Docket.DEFAULT_GROUP_NAME);
         Documentation documentation = documentationCache.documentationByGroup(groupName);
-        //if (documentation == null) {
-            //return new ResponseEntity<Json>(HttpStatus.NOT_FOUND);
-        //}
+
         Swagger swagger = mapper.mapDocumentation(documentation);
-
-        //Map<String, Path> paths = swagger.getPaths();
-
-        /*paths.forEach((s, path) -> {
-            //path.getDocParameters()
-        });*/
 
         Json json = jsonSerializer.toJson(swagger);
 
@@ -239,7 +231,7 @@ public class SwaggerCustomController {
 
         configuration.setClassForTemplateLoading(this.getClass(), "/");
         // step2 获取模版路径
-        //configuration.setDirectoryForTemplateLoading(new File(path));
+        /** configuration.setDirectoryForTemplateLoading(new File(path)); */
         // step4 加载模版文件
         Template template = configuration.getTemplate("doc.ftl");
 

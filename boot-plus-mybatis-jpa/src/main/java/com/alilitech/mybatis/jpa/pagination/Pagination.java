@@ -51,7 +51,7 @@ public abstract class Pagination<T> extends Pageable<T> {
     /**
      * which database type to use for pagination query
      */
-    protected DatabaseType databaseType;
+    protected transient DatabaseType databaseType;
 
     public long getTotal() {
         return total;

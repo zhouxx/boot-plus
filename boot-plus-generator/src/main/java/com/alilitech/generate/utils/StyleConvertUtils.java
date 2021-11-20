@@ -21,6 +21,10 @@ package com.alilitech.generate.utils;
  */
 public class StyleConvertUtils {
 
+    private StyleConvertUtils() {
+        throw new IllegalStateException("StyleConvertUtils class");
+    }
+
     /**
      * 将下划线格式转换成大驼峰
      */

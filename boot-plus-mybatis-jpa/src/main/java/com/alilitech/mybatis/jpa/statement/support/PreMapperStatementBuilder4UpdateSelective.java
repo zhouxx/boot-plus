@@ -65,7 +65,7 @@ public class PreMapperStatementBuilder4UpdateSelective extends PreMapperStatemen
 
             if(columnMetaData.getTriggers() != null) {
                 for(Trigger trigger : columnMetaData.getTriggers()) {
-                    if(trigger.triggerType() == SqlCommandType.UPDATE && trigger.valueType() == TriggerValueType.DatabaseFunction) {
+                    if(trigger.triggerType() == SqlCommandType.UPDATE && trigger.valueType() == TriggerValueType.DATABASE_FUNCTION) {
                         dataBaseFunction = trigger.value();
                     }
                 }

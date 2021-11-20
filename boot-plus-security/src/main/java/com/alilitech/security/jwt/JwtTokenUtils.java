@@ -72,7 +72,7 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
     public String generateToken(Authentication authentication) {
         String authorities = authentication.getAuthorities()
                 .stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         Date now = Date.from(Instant.now());
@@ -88,7 +88,7 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
         }
 
         //create jwt
-        String jwt = JWT.create()
+        return JWT.create()
                 .withClaim(AUTHORITIES_NAME, authorities)
                 .withClaim(BIZ_USER_NAME, userString)
                 .withSubject(authentication.getName())
@@ -96,7 +96,6 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
                 .withIssuedAt(now)
                 .withExpiresAt(expiration)
                 .sign(algorithm);
-        return jwt;
     }
 
     /**
@@ -122,13 +121,10 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
 
         Map<String, Claim> claims = decodedJWT.getClaims();
         if(!CollectionUtils.isEmpty(claims)) {
-            claims.forEach((name, value) -> {
-                builder.withClaim(name, value.asString());
-            });
+            claims.forEach((name, value) -> builder.withClaim(name, value.asString()));
         }
 
-        String jwt =  builder.sign(algorithm);
-        return jwt;
+        return builder.sign(algorithm);
     }
 
     /**
@@ -179,7 +175,7 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
         if (!StringUtils.isEmpty(authorityString)) {
             authorities = Arrays.asList(authorityString.split(","))
                     .stream()
-                    .map(authority -> new SimpleGrantedAuthority(authority)).collect(Collectors.toList());
+                    .map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         }
 
         SecurityUser user = new SecurityUser(decodedJWT.getSubject(), "", authorities);

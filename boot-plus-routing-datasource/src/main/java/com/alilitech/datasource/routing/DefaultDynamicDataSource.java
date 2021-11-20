@@ -29,12 +29,12 @@ import javax.sql.DataSource;
  */
 public class DefaultDynamicDataSource extends DynamicRoutingDataSource {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     protected Object determineCurrentLookupKey() {
         String dataSourceKey = DataSourceContextHolder.getDataSource() == null ? DEFAULT_DATASOURCE_KEY : DataSourceContextHolder.getDataSource();
-        logger.trace("Current DataSource is [{}]", dataSourceKey);
+        log.trace("Current DataSource is [{}]", dataSourceKey);
         return dataSourceKey;
     }
 

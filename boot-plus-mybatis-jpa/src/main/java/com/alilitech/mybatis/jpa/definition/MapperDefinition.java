@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class MapperDefinition {
 
-    private Class mapper;
+    private Class<?> mapper;
 
     private String resource;
 
@@ -57,11 +57,11 @@ public class MapperDefinition {
         }
     }
 
-    public Class getMapper() {
+    public Class<?> getMapper() {
         return mapper;
     }
 
-    public void setMapper(Class mapper) {
+    public void setMapper(Class<?> mapper) {
         this.mapper = mapper;
     }
 
@@ -105,20 +105,21 @@ public class MapperDefinition {
         this.methodDefinitions = methodDefinitions;
     }
 
+    @SuppressWarnings("rawtypes")
     private GenericType genericType(Class<?> mapper) {
         Map<TypeVariable, Type> map = GenericTypeResolver.getTypeVariableMap(mapper);
 
-        GenericType genericType = new GenericType(mapper);
+        GenericType genericTypeTemp = new GenericType(mapper);
 
         map.forEach((typeVariable, type) -> {
             if(typeVariable.getName().equals("T")) {
-                genericType.setDomainType(type);
+                genericTypeTemp.setDomainType(type);
             }
             if(typeVariable.getName().equals("ID")) {
-                genericType.setIdType(type);
+                genericTypeTemp.setIdType(type);
             }
         });
 
-        return genericType;
+        return genericTypeTemp;
     }
 }

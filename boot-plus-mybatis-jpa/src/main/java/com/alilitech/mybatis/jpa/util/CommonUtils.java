@@ -23,6 +23,9 @@ package com.alilitech.mybatis.jpa.util;
  */
 public class CommonUtils {
 
+    private CommonUtils() {
+    }
+
     /**
      * 将驼峰标识转换为下划线
      */
@@ -51,11 +54,12 @@ public class CommonUtils {
         int length = text.length();
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            char c = text.charAt(i);
+            if(i == 0 || text.charAt(i) == '_') {
+                continue;
+            }
+            char c = text.charAt(i-1);
             if (c == '_') {
-                if (++i < length) {
-                    result.append(Character.toUpperCase(text.charAt(i)));
-                }
+                result.append(Character.toUpperCase(text.charAt(i)));
             } else {
                 result.append(c);
             }

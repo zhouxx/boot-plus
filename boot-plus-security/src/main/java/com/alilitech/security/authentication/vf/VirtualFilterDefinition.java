@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class VirtualFilterDefinition {
 
-    private static volatile AtomicInteger autoIndex = new AtomicInteger(0);
+    private static AtomicInteger autoIndex = new AtomicInteger(0);
 
     private String alias;
 
@@ -83,10 +83,7 @@ public class VirtualFilterDefinition {
         securityUser.setBizUser(bizUser);
 
         // 构建AuthenticationToken
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-                securityUser, null, grantedAuthorities);
-
-        return authentication;
+        return new TestingAuthenticationToken(securityUser, null, grantedAuthorities);
     }
 
     public static Authentication buildSimpleAuthentication(BizUser bizUser) {
@@ -97,10 +94,7 @@ public class VirtualFilterDefinition {
         securityUser.setBizUser(bizUser);
 
         // 构建AuthenticationToken
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-                securityUser, null, authorities);
-
-        return authentication;
+        return new TestingAuthenticationToken(securityUser, null, authorities);
     }
 
     public String getAlias() {

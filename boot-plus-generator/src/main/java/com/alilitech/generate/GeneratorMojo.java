@@ -53,14 +53,14 @@ public class GeneratorMojo extends AbstractMojo {
 
         //获得src路径
         MavenProject mavenProject = (MavenProject) getPluginContext().get("project");
-        List compileSourceRoots = mavenProject.getCompileSourceRoots();
-        if(compileSourceRoots == null || compileSourceRoots.size() == 0) {
+        List<?> compileSourceRoots = mavenProject.getCompileSourceRoots();
+        if(compileSourceRoots == null || compileSourceRoots.isEmpty()) {
             throw new MojoExecutionException("Plugin was not found Java Source path.");
         }
         String srcPath = compileSourceRoots.get(0).toString();
         //获得resource路径
-        List resources = mavenProject.getResources();
-        if(resources == null || resources.size() == 0) {
+        List<?> resources = mavenProject.getResources();
+        if(resources == null || resources.isEmpty()) {
             throw new MojoExecutionException("Plugin was not found Java Resource path.");
         }
         AtomicReference<String> resourcePath = new AtomicReference<>();
@@ -71,10 +71,8 @@ public class GeneratorMojo extends AbstractMojo {
                 return;
             }
         });
-        //String resourcePath = ((org.apache.maven.model.Resource)resources.get(0)).getDirectory();
 
         //解析
-        //InputStream inputStream = new FileInputStream(new File(resourcePath + "/" + xmlPath));
         XmlParser xmlParser = new XmlParser(resourcePath.get() + File.separator + xmlPath);
         DataSourceConfig dataSourceConfig = xmlParser.parseText("config.datasource", DataSourceConfig.class);
         GlobalConfig globalConfig = xmlParser.parseText("config.properties", GlobalConfig.class);

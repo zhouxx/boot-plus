@@ -95,7 +95,6 @@ public class PartTree implements Render {
     public PartTree(String source, Class<?> domainClass, MethodDefinition methodDefinition) {
 
         Assert.notNull(source, "Source must not be null");
-        // Assert.notNull(domainClass, "Domain class must not be null");
 
         Matcher matcher = PREFIX_TEMPLATE.matcher(source);
         Matcher matcherVirtual = PREFIX_TEMPLATE_VIRTUAL.matcher(source);
@@ -120,30 +119,12 @@ public class PartTree implements Render {
     }
 
     /**
-     * Returns the {@link Sort} criteria parsed from the source.
-     *
-     * @return never {@literal null}.
-     */
-    /*public Sort getSort() {
-        return predicate.getOrderBySource().toSort();
-    }*/
-
-    /**
      * Returns whether we indicate distinct lookup of entities.
      *
      * @return {@literal true} if distinct
      */
     public boolean isDistinct() {
         return subject.isDistinct();
-    }
-
-    /**
-     * Returns whether a count projection shall be applied.
-     *
-     * @return
-     */
-    public boolean isCountProjection() {
-        return subject.isCountProjection();
     }
 
     /**
@@ -154,6 +135,15 @@ public class PartTree implements Render {
      */
     public boolean isExistsProjection() {
         return subject.isExistsProjection();
+    }
+
+    /**
+     * Returns whether a count projection shall be applied.
+     *
+     * @return
+     */
+    public boolean isCountProjection() {
+        return subject.isCountProjection();
     }
 
     /**
@@ -213,15 +203,13 @@ public class PartTree implements Render {
 
         private final List<Part> children = new ArrayList<>();
 
-        // private MethodDefinition methodDefinition;
-
         /**
          * Creates a new {@link OrPart}.
          * @param source the source to split up into {@literal And} parts in turn.
          * @param domainClass the domain class to check the resulting {@link Part}s against.
          * @param argumentIndex part index is not equal argument index
          */
-        OrPart(String source, Optional<Class> domainClass, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
+        OrPart(String source, Optional<Class<?>> domainClass, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
             String[] split = split(source, "And");
             for (String part : split) {
                 if (StringUtils.hasText(part)) {
@@ -232,11 +220,8 @@ public class PartTree implements Render {
 
         @Override
         public void render(RenderContext context) {
-            // String delim = "";
             for(Part part : children) {
-                // context.renderString(delim);
                 part.render(context);
-                // delim = " AND ";
             }
 
         }
@@ -355,13 +340,13 @@ public class PartTree implements Render {
                 throw new IllegalArgumentException("OrderBy must not be used more than once in a method name!");
             }
 
-            Optional<Class> domainClassOptional = Optional.ofNullable(domainClass);
+            Optional<Class<?>> domainClassOptional = Optional.ofNullable(domainClass);
 
             buildTree(parts[0], domainClassOptional);
             this.orderBySource = (parts.length == 2 ? new OrderBySource(parts[1], domainClassOptional, methodDefinition) : OrderBySource.EMPTY);
         }
 
-        private void buildTree(String source, Optional<Class> domainClassOptional) {
+        private void buildTree(String source, Optional<Class<?>> domainClassOptional) {
             AtomicInteger argumentIndex = new AtomicInteger();
             String[] split = split(source, "Or");
             for (String part : split) {
@@ -381,7 +366,7 @@ public class PartTree implements Render {
 
         @Override
         public void render(RenderContext context) {
-            if (this.nodes.size() > 0) {
+            if (!this.nodes.isEmpty()) {
                 context.renderString("<where>");
                 this.nodes.forEach(orPart -> {
                     context.renderString("<trim prefix=\" OR \" prefixOverrides=\"AND\" suffixOverrides=\"AND\">");

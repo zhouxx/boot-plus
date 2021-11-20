@@ -107,7 +107,7 @@ public class PreMapperStatementBuilder4InsertBatch extends PreMapperStatementBui
                 "</if>"
         );
 
-        /*StringBuilder script = new StringBuilder();
+        /** StringBuilder script = new StringBuilder();
         script.append("<script>");
         script.append("<if test=\"_databaseId != 'Oracle'\">");
         script.append(" INSERT INTO " + entityMetaData.getTableName() + " (" + columns

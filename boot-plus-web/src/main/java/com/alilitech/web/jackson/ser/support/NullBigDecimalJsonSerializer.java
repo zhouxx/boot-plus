@@ -26,8 +26,6 @@ import java.io.IOException;
  * @since 1.0
  */
 public class NullBigDecimalJsonSerializer extends NullJsonSerializer {
-    public NullBigDecimalJsonSerializer() {
-    }
 
     @Override
     public void writeNullValue(JsonGenerator gen, SerializerProvider serializers) throws IOException {

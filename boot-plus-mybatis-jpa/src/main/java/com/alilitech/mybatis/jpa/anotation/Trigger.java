@@ -23,8 +23,8 @@ import java.lang.annotation.Documented;
 
 /**
  * trigger with code
- * when {@link TriggerValueType#JavaCode} ,invoke the methodName of valueClass to generate the value
- * otherwise {@link TriggerValueType#DatabaseFunction}, just replace the placeholder with supported value
+ * when {@link TriggerValueType#JAVA_CODE} ,invoke the methodName of valueClass to generate the value
+ * otherwise {@link TriggerValueType#DATABASE_FUNCTION}, just replace the placeholder with supported value
  *
  * @author Zhou Xiaoxiang
  * @since 1.0
@@ -44,7 +44,7 @@ public @interface Trigger {
 
     /**
      * force to set the value, whether the value of domain's field is present or null
-     * only support {@link TriggerValueType#DatabaseFunction}
+     * only support {@link TriggerValueType#DATABASE_FUNCTION}
      */
     boolean force() default true;
 

@@ -19,6 +19,7 @@ import com.alilitech.security.SecurityBizProperties;
 import com.alilitech.security.TokenUtils;
 import com.alilitech.security.authentication.SecurityUser;
 import com.alilitech.security.domain.BizUser;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,13 +54,26 @@ public class SecurityTokenUtils extends TokenUtils {
 
         String token = UUID.randomUUID().toString();
 
-        cacheManager.getCache(SECURITY_CACHE_NAME).put(token, bizUser);
+        Cache cache = cacheManager.getCache(SECURITY_CACHE_NAME);
+
+        if(cache == null) {
+            logger.error(SECURITY_CACHE_NAME + "does not exist!");
+        } else {
+            cache.put(token, bizUser);
+        }
 
         return token;
     }
 
     public Authentication getAuthentication(String token) {
-        BizUser bizUser = (BizUser) cacheManager.getCache(SECURITY_CACHE_NAME).get(token, bizClass);
+
+        Cache cache = cacheManager.getCache(SECURITY_CACHE_NAME);
+
+        if(cache == null) {
+            return null;
+        }
+
+        BizUser bizUser = (BizUser) cache.get(token, bizClass);
 
         // if the token is expired, return null
         if(bizUser == null) {
@@ -80,12 +94,20 @@ public class SecurityTokenUtils extends TokenUtils {
 
     public void removeToken(String token) {
         if(!StringUtils.isEmpty(token)) {
-            cacheManager.getCache(SECURITY_CACHE_NAME).evict(token);
+            Cache cache = cacheManager.getCache(SECURITY_CACHE_NAME);
+            if(cache != null) {
+                cache.evict(token);
+            }
+
         }
     }
 
     public boolean exist(String token) {
-        Object security = cacheManager.getCache(SECURITY_CACHE_NAME).get(token, bizClass);
+        Cache cache = cacheManager.getCache(SECURITY_CACHE_NAME);
+        if(cache == null) {
+            return false;
+        }
+        Object security = cache.get(token, bizClass);
         return security != null;
     }
 }

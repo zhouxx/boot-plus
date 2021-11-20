@@ -15,8 +15,6 @@
  */
 package com.alilitech.generate.definition;
 
-import com.alilitech.mybatis.jpa.parameter.GenerationType;
-
 import java.util.*;
 
 /**
@@ -27,19 +25,19 @@ public class AnnotationDefinition {
 
     private Set<String> importList;
 
-    private Class clazz;
+    private Class<?> clazz;
 
     private Map<String, String> properties;
 
     public AnnotationDefinition() {
     }
 
-    public AnnotationDefinition(Class clazz) {
+    public AnnotationDefinition(Class<?> clazz) {
         this.clazz = clazz;
         this.addImport(clazz.getName());
     }
 
-    public AnnotationDefinition setClazz(Class clazz) {
+    public AnnotationDefinition setClazz(Class<?> clazz) {
         this.clazz = clazz;
         this.addImport(clazz.getName());
         return this;
@@ -55,17 +53,17 @@ public class AnnotationDefinition {
         if(value instanceof String) {
             properties.put(propertyName, "\"" + value.toString() + "\"");
         } else if(value instanceof Class) {
-            Class temp = ((Class)value);
+            Class<?> temp = ((Class<?>)value);
             properties.put(propertyName, temp.getSimpleName() + ".class");
             this.addImport(temp.getName());
         } else if(value.getClass().isEnum()) {
-            Enum anEnum = (Enum) value;
+            Enum<?> anEnum = (Enum<?>) value;
             properties.put(propertyName, value.getClass().getSimpleName() + "." + anEnum.name());
             this.addImport(value.getClass().getName());
         } else if(value.getClass().isArray()) {
-
+            // do nothing
         } else if(value.getClass().isAnnotation()) {
-
+            // do nothing
         }
 
         return this;
@@ -89,22 +87,16 @@ public class AnnotationDefinition {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(clazz.getSimpleName() + "(");
+        StringBuilder builder = new StringBuilder();
+        builder.append(clazz.getSimpleName() + "(");
         List<String> propertyStr = new ArrayList<>();
-        properties.forEach((key, value) -> {
-            propertyStr.add(key + " = " + value);
-        });
+        properties.forEach((key, value) -> propertyStr.add(key + " = " + value));
 
         String join = String.join(",", propertyStr);
-        buffer.append(join);
-        buffer.append(")");
+        builder.append(join);
+        builder.append(")");
 
-        return buffer.toString();
+        return builder.toString();
     }
 
-    public static void main(String[] args) {
-        GenerationType auto = GenerationType.AUTO;
-        System.out.println(auto.getClass());
-    }
 }

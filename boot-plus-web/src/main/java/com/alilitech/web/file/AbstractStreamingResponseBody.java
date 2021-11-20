@@ -38,16 +38,16 @@ public abstract class AbstractStreamingResponseBody<T extends AbstractStreamingR
 
     protected InputStream inputStream;
 
-    public AbstractStreamingResponseBody(InputStream inputStream) {
+    protected AbstractStreamingResponseBody(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
-    public AbstractStreamingResponseBody(InputStream inputStream, MediaType mediaType) {
+    protected AbstractStreamingResponseBody(InputStream inputStream, MediaType mediaType) {
         this.inputStream = inputStream;
         this.mediaType = mediaType;
     }
 
-    public AbstractStreamingResponseBody(File file) {
+    protected AbstractStreamingResponseBody(File file) {
         try {
             this.inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -55,12 +55,12 @@ public abstract class AbstractStreamingResponseBody<T extends AbstractStreamingR
         }
     }
 
-    public AbstractStreamingResponseBody(File file, MediaType mediaType) {
+    protected AbstractStreamingResponseBody(File file, MediaType mediaType) {
         this(file);
         this.mediaType = mediaType;
     }
 
-    public AbstractStreamingResponseBody mediaType(MediaType mediaType) {
+    public AbstractStreamingResponseBody<T> mediaType(MediaType mediaType) {
         this.mediaType = mediaType;
         return this;
     }

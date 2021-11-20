@@ -25,6 +25,9 @@ import org.apache.ibatis.builder.MapperBuilderAssistant;
  */
 public class ResultMapIdUtils {
 
+    private ResultMapIdUtils() {
+    }
+
     public static String buildId(MapperBuilderAssistant builderAssistant, String id) {
         return builderAssistant.getCurrentNamespace() + "." + id;
     }

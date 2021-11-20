@@ -57,10 +57,10 @@ public class JoinColumnMetaDataAssistant {
             EntityMetaData referencedEntityMetaData = EntityMetaDataRegistry.getInstance().get(joinColumnMetaData.getJoinEntityType());
 
             //直接关联，适用于OneToOne or OneToMany
-            if(joinColumnMetaData.getJoinType() != JoinType.ManyToMany) {
+            if(joinColumnMetaData.getJoinType() != JoinType.MANY_TO_MANY) {
 
                 //校验相关配置，只做警告处理
-                if(joinColumnMetaData.getJoinType() == JoinType.OneToMany && StringUtils.isEmpty(joinColumnMetaData.getMappedProperty())) {
+                if(joinColumnMetaData.getJoinType() == JoinType.ONE_TO_MANY && StringUtils.isEmpty(joinColumnMetaData.getMappedProperty())) {
                     log.warn(entityMetaData.getEntityType().getName() + " property => " + columnMetaData.getColumnName() + ", 'OneToMany' config does not provide mappedBy property");
                 }
 
@@ -80,7 +80,7 @@ public class JoinColumnMetaDataAssistant {
                     //property是关联类的ReferencedProperty
                     property = StringUtils.isEmpty(referencedJoinColumn.getReferencedProperty()) ? entityMetaData.getPrimaryColumnMetaData().getProperty() : referencedJoinColumn.getReferencedProperty();
                     //referencedProperty是关联类的Property，若不存在，则和property一样的
-                    //referencedProperty = StringUtils.isEmpty(referencedJoinColumn.getProperty()) ? referencedColumnMetaData.getEntityMetaData().getPrimaryColumnMetaData().getProperty() : referencedJoinColumn.getProperty();
+                    // referencedProperty = StringUtils.isEmpty(referencedJoinColumn.getProperty()) ? referencedColumnMetaData.getEntityMetaData().getPrimaryColumnMetaData().getProperty() : referencedJoinColumn.getProperty();
                     referencedProperty = StringUtils.isEmpty(referencedJoinColumn.getProperty()) ? property : referencedJoinColumn.getProperty();
                 }
 

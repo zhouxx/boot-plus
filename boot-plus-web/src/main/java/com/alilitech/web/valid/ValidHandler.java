@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.validate;
+package com.alilitech.web.valid;
 
 import org.springframework.http.ResponseEntity;
 
@@ -22,12 +22,12 @@ import org.springframework.http.ResponseEntity;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public interface ValidateHandler {
+public interface ValidHandler {
 
     /**
      * handler exception, 根据抛出的校验异常处理校验不通过返回
      * @param e just exception
      * @return 请求返回
      */
-    ResponseEntity<?> handle(Exception e);
+    <T> ResponseEntity<T> handle(Exception e);
 }

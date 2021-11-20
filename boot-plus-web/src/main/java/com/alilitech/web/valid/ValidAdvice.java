@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.validate;
+package com.alilitech.web.valid;
 
 import com.alilitech.util.UnicodeUtils;
 import com.alilitech.web.WebConfiguration;
@@ -35,19 +35,19 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * @since 1.0
  */
 @ControllerAdvice
-public class ValidateAdvice {
+public class ValidAdvice {
 
-    private ValidateHandler validateHandler;
+    private ValidHandler validHandler;
 
-    public ValidateAdvice(@Nullable ValidateHandler validateHandler) {
-        this.validateHandler = validateHandler;
+    public ValidAdvice(@Nullable ValidHandler validHandler) {
+        this.validHandler = validHandler;
     }
 
     @ExceptionHandler({ MethodArgumentNotValidException.class })
     @ResponseBody
-    public ResponseEntity handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }
@@ -60,9 +60,9 @@ public class ValidateAdvice {
 
     @ExceptionHandler({ BindException.class})
     @ResponseBody
-    public ResponseEntity handleBindException(BindException e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleBindException(BindException e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }
@@ -75,9 +75,9 @@ public class ValidateAdvice {
 
     @ExceptionHandler({ MissingServletRequestParameterException.class,  MissingPathVariableException.class, HttpMessageNotReadableException.class})
     @ResponseBody
-    public ResponseEntity handleServletRequestBindingException(Exception e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleServletRequestBindingException(Exception e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }
@@ -89,9 +89,9 @@ public class ValidateAdvice {
 
     @ExceptionHandler({ NoHandlerFoundException.class})
     @ResponseBody
-    public ResponseEntity handleNoHandlerFoundException(NoHandlerFoundException e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }
@@ -103,9 +103,9 @@ public class ValidateAdvice {
 
     @ExceptionHandler({ NoDataFoundException.class})
     @ResponseBody
-    public ResponseEntity handleNoResultException(NoDataFoundException e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleNoResultException(NoDataFoundException e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }
@@ -115,11 +115,11 @@ public class ValidateAdvice {
                 .build();
     }
 
-    @ExceptionHandler({ ValidateException.class })
+    @ExceptionHandler({ ValidException.class })
     @ResponseBody
-    public ResponseEntity handleValidateException(ValidateException e) {
-        if(validateHandler != null) {
-            ResponseEntity responseEntity = validateHandler.handle(e);
+    public ResponseEntity<Object> handleValidateException(ValidException e) {
+        if(validHandler != null) {
+            ResponseEntity<Object> responseEntity = validHandler.handle(e);
             if(responseEntity != null) {
                 return responseEntity;
             }

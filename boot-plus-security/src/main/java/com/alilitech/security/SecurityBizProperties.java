@@ -83,7 +83,7 @@ public class SecurityBizProperties {
 
     public List<RequestMatcher> getPermitAllPatterns() {
         if(this.permitAllPatterns == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return permitAllPatterns;
     }
@@ -94,7 +94,7 @@ public class SecurityBizProperties {
 
     public List<String> getPermitAllUserNames() {
         if(StringUtils.isEmpty(this.permitAllUserNames)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return permitAllUserNames;
     }

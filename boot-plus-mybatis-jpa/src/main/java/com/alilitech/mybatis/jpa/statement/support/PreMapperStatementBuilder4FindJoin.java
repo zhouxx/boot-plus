@@ -102,7 +102,7 @@ public class PreMapperStatementBuilder4FindJoin extends PreMapperStatementBuilde
 
     @Override
     protected Class<?> getParameterTypeClass() {
-        if (methodDefinition.getParameterDefinitions().size() > 0) {
+        if (!methodDefinition.getParameterDefinitions().isEmpty()) {
             // Mybatis mapper 方法最多支持一个参数,先设置成Object.class,mybatis会在sql中解析
             return (Object.class);
         }

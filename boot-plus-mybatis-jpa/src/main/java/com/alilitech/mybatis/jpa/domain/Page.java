@@ -23,6 +23,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@SuppressWarnings("java:S1948")
 public class Page<T> extends Pagination<T> {
 
     private Iterable<T> content;
@@ -100,15 +101,15 @@ public class Page<T> extends Pagination<T> {
     }
 
     public static <T> Page<T> get() {
-        return new Page<T>();
+        return new Page<>();
     }
 
-    public Page page(Integer page) {
+    public Page<T> page(Integer page) {
         this.setPage(page);
         return this;
     }
 
-    public Page size(Integer size) {
+    public Page<T> size(Integer size) {
         this.setSize(size);
         return this;
     }

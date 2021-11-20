@@ -29,7 +29,7 @@ public class SnowflakeContext {
     }
 
     public SnowflakeContext(long groupId, long workerId, long extraWorkerId) {
-        this(workerId, groupId);
+        this(groupId, workerId);
         if (extraWorkerId > maxWorkerId || extraWorkerId < 0) {
             throw new IllegalArgumentException(String.format("Extra worker Id can't be greater than %d or less than 0", maxWorkerId));
         }

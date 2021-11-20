@@ -18,10 +18,12 @@ package com.alilitech.datasource.routing;
 import com.alilitech.datasource.routing.encrypt.resolver.EncryptPropertyResolver;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.bind.*;
 import org.springframework.boot.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
@@ -52,7 +54,7 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
 
     private static final String SPRING_DATASOURCE_PREFIX = "spring.datasource";
 
-    private final ConfigurationPropertyName SPRING_DATASOURCE = ConfigurationPropertyName
+    private static final ConfigurationPropertyName SPRING_DATASOURCE = ConfigurationPropertyName
             .of(SPRING_DATASOURCE_PREFIX);
 
     private static final Bindable<Map<String, String>> STRING_STRING_MAP = Bindable
@@ -66,11 +68,10 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
     private BindHandler bindHandler = new BindHandler() {
         @Override
         public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
-            if(encryptPropertyResolver != null && target.getType().getType().equals(String.class)) {
-                if(encryptPropertyResolver.supportResolve(name.toString(), result.toString())) {
-                    result = encryptPropertyResolver.resolve(result.toString());
-                    return result;
-                }
+            if(encryptPropertyResolver != null && target.getType().getType().equals(String.class)
+                && encryptPropertyResolver.supportResolve(name.toString(), result.toString())) {
+                result = encryptPropertyResolver.resolve(result.toString());
+                return result;
             }
             return result;
         }
@@ -134,7 +135,7 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
          * try to init bean if exist {@link EncryptPropertyResolver} bean
          * bean will be instantiated in advance
          */
-        if(dataSourceNames.size() > 0) {
+        if(!dataSourceNames.isEmpty()) {
             try {
                 encryptPropertyResolver = context.getBean(EncryptPropertyResolver.class);
             } catch (BeansException e) {
@@ -148,7 +149,7 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
+        // do nothing
     }
 
     @Override
@@ -173,14 +174,11 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
         DataSource dataSource = bindResult.get().initializeDataSourceBuilder().build();
 
         // if datasource type is HikariDataSource, bind properties to hikari
-        if(hasClass("com.zaxxer.hikari.HikariDataSource")) {
-            if(dataSource instanceof HikariDataSource) {
-                BindHandler bindHandler = new IgnoreTopLevelConverterNotFoundBindHandler();
-                Bindable<?> target = Bindable.of(HikariDataSource.class).withExistingValue((HikariDataSource) dataSource);
-                Binder.get(environment).bind(SPRING_DATASOURCE_PREFIX + "." + dataSourceName + ".hikari", target, bindHandler);
-            }
+        if(hasClass("com.zaxxer.hikari.HikariDataSource") && dataSource instanceof HikariDataSource) {
+            BindHandler bindHandlerTmp = new IgnoreTopLevelConverterNotFoundBindHandler();
+            Bindable<?> target = Bindable.of(HikariDataSource.class).withExistingValue((HikariDataSource) dataSource);
+            Binder.get(environment).bind(SPRING_DATASOURCE_PREFIX + "." + dataSourceName + ".hikari", target, bindHandlerTmp);
         }
-
         return dataSource;
     }
 
@@ -191,7 +189,7 @@ public class DynamicDataSourceRegister implements BeanDefinitionRegistryPostProc
             forName(className, classLoader);
             hasClassHikariDataSource = true;
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
             hasClassHikariDataSource = false;
         }
 

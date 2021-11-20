@@ -183,11 +183,13 @@ public class CaffeineCacheManager implements CacheManager {
         Cache cache = this.cacheMap.get(name);
         if (cache == null && this.dynamic) {
             synchronized (this.cacheMap) {
+                this.cacheMap.computeIfAbsent(name, v -> createCaffeineCache(name));
+                /**
                 cache = this.cacheMap.get(name);
                 if (cache == null) {
                     cache = createCaffeineCache(name);
                     this.cacheMap.put(name, cache);
-                }
+                }*/
             }
         }
         return cache;
@@ -238,14 +240,16 @@ public class CaffeineCacheManager implements CacheManager {
      * @param caffeine
      */
     public void setCaffeine(String cacheName, Caffeine<Object, Object> caffeine) {
-        com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = (com.github.benmanes.caffeine.cache.Cache<Object, Object>) getCache(cacheName).getNativeCache();
-        ConcurrentMap<Object, Object> asMap = nativeCache.asMap();
-        // 重置
-        this.cacheMap.put(cacheName, new CaffeineCache(cacheName, caffeine.build(), isAllowNullValues()));
-        // 恢复
-        asMap.forEach((key, value) -> {
-            this.getCache(cacheName).put(key ,value);
-        });
+        Cache cache = getCache(cacheName);
+        com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = null;
+        if (cache != null) {
+            nativeCache = (com.github.benmanes.caffeine.cache.Cache<Object, Object>) cache.getNativeCache();
+            ConcurrentMap<Object, Object> asMap = nativeCache.asMap();
+            // 重置
+            this.cacheMap.put(cacheName, new CaffeineCache(cacheName, caffeine.build(), isAllowNullValues()));
+            // 恢复
+            asMap.forEach((key, value) -> this.getCache(cacheName).put(key ,value));
+        }
     }
 
 }

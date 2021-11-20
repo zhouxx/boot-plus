@@ -64,7 +64,7 @@ public class OrderBySource implements Render {
      * @param clause must not be {@literal null}.
      * @param domainClass can be {@literal null}.
      */
-    public OrderBySource(String clause, Optional<Class> domainClass, MethodDefinition methodDefinition) {
+    public OrderBySource(String clause, Optional<Class<?>> domainClass, MethodDefinition methodDefinition) {
 
         this.orders = new ArrayList<>();
 
@@ -110,7 +110,6 @@ public class OrderBySource implements Render {
                 context.renderString(order.getDirection().toString());
                 delim = ", ";
             }
-            //context.renderString(StringUtils.collectionToDelimitedString(orders, ", "));
         }
 
     }

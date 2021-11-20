@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
+@SuppressWarnings("java:S1948")
 public class BootPlusModule extends SimpleModule {
 
     private final JsonProperties jsonProperties;

@@ -56,7 +56,7 @@ public class PropertyPath {
         this.columnName = columnName;
     }
 
-    public static PropertyPath from(String name, Optional<Class> clazzOptional, MethodDefinition methodDefinition) {
+    public static PropertyPath from(String name, Optional<Class<?>> clazzOptional, MethodDefinition methodDefinition) {
         PropertyPath propertyPath = new PropertyPath(name);
         String columnName = "";
         if(!clazzOptional.isPresent()) {

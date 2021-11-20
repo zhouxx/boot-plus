@@ -17,6 +17,9 @@ package com.alilitech.security.jwt;
 
 import com.alilitech.security.ExtensibleSecurity;
 import com.alilitech.security.st.SecurityTokenUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +30,8 @@ import java.util.ArrayList;
  * @since 1.0
  */
 public class BlackListManager {
+
+    protected final Log logger = LogFactory.getLog(getClass());
 
     public static final String TOKEN_BLACK_LIST = "black_list";
 
@@ -50,24 +55,30 @@ public class BlackListManager {
         //add to black list
         String token = extensibleSecurity.resolveToken(request);
 
-        ArrayList cacheSecurity = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).get(TOKEN_BLACK_LIST, ArrayList.class);
+        Cache cache = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME);
+
+        if(cache == null) {
+            logger.error(SecurityTokenUtils.SECURITY_CACHE_NAME + " cache does not exist!");
+            return;
+        }
+
+        ArrayList<String> cacheSecurity = cache.get(TOKEN_BLACK_LIST, ArrayList.class);
 
         if(cacheSecurity == null) {
-            cacheSecurity = new ArrayList();
+            cacheSecurity = new ArrayList<>();
         }
 
         cacheSecurity.add(token);
 
         //refresh black list
-        ArrayList finalCacheSecurity = cacheSecurity;
+        ArrayList<String> finalCacheSecurity = cacheSecurity;
         cacheSecurity.forEach(o -> {
-            String tempToken = (String)o;
-            if(!jwtTokenUtils.validateToken(tempToken)) {
+            if(!jwtTokenUtils.validateToken(o)) {
                 finalCacheSecurity.remove(o);
-            };
+            }
         });
 
-        cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).put(TOKEN_BLACK_LIST, cacheSecurity);
+        cache.put(TOKEN_BLACK_LIST, cacheSecurity);
     }
 
     /**
@@ -76,7 +87,15 @@ public class BlackListManager {
      * @return
      */
     public boolean inBlackList(String token) {
-        ArrayList cacheSecurity = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME).get(TOKEN_BLACK_LIST, ArrayList.class);
+
+        Cache cache = cacheManager.getCache(SecurityTokenUtils.SECURITY_CACHE_NAME);
+
+        if(cache == null) {
+            logger.error(SecurityTokenUtils.SECURITY_CACHE_NAME + " cache does not exist!");
+            return false;
+        }
+
+        ArrayList<String> cacheSecurity = cache.get(TOKEN_BLACK_LIST, ArrayList.class);
 
         if(cacheSecurity == null) {
             return false;

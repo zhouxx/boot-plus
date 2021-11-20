@@ -116,7 +116,7 @@ public class ParameterAssistant {
             }
             for(Trigger trigger : columnMetaData.getTriggers()) {
                 if(trigger.triggerType() == mappedStatement.getSqlCommandType()
-                        && trigger.valueType() == TriggerValueType.JavaCode)
+                        && trigger.valueType() == TriggerValueType.JAVA_CODE)
                     if (metaObject.getValue(columnMetaData.getProperty()) == null || trigger.force()) {
                         Object obj = null;
                         try {

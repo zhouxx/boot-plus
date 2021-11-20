@@ -23,8 +23,8 @@ package com.alilitech.mybatis.jpa.parameter;
  */
 public enum TriggerValueType {
 
-    JavaCode,
+    JAVA_CODE,
 
-    DatabaseFunction
+    DATABASE_FUNCTION
 
 }

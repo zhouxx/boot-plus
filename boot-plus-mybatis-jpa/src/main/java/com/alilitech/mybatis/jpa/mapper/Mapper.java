@@ -24,6 +24,7 @@ import com.alilitech.mybatis.jpa.anotation.NoMapperBean;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@SuppressWarnings("java:S2326")
 @NoMapperBean
 public interface Mapper<T, ID> {
 }

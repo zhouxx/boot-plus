@@ -15,12 +15,12 @@
  */
 package com.alilitech.mybatis.jpa.meta;
 
-import com.alilitech.mybatis.jpa.anotation.*;
+import com.alilitech.mybatis.jpa.JoinType;
 import com.alilitech.mybatis.jpa.anotation.GeneratedValue;
+import com.alilitech.mybatis.jpa.anotation.*;
+import com.alilitech.mybatis.jpa.parameter.GenerationType;
 import com.alilitech.mybatis.jpa.primary.key.KeyGenerator;
 import com.alilitech.mybatis.jpa.util.ColumnUtils;
-import com.alilitech.mybatis.jpa.parameter.GenerationType;
-import com.alilitech.mybatis.jpa.JoinType;
 import org.apache.ibatis.type.JdbcType;
 import org.springframework.util.StringUtils;
 
@@ -28,7 +28,6 @@ import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -119,20 +118,20 @@ public class ColumnMetaData {
             joinColumnMetaData.setEntityType(entityMetaData.getEntityType());
         }
         if(join) {
-            Type type = null;
+            Type joinEntityType = null;
             //若是集合，则取泛型类型
             if(Collection.class.isAssignableFrom(field.getType())) {
                 joinColumnMetaData.setCollection(true);
                 Type genericType = field.getGenericType();
                 if(genericType instanceof ParameterizedType) {
                     ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                    type = parameterizedType.getActualTypeArguments()[0];
+                    joinEntityType = parameterizedType.getActualTypeArguments()[0];
                 }
 
             } else {
-                type = field.getType();
+                joinEntityType = field.getType();
             }
-            joinColumnMetaData.setJoinEntityType(type);
+            joinColumnMetaData.setJoinEntityType(joinEntityType);
 
             //若是OneToOne or OneToMany直接获取JoinColumn
             if(field.isAnnotationPresent(javax.persistence.JoinColumn.class)) {
@@ -162,22 +161,22 @@ public class ColumnMetaData {
             }
 
             if(field.isAnnotationPresent(OneToOne.class) ) {
-                joinColumnMetaData.setJoinType(JoinType.OneToOne);
+                joinColumnMetaData.setJoinType(JoinType.ONE_TO_ONE);
                 if(!StringUtils.isEmpty(field.getAnnotation(OneToOne.class).mappedBy())) {
                     joinColumnMetaData.setMappedProperty(field.getAnnotation(OneToOne.class).mappedBy());
                 }
             } else if(field.isAnnotationPresent(OneToMany.class) ) {
-                joinColumnMetaData.setJoinType(JoinType.OneToMany);
+                joinColumnMetaData.setJoinType(JoinType.ONE_TO_MANY);
                 if(!StringUtils.isEmpty(field.getAnnotation(OneToMany.class).mappedBy())) {
                     joinColumnMetaData.setMappedProperty(field.getAnnotation(OneToMany.class).mappedBy());
                 }
             } else if(field.isAnnotationPresent(ManyToMany.class)) {
-                joinColumnMetaData.setJoinType(JoinType.ManyToMany);
+                joinColumnMetaData.setJoinType(JoinType.MANY_TO_MANY);
                 if(!StringUtils.isEmpty(field.getAnnotation(ManyToMany.class).mappedBy())) {
                     joinColumnMetaData.setMappedProperty(field.getAnnotation(ManyToMany.class).mappedBy());
                 }
             } else if(field.isAnnotationPresent(ManyToOne.class)) {
-                joinColumnMetaData.setJoinType(JoinType.ManyToOne);
+                joinColumnMetaData.setJoinType(JoinType.MANY_TO_ONE);
             }
 
             //设置哪些需要关联

@@ -28,13 +28,13 @@ import java.io.Serializable;
 public interface Specification<T> extends Serializable {
 
     default Specification<T> and(Specification<T> other) {
-        return (cb, query) -> new CompoundPredicateExpression<T>(PredicateExpression.BooleanOperator.AND, this.toPredicate(cb, query), other.toPredicate(cb, query));
+        return (cb, query) -> new CompoundPredicateExpression<>(PredicateExpression.BooleanOperator.AND, this.toPredicate(cb, query), other.toPredicate(cb, query));
     }
 
     default Specification<T> or(Specification<T> other) {
-        return (cb, query) -> new CompoundPredicateExpression<T>(PredicateExpression.BooleanOperator.OR, this.toPredicate(cb, query), other.toPredicate(cb, query));
+        return (cb, query) -> new CompoundPredicateExpression<>(PredicateExpression.BooleanOperator.OR, this.toPredicate(cb, query), other.toPredicate(cb, query));
     }
 
-    PredicateExpression toPredicate(CriteriaBuilder cb, CriteriaQuery query);
+    PredicateExpression<T> toPredicate(CriteriaBuilder<T> cb, CriteriaQuery<T> query);
 
 }

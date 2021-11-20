@@ -24,6 +24,9 @@ package com.alilitech.mybatis.jpa.pagination;
  */
 public class PageHelper {
 
+    private PageHelper() {
+    }
+
     /**
      * 计算当前分页偏移量
      * @param current 当前页
@@ -43,7 +46,7 @@ public class PageHelper {
      * @param pagination 分页类
      * @return 分页偏移量
      */
-    public static int offsetCurrent(Pagination pagination) {
+    public static int offsetCurrent(Pagination<?> pagination) {
         if (null == pagination) {
             return 0;
         }

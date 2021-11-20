@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.caffeine.CaffeineCache;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class CaffeineCacheTemplate extends AbstractCacheTemplate {
 
-    private final Map<String, Caffeine> caffeineMap = new ConcurrentHashMap<>();
+    private final Map<String, Caffeine<Object, Object>> caffeineMap = new ConcurrentHashMap<>();
 
     @Override
     public void setTTLConfig(String cacheName, long timeout, TimeUnit unit) {
@@ -85,7 +86,11 @@ public class CaffeineCacheTemplate extends AbstractCacheTemplate {
     @Override
     public List<String> findKeys(String cacheName) {
         CaffeineCacheManager caffeineCacheManager = (CaffeineCacheManager) this.cacheManager;
-        Cache<Object, Object> nativeCache = ((CaffeineCache) caffeineCacheManager.getCache(cacheName)).getNativeCache();
-        return nativeCache.asMap().keySet().stream().map(Object::toString).collect(Collectors.toList());
+        org.springframework.cache.Cache cache = caffeineCacheManager.getCache(cacheName);
+        Cache<Object, Object> nativeCache = null;
+        if (cache != null) {
+            nativeCache = ((CaffeineCache) cache).getNativeCache();
+        }
+        return nativeCache != null ? nativeCache.asMap().keySet().stream().map(Object::toString).collect(Collectors.toList()) : Collections.emptyList();
     }
 }

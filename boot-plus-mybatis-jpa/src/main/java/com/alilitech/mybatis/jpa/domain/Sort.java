@@ -68,7 +68,7 @@ public class Sort {
     }
 
     public boolean hasOrders() {
-        return orders != null && orders.size() != 0;
+        return orders != null && !orders.isEmpty();
     }
 
 }

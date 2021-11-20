@@ -17,7 +17,6 @@ package com.alilitech.mybatis.jpa.criteria.specification;
 
 import com.alilitech.mybatis.jpa.criteria.CriteriaBuilder;
 import com.alilitech.mybatis.jpa.criteria.CriteriaQuery;
-import com.alilitech.mybatis.jpa.criteria.Specification;
 import com.alilitech.mybatis.jpa.criteria.expression.PredicateExpression;
 import org.springframework.util.CollectionUtils;
 
@@ -31,8 +30,6 @@ import java.util.function.Consumer;
  */
 public class PredicateBuilder<T> extends AbstractSpecificationBuilder<T> {
 
-    protected List<Specification<T>> specifications = new ArrayList<>();
-
     protected PredicateExpression.BooleanOperator operator;
 
     protected List<PredicateExpression<T>> predicates = new ArrayList<>();
@@ -41,16 +38,18 @@ public class PredicateBuilder<T> extends AbstractSpecificationBuilder<T> {
         super(specificationBuilder);
     }
 
-    public PredicateBuilder(SpecificationBuilder specificationBuilder, PredicateExpression.BooleanOperator operator) {
+    public PredicateBuilder(SpecificationBuilder<T> specificationBuilder, PredicateExpression.BooleanOperator operator) {
         super(specificationBuilder);
         this.operator = operator;
     }
 
+    @SuppressWarnings("java:S1221")
     public PredicateBuilder<T> equal(String property, Object value) {
         specifications.add((cb, query) -> cb.equal(property, value));
         return this;
     }
 
+    @SuppressWarnings("java:S1221")
     public PredicateBuilder<T> equal(boolean condition, String property, Object value) {
         if(condition) {
             specifications.add((cb, query) -> cb.equal(property, value));
@@ -248,7 +247,7 @@ public class PredicateBuilder<T> extends AbstractSpecificationBuilder<T> {
     @Override
     public void build(CriteriaBuilder cb, CriteriaQuery query) {
         for (int i = 0; i < specifications.size(); i++) {
-            PredicateExpression predicateExpression = specifications.get(i).toPredicate(cb, query);
+            PredicateExpression<T> predicateExpression = specifications.get(i).toPredicate(cb, query);
             if(predicateExpression != null) {
                 this.predicates.add(predicateExpression);
             }

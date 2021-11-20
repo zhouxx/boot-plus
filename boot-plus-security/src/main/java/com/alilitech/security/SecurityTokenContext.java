@@ -28,15 +28,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SecurityTokenContext {
 
-    public static <T extends BizUser> T getContextBizUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null) {
-            return null;
-        }
-        return (T) ((SecurityUser) authentication.getPrincipal()).getBizUser();
-    }
+    private SecurityTokenContext() {}
 
-    public static <T extends BizUser> T getTokenBizUser(HttpServletRequest request) {
+    public static <T extends BizUser> T getContextBizUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) {
             return null;

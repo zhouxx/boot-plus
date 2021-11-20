@@ -95,7 +95,7 @@ public class PreMapperStatementBuilder4UpdateBatch extends PreMapperStatementBui
         );
 
         return buildScript(sqlParts);
-        /*script.append("<if test=\"_databaseId != 'Oracle'\">");
+        /** script.append("<if test=\"_databaseId != 'Oracle'\">");
         script.append("<foreach item='rowData' index='rowIndex' collection='list' separator=';'>"
                 + "UPDATE " + entityMetaData.getTableName() + " <set> " + sets.toString() + "</set>"
                 + buildWhere("rowData") + "</foreach>");

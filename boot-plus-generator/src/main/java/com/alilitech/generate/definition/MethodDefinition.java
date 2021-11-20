@@ -80,7 +80,7 @@ public class MethodDefinition {
         return this;
     }
 
-    public MethodDefinition setReturnValueClass(Class returnValueClass) {
+    public MethodDefinition setReturnValueClass(Class<?> returnValueClass) {
         this.setReturnValue(returnValueClass.getSimpleName());
         this.addImport(returnValueClass);
         return this;
@@ -102,7 +102,7 @@ public class MethodDefinition {
         return this;
     }
 
-    public MethodDefinition addImport(Class importClass) {
+    public MethodDefinition addImport(Class<?> importClass) {
         if(importClass.getTypeName().startsWith("java.lang")) {
             return this;
         }
@@ -141,7 +141,7 @@ public class MethodDefinition {
     public MethodDefinition addBodyLines(String line, Class ...importClass) {
         bodyLines.add(line);
         if(importClass != null && importClass.length > 0) {
-            for (Class aClass : importClass) {
+            for (Class<?> aClass : importClass) {
                 this.addImport(aClass);
             }
         }

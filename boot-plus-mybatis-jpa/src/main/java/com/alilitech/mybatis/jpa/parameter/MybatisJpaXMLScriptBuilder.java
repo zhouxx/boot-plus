@@ -39,7 +39,7 @@ public class MybatisJpaXMLScriptBuilder extends BaseBuilder {
     private final XNode context;
     private boolean isDynamic;
     private final Class<?> parameterType;
-    private final Map<String, MybatisJpaXMLScriptBuilder.NodeHandler> nodeHandlerMap = new HashMap<String, MybatisJpaXMLScriptBuilder.NodeHandler>();
+    private final Map<String, MybatisJpaXMLScriptBuilder.NodeHandler> nodeHandlerMap = new HashMap<>();
 
     public MybatisJpaXMLScriptBuilder(Configuration configuration, XNode context) {
         this(configuration, context, null);
@@ -78,7 +78,7 @@ public class MybatisJpaXMLScriptBuilder extends BaseBuilder {
     }
 
     protected MixedSqlNode parseDynamicTags(XNode node) {
-        List<SqlNode> contents = new ArrayList<SqlNode>();
+        List<SqlNode> contents = new ArrayList<>();
         NodeList children = node.getNode().getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             XNode child = node.newXNode(children.item(i));
@@ -217,8 +217,8 @@ public class MybatisJpaXMLScriptBuilder extends BaseBuilder {
 
         @Override
         public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
-            List<SqlNode> whenSqlNodes = new ArrayList<SqlNode>();
-            List<SqlNode> otherwiseSqlNodes = new ArrayList<SqlNode>();
+            List<SqlNode> whenSqlNodes = new ArrayList<>();
+            List<SqlNode> otherwiseSqlNodes = new ArrayList<>();
             handleWhenOtherwiseNodes(nodeToHandle, whenSqlNodes, otherwiseSqlNodes);
             SqlNode defaultSqlNode = getDefaultSqlNode(otherwiseSqlNodes);
             ChooseSqlNode chooseSqlNode = new ChooseSqlNode(whenSqlNodes, defaultSqlNode);

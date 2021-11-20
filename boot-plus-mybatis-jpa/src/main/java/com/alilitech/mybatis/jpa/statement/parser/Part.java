@@ -62,7 +62,7 @@ public class Part implements Render {
 	 * @param clazz domain Class
 	 * @param argumentIndex
 	 */
-	public Part(String source, Optional<Class> clazz, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
+	public Part(String source, Optional<Class<?>> clazz, MethodDefinition methodDefinition, AtomicInteger argumentIndex) {
 
 		Assert.hasText(source, "Part source must not be null or empty!");
 
@@ -123,27 +123,27 @@ public class Part implements Render {
 		//先读取方法的IfTest
 		boolean methodIfTest = methodDefinition.isMethodIfTest();
 		List<Annotation> annotationList = methodDefinition.getParameterDefinitions().get(index).getAnnotations();
-		if(annotationList.size() <= 0 && !methodIfTest) {
+		if(annotationList.isEmpty() && !methodIfTest) {
 			return null;
 		}
 
-		TestCondition testCondition = null;
+		TestCondition retCondition = null;
 
 		for(Annotation annotation : annotationList) {
 			//若参数有注解，则以参数注解为准
 			if(annotation instanceof IfTest) {
 				IfTest ifTest = (IfTest) annotation;
-				testCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
-				return testCondition;
+				retCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
+				return retCondition;
 			}
 		}
 		//否则默认方法的注解
 		if(methodIfTest) {
 			IfTest ifTest = methodDefinition.getIfTest();
-			testCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
+			retCondition = new TestCondition(ifTest.notNull(), ifTest.notEmpty(), ifTest.conditions());
 		}
 
-		return testCondition;
+		return retCondition;
 	}
 
 	private String detectAndSetIgnoreCase(String part) {
@@ -233,19 +233,19 @@ public class Part implements Render {
 		if(type.getNumberOfArguments() > 0) {
 
 			if(this.isOneParameter()) {
-				typeValue = typeValue.replaceAll("#\\{0\\}", "#{_parameter}");
+				typeValue = typeValue.replace("#{0}", "#{_parameter}");
 				if(argumentType.isArray()) {
-					typeValue = typeValue.replaceAll("@\\{0\\}", "array");
+					typeValue = typeValue.replace("@{0}", "array");
 				} else {
-					typeValue = typeValue.replaceAll("@\\{0\\}", "collection");
+					typeValue = typeValue.replace("@{0}", "collection");
 				}
 			} else {
 				for(int i=0; i<this.getNumberOfArguments(); i++) {
 					if(StringUtils.isEmpty(context.getArgAlias())) {
-						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{arg" + (argumentIndex +i) + "}");
-						typeValue = typeValue.replaceAll("@\\{" + i +  "\\}", "arg" + (argumentIndex +i));
+						typeValue = typeValue.replace("#{" + i +  "}", "#{arg" + (argumentIndex +i) + "}");
+						typeValue = typeValue.replace("@{" + i +  "}", "arg" + (argumentIndex +i));
 					} else {
-						typeValue = typeValue.replaceAll("#\\{" + i +  "\\}", "#{" + context.getArgAlias() + "." + propertyPath.getName() + "}");
+						typeValue = typeValue.replace("#{" + i +  "}", "#{" + context.getArgAlias() + "." + propertyPath.getName() + "}");
 					}
 				}
 			}
@@ -289,7 +289,7 @@ public class Part implements Render {
 		List<String> conditionWithArgs = conditions.stream().map(ConditionWithArg::toString).collect(Collectors.toList());
 
 		//表示有条件
-		if(conditionWithArgs.size() > 0) {
+		if(!conditionWithArgs.isEmpty()) {
 			context.renderString("<if test='");
 			context.renderString(StringUtils.collectionToDelimitedString(conditionWithArgs," and "));
 			context.renderString("'>");
@@ -298,13 +298,11 @@ public class Part implements Render {
 			context.renderBlank();
 			context.renderString(typeValue);
 			context.renderString("</if>");
-			//String.format("<if test='" + StringUtils.collectionToDelimitedString(conditionWithArgs," and ") + "'>AND %s %s</if>", propertyPath.getColumnName(), typeValue);
 		} else {
 			context.renderString(" AND ");
 			context.renderString(StringUtils.isEmpty(context.getVariableAlias()) ? propertyPath.getColumnName() : context.getVariableAlias() + "." + propertyPath.getColumnName());
 			context.renderBlank();
 			context.renderString(typeValue);
-			//String.format("AND %s %s", propertyPath.getColumnName(), typeValue);
 		}
 
 	}
@@ -462,7 +460,6 @@ public class Part implements Render {
 		@Override
 		public String toString() {
 			return String.format("%s ", this.expression.getExpression());
-			//return String.format("%s %s", name(), getNumberOfArguments(), getKeywords());
 		}
 
 		public static class Expression {

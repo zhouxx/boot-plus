@@ -24,6 +24,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,15 +40,12 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
     @Autowired
     protected RedisTemplate<Object, Object> redisTemplate;
 
-    public RedisCacheTemplate() {
-    }
-
     @Override
     public Object read(String cacheName, Object key) {
 
         Map<String, Duration> ttiCacheMap = getTtiOrTtlCacheMap("tti");
 
-        if(ttiCacheMap != null && ttiCacheMap.containsKey(cacheName)) {
+        if(ttiCacheMap.containsKey(cacheName)) {
             Duration duration = ttiCacheMap.get(cacheName);
             return this.readAndExpire(cacheName, key, duration.toMillis(), TimeUnit.MILLISECONDS);
         } else {
@@ -60,10 +58,10 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
 
         Map<String, Duration> ttiCacheMap = getTtiOrTtlCacheMap("tti");
 
-        if(ttiCacheMap != null && ttiCacheMap.containsKey(cacheName)) {
+        if(ttiCacheMap.containsKey(cacheName)) {
             RedisCache cache = (RedisCache) cacheManager.getCache(cacheName);
             Duration duration = ttiCacheMap.get(cacheName);
-            Object ret = cache.get(key, clazz);
+            Object ret = cache != null ? cache.get(key, clazz) : null;
             if(ret != null) {
                 this.expire(cache.getCacheConfiguration().getKeyPrefixFor(cacheName) + key, duration.toMillis(), TimeUnit.MILLISECONDS);
             }
@@ -79,7 +77,7 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
         Map<String, Duration> ttlCacheMap = getTtiOrTtlCacheMap("ttl");
         Map<String, Duration> ttiCacheMap = getTtiOrTtlCacheMap("tti");
 
-        if(ttlCacheMap != null && ttlCacheMap.containsKey(cacheName)) {
+        if(ttlCacheMap.containsKey(cacheName)) {
             Duration duration = ttlCacheMap.get(cacheName);
             this.writeAndExpire(cacheName, key, value, duration.toMillis(), TimeUnit.MILLISECONDS);
         } else if(ttiCacheMap.containsKey(cacheName)) {
@@ -94,7 +92,7 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
     public Object readAndExpire(String cacheName, Object key, long timeout, TimeUnit unit) {
         RedisCache cache = (RedisCache) cacheManager.getCache(cacheName);
         Object ret = super.read(cacheName, key);
-        if(ret != null) {
+        if(ret != null && cache != null) {
             this.expire(cache.getCacheConfiguration().getKeyPrefixFor(cacheName) + key, timeout, unit);
         }
         return ret;
@@ -103,8 +101,10 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
     @Override
     public void writeAndExpire(String cacheName, Object key, Object value, long timeout, TimeUnit unit) {
         RedisCache cache = (RedisCache) cacheManager.getCache(cacheName);
-        cache.put(key, value);
-        this.expire(cache.getCacheConfiguration().getKeyPrefixFor(cacheName) + key, timeout, unit);
+        if (cache != null) {
+            cache.put(key, value);
+            this.expire(cache.getCacheConfiguration().getKeyPrefixFor(cacheName) + key, timeout, unit);
+        }
     }
 
     @Override
@@ -127,7 +127,7 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
     }
 
     private void expire(Object key, long timeout, TimeUnit unit) {
-        Boolean expire = redisTemplate.expire(key, timeout, unit);
+        boolean expire = redisTemplate.expire(key, timeout, unit);
         if(!expire) {
             logger.warn("redisTemplate failed to set TTL, make sure RedisSerializer is correct.");
         }
@@ -154,8 +154,11 @@ public class RedisCacheTemplate extends AbstractCacheTemplate implements Initial
     @Override
     public List<String> findKeys(String cacheName) {
         RedisCache cache = (RedisCache) cacheManager.getCache(cacheName);
-        String prefix = cache.getCacheConfiguration().getKeyPrefixFor(cacheName);
-        return redisTemplate.keys(prefix.concat("*")).stream().map(s -> s.toString().replaceFirst(prefix, "")).collect(Collectors.toList());
+        if (cache != null) {
+            String prefix = cache.getCacheConfiguration().getKeyPrefixFor(cacheName);
+            return redisTemplate.keys(prefix.concat("*")).stream().map(s -> s.toString().replaceFirst(prefix, "")).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Override

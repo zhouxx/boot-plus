@@ -28,8 +28,8 @@ import java.util.List;
 @NoMapperBean
 public interface SpecificationMapper<T, ID> extends Mapper<T, ID> {
 
-    List<T> findSpecification(Specification specification);
+    List<T> findSpecification(Specification<T> specification);
 
-    List<T> findPageSpecification(Pageable<T> pageable, Specification specification);
+    List<T> findPageSpecification(Pageable<T> pageable, Specification<T> specification);
 
 }

@@ -62,21 +62,13 @@ public class GeneratorUtils {
                 String tableName = tableConfig.getTableName();
 
                 List<TableColumn> tableColumns = new ArrayList<>();
-                //List<TableColumn> queryColumns = new ArrayList<>();
-                //List<TableColumn> detailColumns = new ArrayList<>();
 
-
-                /*ResultSet rsTable = metaData.getTables(null, "", tableName, null);
-                rsTable.next();
-                rsTable.getString("REMARKS");*/
                 ResultSet rsPK = metaData.getPrimaryKeys(catalog, null, tableName);
 
                 String pkColumn = null;
 
                 if(rsPK.next()) {
                     pkColumn = rsPK.getString("COLUMN_NAME");
-                    //rsPK.getString("KEY_SEQ");
-                    //rsPK.getString("PK_NAME");
                 }
 
                 ResultSet rs = metaData.getColumns(catalog, "%", tableName, "%");
@@ -93,11 +85,6 @@ public class GeneratorUtils {
                     String remark = rs.getString("REMARKS");
                     String defaultValue = rs.getString("COLUMN_DEF");
                     String isAutoIncrement = rs.getString("IS_AUTOINCREMENT");
-                    // String isGeneratedColumn = rs.getString("IS_GENERATEDCOLUMN");
-
-                    //String tableCat = rs.getString("TABLE_CAT");
-                    //String tableSchem = rs.getString("TABLE_SCHEM");
-                    //String tableName1 = rs.getString("TABLE_NAME");
 
                     tableColumn.setColumnName(columnName);
                     tableColumn.setColumnSize(columnSize);
@@ -107,22 +94,9 @@ public class GeneratorUtils {
                     tableColumn.setPrimary(columnName.equals(pkColumn));
                     tableColumn.setRemark(remark);
                     tableColumn.setAutoIncrement("YES".equals(isAutoIncrement));
-                    // tableColumn.setGeneratedColumn("YES".equals(isGeneratedColumn) ? true : false);
                     tableColumn.setScale(scale);
 
-                    /*if(Arrays.asList(tableConfig.getQuery().split(",")).contains(columnName)) {
-                        queryColumns.add(tableColumn);
-                    }
-                    if(Arrays.asList(tableConfig.getDetail().split(",")).contains(columnName)) {
-                        detailColumns.add(tableColumn);
-                    }
-
-                    if(tableConfig.getIgnore().contains(columnName)) {
-                        continue;
-                    }*/
-
                     tableColumns.add(tableColumn);
-
                 }
 
                 rsPK.close();
@@ -254,13 +228,13 @@ public class GeneratorUtils {
         return null;
     }
 
-    private static ClassDefinition covertMapper(Table table, String globalPackageName, Class domainClass) {
+    private static ClassDefinition covertMapper(Table table, String globalPackageName, Class<?> domainClass) {
         //生成domain
         ClassDefinition classDefinition = new ClassDefinition(table.getTableConfig().getDomainName() + "Mapper");
         classDefinition.setClassType(ClassType.MAPPER).setPackageName(globalPackageName + "." + ClassType.MAPPER.getType());
         classDefinition.setInterfaced(true);
 
-        Class idClass = null;
+        Class<?> idClass = null;
         Field[] fields = domainClass.getDeclaredFields();
         for(Field field : fields) {
             if(field.getAnnotation(Id.class) != null) {
@@ -270,55 +244,9 @@ public class GeneratorUtils {
         }
         TypeResolver typeResolver = new TypeResolver();
         ResolvedType resolvedType = typeResolver.resolve(PageMapper.class, domainClass, idClass);
-        //List<ResolvedType> typeParameters = resolvedType.getTypeBindings().getTypeParameters();
+
         classDefinition.addExtend(resolvedType);
-        //classDefinition.addImport(CurdMapper.class).addImport(domainClass).addImport(idClass);
-        //classDefinition.addExtend(CurdMapper.class.getSimpleName() + "<" + domainClass.getSimpleName() + ", " + idClass.getSimpleName() + ">");
-
-        /*if(!CollectionUtils.isEmpty(table.getQueryColumns())) {
-
-            List<String> byNames = new ArrayList<>();
-
-            List<ParameterDefinition> parameterDefinitions = new ArrayList<>();
-
-            table.getQueryColumns().forEach(tableColumn -> {
-                byNames.add(ColumnUtils.initUpper(tableColumn.getProperty()));
-                parameterDefinitions.add(new ParameterDefinition(tableColumn.getProperty()).setTypeClass(tableColumn.getColumnType()));
-
-            });
-            String byName = StringUtils.join(byNames, "And");
-            MethodDefinition methodDefinition = new MethodDefinition("findPageBy" + byName);
-            methodDefinition.addAnnotation("@IfTest(notEmpty = true)").addImport(IfTest.class);
-            methodDefinition.addParameter(new ParameterDefinition("page").setTypeClass(Pageable.class));
-            methodDefinition.addParameter(new ParameterDefinition("sort").setTypeClass(Sort.class));
-            parameterDefinitions.forEach(parameterDefinition -> {
-                methodDefinition.addParameter(parameterDefinition);
-            });
-            methodDefinition.setReturnValueClass(List.class).setReturnValue("List<" + domainClass.getSimpleName() + ">");
-            methodDefinition.setHasBody(false);
-            classDefinition.addMethodDefinition(methodDefinition);
-        }*/
-
-
         return classDefinition;
     }
-
-    /*public static void main(String[] args) throws IOException {
-
-        InputStream inputStream = GeneratorUtils.class.getClassLoader().getResourceAsStream("generate.xml");
-        XmlParser xmlParser = new XmlParser(inputStream);
-        DataSourceConfig dataSourceConfig = xmlParser.parseText("config.datasource", DataSourceConfig.class);
-        GlobalConfig globalConfig = xmlParser.parseText("config.properties", GlobalConfig.class);
-
-        List<TableConfig> tableConfigs = xmlParser.parseListAttribute("config.tables.table", TableConfig.class);
-        List<ClassDefinition> classDefinitions = process(dataSourceConfig, globalConfig, tableConfigs);
-        classDefinitions.forEach(classDefinition -> {
-            try {
-                classDefinition.out(System.out);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }*/
 
 }

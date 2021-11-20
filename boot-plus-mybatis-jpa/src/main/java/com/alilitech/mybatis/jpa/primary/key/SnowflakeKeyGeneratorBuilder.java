@@ -16,6 +16,7 @@
 package com.alilitech.mybatis.jpa.primary.key;
 
 import com.alilitech.mybatis.MybatisJpaProperties;
+import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowFlakeKeyGenerateException;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGenerator;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.generator.SnowflakeGeneratorOffsetModify;
@@ -69,7 +70,7 @@ public class SnowflakeKeyGeneratorBuilder {
             snowflakeGenerator = mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy().getClazz().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             log.error("New SnowflakeGenerator Object failed");
-            throw new RuntimeException(e);
+            throw new SnowFlakeKeyGenerateException(e);
         }
 
         if(snowflakeGenerator instanceof SnowflakeGeneratorOffsetModify) {

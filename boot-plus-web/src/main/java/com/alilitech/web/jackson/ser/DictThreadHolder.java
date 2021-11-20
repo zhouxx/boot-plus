@@ -24,23 +24,25 @@ import java.util.Set;
  */
 public class DictThreadHolder {
 
-    private static ThreadLocal<Set<String>> NOT_EXIST_DICTS = new ThreadLocal<Set<String>>() {
-        @Override
-        protected Set<String> initialValue() {
-            return new HashSet<>();
-        }
-    };
+    private DictThreadHolder() {
+    }
+
+    private static ThreadLocal<Set<String>> notExistDicts = ThreadLocal.withInitial(HashSet::new);
 
     public static void put(String key) {
-        NOT_EXIST_DICTS.get().add(key);
+        notExistDicts.get().add(key);
     }
 
     public static boolean exist(String key) {
-        return NOT_EXIST_DICTS.get().contains(key);
+        return notExistDicts.get().contains(key);
     }
 
     public static void clear() {
-        NOT_EXIST_DICTS.get().clear();
+        notExistDicts.get().clear();
+    }
+
+    public static void remove() {
+        notExistDicts.remove();
     }
 
 }

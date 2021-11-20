@@ -45,7 +45,7 @@ public class CriteriaQuery<T> {
         this.booleanOperator = booleanOperator;
     }
 
-    public CriteriaQuery where(PredicateExpression ... predicateExpressions) {
+    public CriteriaQuery<T> where(PredicateExpression ... predicateExpressions) {
         new CompoundPredicateExpression<T>(booleanOperator, predicateExpressions).render(renderContext);
         whereScript = renderContext.getScript();
         paramValues = renderContext.getParamValues();
@@ -53,11 +53,11 @@ public class CriteriaQuery<T> {
         return this;
     }
 
-    public CriteriaQuery orderBy(OrderExpression ...orderExpressions) {
+    public CriteriaQuery<T> orderBy(OrderExpression ...orderExpressions) {
         if(orderExpressions != null && orderExpressions.length > 0) {
             renderContext.renderString("ORDER BY ");
             String split = "";
-            for (OrderExpression orderExpression : orderExpressions) {
+            for (OrderExpression<T> orderExpression : orderExpressions) {
                 renderContext.renderString(split);
                 orderExpression.render(renderContext);
                 split = ", ";

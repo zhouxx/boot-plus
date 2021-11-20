@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Order(Ordered.HIGHEST_PRECEDENCE - 10)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

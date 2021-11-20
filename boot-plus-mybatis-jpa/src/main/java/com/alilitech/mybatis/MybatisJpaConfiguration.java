@@ -30,9 +30,10 @@ import com.alilitech.mybatis.spring.MybatisJpaConfigurer;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.2.4
  */
-@Order(101)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @AutoConfigureAfter(MybatisAutoConfiguration.class)
 @EnableConfigurationProperties({MybatisJpaProperties.class})
 public class MybatisJpaConfiguration {
@@ -101,29 +102,6 @@ public class MybatisJpaConfiguration {
     public MybatisMapperScanner mybatisMapperScanner() {
         return new MybatisMapperScanner();
     }
-
-//    @Bean
-//    public SnowflakeContext snowflakeContext(MybatisJpaProperties mybatisJpaProperties, @Nullable OffsetRepository offsetRepository) {
-//        SnowflakeContext snowflakeContext = new SnowflakeContext(mybatisJpaProperties.getSnowflake().getGroupId(), mybatisJpaProperties.getSnowflake().getWorkerId());
-//        switch (mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy()) {
-//            case WAITING:
-//                snowflakeContext.setMaxBackTime(mybatisJpaProperties.getSnowflake().getMaxBackTime());
-//                break;
-//            case EXTRA:
-//                snowflakeContext = new SnowflakeContext(mybatisJpaProperties.getSnowflake().getGroupId(), mybatisJpaProperties.getSnowflake().getWorkerId(), mybatisJpaProperties.getSnowflake().getExtraWorkerId());
-//                break;
-//            case OFFSET_MODIFY:
-//                snowflakeContext.setOffset(mybatisJpaProperties.getSnowflake().getOffset());
-//                if(offsetRepository != null) {
-//                    Long offset = offsetRepository.getOffset();
-//                    if(offset != null) {
-//                        snowflakeContext.setOffset(offset);
-//                    }
-//                }
-//                break;
-//        }
-//        return snowflakeContext;
-//    }
 
     /**
      * register snowflake key generator builder bean

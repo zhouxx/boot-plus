@@ -45,11 +45,10 @@ public class CompoundPredicateExpression<T> implements PredicateExpression<T> {
         this.operator = operator;
     }
 
-    private void applyExpressions(List<PredicateExpression<T>> expressions) {
+    public void applyExpressions(List<PredicateExpression<T>> expressions) {
         this.predicates.clear();
         this.predicates.addAll( expressions );
     }
-
 
     @Override
     public void render(RenderContext renderContext, Expression<T> ...expressions) {

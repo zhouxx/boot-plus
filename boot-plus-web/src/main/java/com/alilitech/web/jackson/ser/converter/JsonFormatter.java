@@ -16,7 +16,6 @@
 package com.alilitech.web.jackson.ser.converter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
@@ -32,7 +31,7 @@ public class JsonFormatter {
         this.formatConfig = formatConfig;
     }
 
-    public void serialize(Object originalValue, Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Object originalValue, Object value, JsonGenerator gen) throws IOException {
 
         if(value == null && formatConfig.isDefaultNull()) {
             value = formatConfig.getDefaultNullValue();

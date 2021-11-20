@@ -24,6 +24,7 @@ import java.util.Collection;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
+@SuppressWarnings("java:S1948")
 public class BizUser implements Serializable {
 
     /**

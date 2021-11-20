@@ -35,11 +35,7 @@ public class MybatisJpaParameterHandler extends DefaultParameterHandler {
         super(mappedStatement, process(mappedStatement, parameterObject, boundSql), boundSql);
     }
 
-    @Override
-    public Object getParameterObject() {
-        return super.getParameterObject();
-    }
-
+    @SuppressWarnings("java:S3740")
     private static Object process(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
         //对like参数进行转换，防止sql注入，前提必须是有参数
         if(parameterObject != null && mappedStatement.getSqlCommandType().equals(SqlCommandType.SELECT)) {
@@ -48,7 +44,7 @@ public class MybatisJpaParameterHandler extends DefaultParameterHandler {
 
             //多参数
             if(parameterObject instanceof MapperMethod.ParamMap) {
-                MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+                MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap<?>) parameterObject;
                 paramMap.forEach((key, value) -> {
                     String likeKey = methodId + "." + key;
                     if(likeContainer.isExist(likeKey)

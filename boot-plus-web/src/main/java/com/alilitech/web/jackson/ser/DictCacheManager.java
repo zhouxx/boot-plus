@@ -110,10 +110,6 @@ public class DictCacheManager {
 
     }
 
-//    public boolean exist(String dictKey) {
-//        return cacheMap.containsKey(dictKey);
-//    }
-
     public Object getDictValByKey(String dictKey, String value) {
         return cacheMap.get(dictKey).get(value);
     }

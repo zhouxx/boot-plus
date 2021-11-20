@@ -95,7 +95,7 @@ public class TriggerValue4SelectKeyGenerator extends SelectKeyGenerator {
                     // The transaction will be closed by parent executor.
                     Executor keyExecutor = configuration.newExecutor(executor.getTransaction(), ExecutorType.SIMPLE);
                     List<Object> values = keyExecutor.query(keyStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER);
-                    if (values.size() == 0) {
+                    if (values.isEmpty()) {
                         throw new ExecutorException("SelectKey returned no data.");
                     } else if (values.size() > 1) {
                         throw new ExecutorException("SelectKey returned more than one value.");

@@ -104,7 +104,7 @@ public class ClassDefinition {
         return this;
     }
 
-    public ClassDefinition addImport(Class importClass) {
+    public ClassDefinition addImport(Class<?> importClass) {
         if(importClass.getTypeName().startsWith("java.lang")) {
             return this;
         }
@@ -223,32 +223,32 @@ public class ClassDefinition {
     @Override
     public String toString() {
         String lineEnd = "\r\n";
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         //package part
         if(packageName != null) {
-            buffer.append("package " + packageName + ";" + lineEnd);
+            builder.append("package " + packageName + ";" + lineEnd);
         }
-        buffer.append(lineEnd);
+        builder.append(lineEnd);
 
         //import part
         if(importList != null) {
-            importList.forEach(s -> buffer.append("import " + s + ";" + lineEnd));
+            importList.forEach(s -> builder.append("import " + s + ";" + lineEnd));
         }
-        buffer.append(lineEnd);
+        builder.append(lineEnd);
 
         //comment part
         if(comments != null) {
-            buffer.append("/**" + lineEnd);
+            builder.append("/**" + lineEnd);
             comments.forEach(s -> {
-                buffer.append(" * " + s + lineEnd);
+                builder.append(" * " + s + lineEnd);
             });
-            buffer.append(" */" + lineEnd);
+            builder.append(" */" + lineEnd);
         }
 
         //annotation part
         if(annotationList != null) {
             annotationList.forEach(s -> {
-                buffer.append("@" + s + lineEnd);
+                builder.append("@" + s + lineEnd);
             });
         }
 
@@ -258,19 +258,19 @@ public class ClassDefinition {
             classType = "interface";
         }
 
-        buffer.append(scope + (abstracted ? " abstract " : " ") + classType + " " + className);
+        builder.append(scope + (abstracted ? " abstract " : " ") + classType + " " + className);
 
         if(extendClassList != null) {
-            buffer.append(" extends ");
-            buffer.append(String.join(", ", extendClassList));
+            builder.append(" extends ");
+            builder.append(String.join(", ", extendClassList));
         }
 
         if(implementClassList != null) {
-            buffer.append(" implements ");
-            buffer.append(String.join(", ", implementClassList));
+            builder.append(" implements ");
+            builder.append(String.join(", ", implementClassList));
         }
-        buffer.append(" {" + lineEnd);
-        buffer.append(lineEnd);
+        builder.append(" {" + lineEnd);
+        builder.append(lineEnd);
 
         String space4 = "\t";
 
@@ -279,16 +279,16 @@ public class ClassDefinition {
             for(FieldDefinition fieldDefinition : fieldDefinitions) {
 
                 if(fieldDefinition.getComments() != null) {
-                    buffer.append(space4).append("/**").append(lineEnd);
-                    fieldDefinition.getComments().forEach(s -> buffer.append(space4 + " * " + s + lineEnd));
-                    buffer.append(space4 + " */" + lineEnd);
+                    builder.append(space4).append("/**").append(lineEnd);
+                    fieldDefinition.getComments().forEach(s -> builder.append(space4 + " * " + s + lineEnd));
+                    builder.append(space4 + " */" + lineEnd);
                 }
 
                 if(fieldDefinition.getAnnotationList() != null) {
-                    fieldDefinition.getAnnotationList().forEach(s -> buffer.append(space4).append("@").append(s).append(lineEnd));
+                    fieldDefinition.getAnnotationList().forEach(s -> builder.append(space4).append("@").append(s).append(lineEnd));
                 }
-                buffer.append(space4 + fieldDefinition.getScope() + " " + fieldDefinition.getType() + " " + fieldDefinition.getName() + ";" + lineEnd);
-                buffer.append(lineEnd);
+                builder.append(space4 + fieldDefinition.getScope() + " " + fieldDefinition.getType() + " " + fieldDefinition.getName() + ";" + lineEnd);
+                builder.append(lineEnd);
             }
         }
 
@@ -296,38 +296,38 @@ public class ClassDefinition {
         if(methodDefinitions != null) {
             for(MethodDefinition methodDefinition : methodDefinitions) {
                 if(methodDefinition.getAnnotationList() != null) methodDefinition.getAnnotationList().forEach(s -> {
-                    buffer.append(space4).append("@").append(s).append(lineEnd);
+                    builder.append(space4).append("@").append(s).append(lineEnd);
                 });
-                buffer.append(space4).append(methodDefinition.getScope()).append(" ").append(methodDefinition.getReturnValue()).append(" ").append(methodDefinition.getMethodName()).append("(");
+                builder.append(space4).append(methodDefinition.getScope()).append(" ").append(methodDefinition.getReturnValue()).append(" ").append(methodDefinition.getMethodName()).append("(");
                 if(methodDefinition.getParameters() != null) {
                     for (int i = 0; i < methodDefinition.getParameters().size(); i++) {
                         ParameterDefinition parameterDefinition = methodDefinition.getParameters().get(i);
                         if(i > 0) {
-                            buffer.append(", ");
+                            builder.append(", ");
                         }
                         if(parameterDefinition.getAnnotationList()!= null) {
-                            parameterDefinition.getAnnotationList().forEach(s -> buffer.append("@").append(s).append(" "));
+                            parameterDefinition.getAnnotationList().forEach(s -> builder.append("@").append(s).append(" "));
                         }
-                        buffer.append(parameterDefinition.getType()).append(" ").append(parameterDefinition.getName());
+                        builder.append(parameterDefinition.getType()).append(" ").append(parameterDefinition.getName());
                     }
                 }
                 if(methodDefinition.isHasBody()) {
-                    buffer.append(")" + " {").append(lineEnd);
+                    builder.append(")" + " {").append(lineEnd);
                     if(methodDefinition.getBodyLines() != null) {
-                        methodDefinition.getBodyLines().forEach(s -> buffer.append(space4).append(space4).append(s).append(lineEnd));
+                        methodDefinition.getBodyLines().forEach(s -> builder.append(space4).append(space4).append(s).append(lineEnd));
                     }
-                    buffer.append(space4).append("}").append(lineEnd);
+                    builder.append(space4).append("}").append(lineEnd);
                 } else {
-                    buffer.append(");").append(lineEnd);
+                    builder.append(");").append(lineEnd);
                 }
 
-                buffer.append(lineEnd);
+                builder.append(lineEnd);
             }
         }
 
-        buffer.append("}").append(lineEnd);
+        builder.append("}").append(lineEnd);
 
-        return buffer.toString();
+        return builder.toString();
     }
 
 }

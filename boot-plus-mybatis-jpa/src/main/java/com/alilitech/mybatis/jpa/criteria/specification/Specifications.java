@@ -29,14 +29,14 @@ public class Specifications {
     }
 
     public static <T> PredicateBuilder<T> and() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, AND);
+        return new PredicateBuilder<>((SpecificationBuilder<T>) emptySpecificationBuilder, AND);
     }
     public static <T> PredicateBuilder<T> or() {
-        return new PredicateBuilder<>(emptySpecificationBuilder, OR);
+        return new PredicateBuilder<>((SpecificationBuilder<T>) emptySpecificationBuilder, OR);
     }
 
     public static <T> OrderBuilder<T> order() {
-        return new OrderBuilder(emptySpecificationBuilder);
+        return new OrderBuilder<>((SpecificationBuilder<T>)emptySpecificationBuilder);
     }
 
 }

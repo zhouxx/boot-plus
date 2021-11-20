@@ -53,12 +53,9 @@ public class JpaInitializer {
 
         for(Class<?> mapperClass : mapperClasses) {
             // If mapper is not extend from Mapper, not register
-            if(!Mapper.class.isAssignableFrom(mapperClass)) {
-                continue;
-            }
-
             // if mapper has NoMapperBean, not register
-            if(mapperClass.isAnnotationPresent(NoMapperBean.class)) {
+            if(!Mapper.class.isAssignableFrom(mapperClass)
+                || mapperClass.isAnnotationPresent(NoMapperBean.class)) {
                 continue;
             }
 

@@ -22,20 +22,20 @@ package com.alilitech.mybatis.jpa.exception;
  */
 public class PropertyNotFoundException extends RuntimeException {
 
-    private final Class domain;
+    private final Class<?> domain;
 
     private final String property;
 
     private final String statement;
 
-    public PropertyNotFoundException(Class domain, String property, String statement, String msg) {
+    public PropertyNotFoundException(Class<?> domain, String property, String statement, String msg) {
         super(msg);
         this.domain = domain;
         this.property = property;
         this.statement = statement;
     }
 
-    public Class getDomain() {
+    public Class<?> getDomain() {
         return domain;
     }
 

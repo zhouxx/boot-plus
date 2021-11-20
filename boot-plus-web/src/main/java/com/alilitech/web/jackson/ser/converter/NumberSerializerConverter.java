@@ -37,6 +37,7 @@ public class NumberSerializerConverter implements SerializerConverter<Object> {
         Object formatValue = null;
         if(numberAnnotationConfig.getPattern().equals("")) {
             BigDecimal bigDecimalValue = null;
+
             if(value instanceof BigDecimal) {
                 bigDecimalValue = (BigDecimal) value;
             } else if(value instanceof Double){
@@ -52,6 +53,11 @@ public class NumberSerializerConverter implements SerializerConverter<Object> {
             } else if(value instanceof Byte){
                 bigDecimalValue = new BigDecimal((Byte)value);
             }
+
+            if(bigDecimalValue == null) {
+                throw new UnsupportedOperationException("The type { " + value.getClass() + " } is can not parse with 'com.alilitech.web.jackson.anotation.NumberFormat'");
+            }
+
             bigDecimalValue = bigDecimalValue.setScale(numberAnnotationConfig.getScale(), numberAnnotationConfig.getRound());
             formatValue = bigDecimalValue;
         } else {

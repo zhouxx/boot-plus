@@ -30,7 +30,7 @@ public class ParameterExpression<T> implements AtomicExpression<T> {
     }
 
     public void formatValue(String pattern) {
-        this.paramValue = pattern.replaceAll("\\{0\\}", paramValue.toString());
+        this.paramValue = pattern.replace("\\{0\\}", paramValue.toString());
     }
 
     @Override
@@ -42,15 +42,4 @@ public class ParameterExpression<T> implements AtomicExpression<T> {
         renderContext.renderString("}");
     }
 
-    /*@Override
-    public String renderString(RenderContext renderContext) {
-        this.paramName = renderContext.getParamPrefix() + renderContext.getParamIndexAndIncrement();
-        renderContext.getParamValues().put(this.paramName, paramValue);
-        if(needPlaceholder) {
-            return "#{" + renderContext.getParamPrefixPrefix() + this.paramName + "}";
-        } else {
-            return renderContext.getParamPrefixPrefix() + this.paramName;
-        }
-
-    }*/
 }

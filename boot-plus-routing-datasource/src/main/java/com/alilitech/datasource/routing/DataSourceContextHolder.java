@@ -26,6 +26,9 @@ public class DataSourceContextHolder {
 
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
 
+    private DataSourceContextHolder() {
+    }
+
     /**
      * set data source name
      */

@@ -69,7 +69,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
 //    @Override
 //    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("swagger-ui.html")
+//        registry.addResourceHandler("api.html")
 //                .addResourceLocations("classpath:/META-INF/resources/");
 //
 //        registry.addResourceHandler("/webjars/**")
@@ -195,14 +195,14 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     @Bean
     @ConditionalOnClass(name = "com.alilitech.mybatis.jpa.domain.Pageable")
-    public MybatisJpaPageableParameterBuilder mybatisJpaPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
-        return new MybatisJpaPageableParameterBuilder(nameExtractor, resolver);
+    public MybatisJpaPageableParameterBuilder mybatisJpaPageableParameterBuilder(TypeResolver resolver) {
+        return new MybatisJpaPageableParameterBuilder(resolver);
     }
 
     @Bean
     @ConditionalOnClass(name = "org.springframework.data.domain.Pageable")
-    public DataPageableParameterBuilder dataPageableParameterBuilder(TypeNameExtractor nameExtractor, TypeResolver resolver) {
-        return new DataPageableParameterBuilder(nameExtractor, resolver);
+    public DataPageableParameterBuilder dataPageableParameterBuilder(TypeResolver resolver) {
+        return new DataPageableParameterBuilder(resolver);
     }
 
 }

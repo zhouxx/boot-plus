@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
  */
 public class UnicodeUtils {
 
+    private UnicodeUtils() {}
+
     public static String unicodeToString(String str) {
 
         Pattern pattern = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");

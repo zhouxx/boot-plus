@@ -41,14 +41,14 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
     private boolean defaultNull;
     private String defaultNullValue;
 
-    private final JsonSerializer<Object> _nullArrayJsonSerializer = new NullArrayJsonSerializer();
-    private final JsonSerializer<Object> _nullStringJsonSerializer = new NullStringJsonSerializer();
-    private final JsonSerializer<Object> _nullMapJsonSerializer = new NullMapJsonSerializer();
-    private final JsonSerializer<Object> _nullDoubleJsonSerializer = new NullDoubleJsonSerializer();
-    private final JsonSerializer<Object> _nullIntegerJsonSerializer = new NullIntegerJsonSerializer();
-    private final JsonSerializer<Object> _nullDateJsonSerializer = new NullDateJsonSerializer();
-    private final JsonSerializer<Object> _nullObjectJsonSerializer = new NullObjectJsonSerializer();
-    private final JsonSerializer<Object> _nullBigDecimalJsonSerializer = new NullBigDecimalJsonSerializer();
+    private final JsonSerializer<Object> nullArrayJsonSerializer = new NullArrayJsonSerializer();
+    private final JsonSerializer<Object> nullStringJsonSerializer = new NullStringJsonSerializer();
+    private final JsonSerializer<Object> nullMapJsonSerializer = new NullMapJsonSerializer();
+    private final JsonSerializer<Object> nullDoubleJsonSerializer = new NullDoubleJsonSerializer();
+    private final JsonSerializer<Object> nullIntegerJsonSerializer = new NullIntegerJsonSerializer();
+    private final JsonSerializer<Object> nullDateJsonSerializer = new NullDateJsonSerializer();
+    private final JsonSerializer<Object> nullObjectJsonSerializer = new NullObjectJsonSerializer();
+    private final JsonSerializer<Object> nullBigDecimalJsonSerializer = new NullBigDecimalJsonSerializer();
 
     public NullBeanSerializerModifier() {
     }
@@ -58,6 +58,7 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
         this.defaultNullValue = defaultNullValue;
     }
 
+    @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
 
         //如果类上定义了，则在取类定义的值，如果类没定义，则取全局
@@ -115,7 +116,6 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
     }
 
     private boolean isArrayType(BeanPropertyWriter writer) {
-        //Class clazz = writer.getPropertyType();
         Class<?> clazz = writer.getType().getRawClass();
         return clazz.isArray() || clazz.equals(List.class) || clazz.equals(Set.class);
     }
@@ -151,34 +151,34 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
     }
 
     private JsonSerializer<Object> defaultNullArrayJsonSerializer() {
-        return this._nullArrayJsonSerializer;
+        return this.nullArrayJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullStringJsonSerializer() {
-        return this._nullStringJsonSerializer;
+        return this.nullStringJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullMapJsonSerializer() {
-        return this._nullMapJsonSerializer;
+        return this.nullMapJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullDoubleJsonSerializer() {
-        return this._nullDoubleJsonSerializer;
+        return this.nullDoubleJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullIntegerJsonSerializer() {
-        return this._nullIntegerJsonSerializer;
+        return this.nullIntegerJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullDateJsonSerializer() {
-        return this._nullDateJsonSerializer;
+        return this.nullDateJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullObjectJsonSerializer() {
-        return this._nullObjectJsonSerializer;
+        return this.nullObjectJsonSerializer;
     }
 
     private JsonSerializer<Object> defaultNullBigDecimalJsonSerializer() {
-        return this._nullBigDecimalJsonSerializer;
+        return this.nullBigDecimalJsonSerializer;
     }
 }

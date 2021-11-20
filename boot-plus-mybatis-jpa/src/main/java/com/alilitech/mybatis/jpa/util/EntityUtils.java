@@ -30,6 +30,9 @@ import java.util.List;
  */
 public class EntityUtils {
 
+    private EntityUtils() {
+    }
+
     /**
      * 获取Java对象对应的表名, 默认下划线风格
      */

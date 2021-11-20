@@ -51,6 +51,19 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
         RenderContext renderContext = new RenderContext();
         buildSimplePart(entityMetaData.getPrimaryColumnMetaData().getProperty()).render(renderContext);
 
+        SQL sql = new SQL().UPDATE(entityMetaData.getTableName());
+
+        for (ColumnMetaData columnMetaData : entityMetaData.getColumnMetaDataMap().values()) {
+            if(columnMetaData.isPrimaryKey() || columnMetaData.isJoin()) {
+                continue;
+            }
+            sql.SET(columnMetaData.getColumnName() + " = " + StatementAssistant.resolveSqlParameterBySysFunction(columnMetaData, SqlCommandType.UPDATE));
+        }
+        sql.WHERE(renderContext.getScript());
+
+        return sql.toString();
+
+        /**
         return new SQL() {
             {
                 UPDATE(entityMetaData.getTableName());
@@ -63,6 +76,7 @@ public class PreMapperStatementBuilder4Update extends PreMapperStatementBuilder 
                 WHERE(renderContext.getScript());
             }
         }.toString();
+         */
     }
 
     protected Class<?> getParameterTypeClass() {

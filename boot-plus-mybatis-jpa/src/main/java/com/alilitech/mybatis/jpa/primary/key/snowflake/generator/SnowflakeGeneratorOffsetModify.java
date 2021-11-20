@@ -30,7 +30,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
 
-    protected static BlockingQueue<OffsetSaveDTO> offsetBlockingQueue;
+    private static BlockingQueue<OffsetSaveDTO> offsetBlockingQueue;
 
     private Class<?> entityClass;
 

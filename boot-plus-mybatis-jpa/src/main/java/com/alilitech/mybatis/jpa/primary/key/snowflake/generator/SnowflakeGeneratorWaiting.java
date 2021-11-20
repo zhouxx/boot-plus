@@ -1,6 +1,7 @@
 package com.alilitech.mybatis.jpa.primary.key.snowflake.generator;
 
 
+import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowFlakeKeyGenerateException;
 import com.alilitech.mybatis.jpa.primary.key.snowflake.SnowflakeContext;
 
 import java.util.concurrent.TimeUnit;
@@ -25,10 +26,10 @@ public class SnowflakeGeneratorWaiting extends AbstractSnowflakeGenerator {
                 try {
                     TimeUnit.MILLISECONDS.sleep(lastTimestamp - currentTimestamp);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException("Waiting time to over occur exception!");
+                    throw new SnowFlakeKeyGenerateException("Waiting time to over occur exception!");
                 }
             } else {
-                throw new RuntimeException(String.format("Clock moved backwards. Refusing to generate id for %d milliseconds", lastTimestamp - currentTimestamp));
+                throw new SnowFlakeKeyGenerateException(String.format("Clock moved backwards. Refusing to generate id for %d milliseconds", lastTimestamp - currentTimestamp));
             }
             log.warn("Clock is moving backwards. Back time is " + (lastTimestamp - currentTimestamp) + " ms.");
         }

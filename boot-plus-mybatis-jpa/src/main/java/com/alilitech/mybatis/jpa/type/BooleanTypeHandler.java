@@ -45,6 +45,7 @@ public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
         return rs.getBoolean(columnName);
     }
 
+    @SuppressWarnings("all")
     private Boolean getBooleanData(Object object) {
         if(object instanceof Integer) {
             int i = Integer.parseInt(object.toString());

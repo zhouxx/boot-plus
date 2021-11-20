@@ -55,7 +55,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
         String pageSizeString = webRequest.getParameter(DEFAULT_SIZE_PARAMETER);
 
         //默认分页
-        Pageable pageable = new Page();
+        Pageable<?> pageable = new Page<>();
 
         //转化加优化
         int page = StringUtils.hasText(pageString) ? parseAndApplyBoundaries(pageString, Integer.MAX_VALUE, false)
@@ -71,7 +71,7 @@ public class PageableArgumentResolver implements HandlerMethodArgumentResolver {
         //Sort解析转化
         Sort sort = sortResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
 
-        return new Page(page, pageSize, sort);
+        return new Page<>(page, pageSize, sort);
     }
 
     private int parseAndApplyBoundaries(String parameter, int upper, boolean shiftIndex) {

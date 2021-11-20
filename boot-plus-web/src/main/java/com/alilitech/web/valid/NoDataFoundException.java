@@ -1,4 +1,4 @@
-package com.alilitech.web.validate;
+package com.alilitech.web.valid;
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0

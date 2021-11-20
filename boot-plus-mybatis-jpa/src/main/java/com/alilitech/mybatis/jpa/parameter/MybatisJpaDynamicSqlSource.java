@@ -76,11 +76,11 @@ public class MybatisJpaDynamicSqlSource extends DynamicSqlSource {
 
         // 转换规格查询参数
         if(parameterObject instanceof Specification && domainType != null) {
-            Specification<?> specification = (Specification<?>) parameterObject;
+            Specification specification = (Specification) parameterObject;
 
-            CriteriaBuilder<?> cb = new CriteriaBuilder<>(domainType);
+            CriteriaBuilder cb = new CriteriaBuilder<>(domainType);
 
-            CriteriaQuery<?> query = new CriteriaQuery<>(domainType);
+            CriteriaQuery query = new CriteriaQuery<>(domainType);
 
             PredicateExpression<?> predicate = specification.toPredicate(cb, query);
 

@@ -38,8 +38,15 @@ public class BeanUtils {
 	/** Log */
 	private static final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
 
+	private static final String TIP_SOURCE_NULL = "Source object is null";
+	private static final String TIP_ERROR = "copy occur error";
+
+
 	/** cache */
 	private static final Map<Class<?>, List<FieldDesc>> cache = new ConcurrentHashMap<>();
+
+	private BeanUtils() {
+	}
 
 	/**
 	 * bean to map，only support the fields of the current class
@@ -48,23 +55,19 @@ public class BeanUtils {
 	 */
 	public static Map<String, Object> beanToMapCommon(Object source) {
 		if(source == null) {
-			logger.debug("Source object is null");
-			return null;
+			logger.debug(TIP_SOURCE_NULL);
+			return Collections.emptyMap();
 		}
 		Map<String, Object> mapRet = new HashMap<>();
 		List<TempBean> list = BeanUtils.findSourceMethod(source);
 		try {
 			for (TempBean tb : list) {
-//				try {
-					Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
-					String fieldName = tb.fieldDesc.fieldName;
-					mapRet.put(fieldName, value);
-//				} catch ( SecurityException e) {
-//					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-//				}
+				Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
+				String fieldName = tb.fieldDesc.fieldName;
+				mapRet.put(fieldName, value);
 			}
-		} catch (Throwable e) {
-			logger.error("copy occur error", e);
+		} catch (Exception e) {
+			logger.error(TIP_ERROR, e);
 		}
 		return mapRet;
 	}
@@ -76,23 +79,19 @@ public class BeanUtils {
 	 */
 	public static Map<String, Object> beanToMap(Object source) {
 		if(source == null) {
-			logger.debug("Source object is null");
-			return null;
+			logger.debug(TIP_SOURCE_NULL);
+			return Collections.emptyMap();
 		}
 		Map<String, Object> mapRet = new HashMap<>();
 		try {
 			List<TempBean> list = BeanUtils.findSourceMethod(source, null);
 			for (TempBean tb : list) {
-//				try {
-					Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
-					String fieldName = tb.fieldDesc.fieldName;
-					mapRet.put(fieldName, value);
-//				} catch (SecurityException e) {
-//					logger.debug(tb.getFieldDesc().getSetName() + " is not exist, not covert!");
-//				}
+				Object value = tb.fieldDesc.getterMethod.invoke(tb.object);
+				String fieldName = tb.fieldDesc.fieldName;
+				mapRet.put(fieldName, value);
 			}
-		} catch (Throwable e) {
-			logger.error("copy occur error", e);
+		} catch (Exception e) {
+			logger.error(TIP_ERROR, e);
 		}
 		return mapRet;
 	}
@@ -179,7 +178,7 @@ public class BeanUtils {
 			return;
 		}
 		if(source == null) {
-			logger.debug("Source object is null");
+			logger.debug(TIP_SOURCE_NULL);
 			return;
 		}
 		// 解析需要忽略的字段
@@ -211,8 +210,8 @@ public class BeanUtils {
 				}
 				setterMethod.invoke(target, value);
 			}
-		} catch (Throwable e) {
-			logger.error("copy occur error", e);
+		} catch (Exception e) {
+			logger.error(TIP_ERROR, e);
 		}
 	}
 
@@ -228,20 +227,21 @@ public class BeanUtils {
 			for(TempBean tb : list) {
 				retMap.put(tb.fieldDesc.getterName, tb);
 			}
-		} else {
-			for(TempBean tb : list) {
-				boolean flag = false;
-				for(IgnoreProperty ignoreProperty : ignoreProperties) {
-					if(ignoreProperty.equalsWith(tb.objectSimpleName, tb.fieldDesc.fieldName)) {
-						flag = true;
-						break;
-					}
+			return retMap;  // 直接返回，减少复杂度
+		}
+
+		for(TempBean tb : list) {
+			boolean flag = false;
+			for(IgnoreProperty ignoreProperty : ignoreProperties) {
+				if(ignoreProperty.equalsWith(tb.objectSimpleName, tb.fieldDesc.fieldName)) {
+					flag = true;
+					break;
 				}
-				if(flag) {
-					continue;
-				}
-				retMap.put(tb.fieldDesc.getterName, tb);
 			}
+			if(flag) {
+				continue;
+			}
+			retMap.put(tb.fieldDesc.getterName, tb);
 		}
 
 		return retMap;
@@ -249,7 +249,7 @@ public class BeanUtils {
 
 	protected static IgnoreProperty[] resolveIgnoreProperties(String simpleName, String... ignoreProperties) {
 		if(ignoreProperties == null || ignoreProperties.length == 0) {
-			return null;
+			return new IgnoreProperty[0];
 		}
 
 		IgnoreProperty[] ignorePropertyArray = new IgnoreProperty[ignoreProperties.length];
@@ -281,29 +281,15 @@ public class BeanUtils {
 		if(cache.containsKey(source.getClass())) {
 			descList = cache.get(source.getClass());
 		} else {
-
-			List<Field> sourceFields = getAllFields(clazzSource, null);
-
-			for (Field field : sourceFields) {
-				if (isDirectConvert(field.getType())) {
-					descList.add(new FieldDesc(field));
-					continue;
-				}
-				if (!Collection.class.isAssignableFrom(field.getType())) {
-					descList.add(new FieldDesc(field));
-				}
-			}
-
+			getDescList(clazzSource, descList);
 			cache.put(source.getClass(), descList);
 		}
 
 		for(FieldDesc fieldDesc : descList) {
 
 			if(isDirectConvert(fieldDesc.type)) {
-//				TempBean tempBean = new TempBean(fieldDesc, source);
 				list.add(new TempBean(fieldDesc, source));
 			} else {
-//				Field field = source.getClass().getDeclaredField(fieldDesc.getFieldName());
 				Object nextO = getFieldObject(fieldDesc, source);
 				if (nextO != null) {
 					findSourceMethod(nextO, list);
@@ -312,6 +298,21 @@ public class BeanUtils {
 		}
 
 		return list;
+	}
+
+	// 实时获得Desc list
+	private static void getDescList(Class<?> clazzSource, List<FieldDesc> descList) {
+		List<Field> sourceFields = getAllFields(clazzSource, null);
+
+		for (Field field : sourceFields) {
+			if (isDirectConvert(field.getType())) {
+				descList.add(new FieldDesc(field));
+				continue;
+			}
+			if (!Collection.class.isAssignableFrom(field.getType())) {
+				descList.add(new FieldDesc(field));
+			}
+		}
 	}
 
 	/**
@@ -353,10 +354,10 @@ public class BeanUtils {
 				list.add(field);
 			}
 		}
-		if(!"Object".equals(clazz.getSuperclass().getSimpleName())) {
+		// 父类是Object了
+		if(clazz.getSuperclass() != null && clazz.getSuperclass().isAssignableFrom(Object.class)) {
 			getAllFields(clazz.getSuperclass(), list);
 		}
-
 		return list;
 	}
 

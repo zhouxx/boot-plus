@@ -26,8 +26,6 @@ import java.io.IOException;
  * @since 1.0
  */
 public class NullDateJsonSerializer extends NullJsonSerializer {
-    public NullDateJsonSerializer() {
-    }
 
     @Override
     public void writeNullValue(JsonGenerator gen, SerializerProvider serializers) throws IOException {

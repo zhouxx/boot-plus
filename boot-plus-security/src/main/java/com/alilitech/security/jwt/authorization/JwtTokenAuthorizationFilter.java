@@ -39,6 +39,10 @@ import java.io.IOException;
  */
 public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
 
+    private static final String TOKEN_ERROR = "Token.Error";
+
+    private static final String TOKEN_ERROR_MSG = "Token error, please check for {0}!";
+
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     private ExtensibleSecurity extensibleSecurity;
@@ -61,18 +65,17 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
         //Token is null
         if(token == null) {
             throw new AccessDeniedException(messages.getMessage(
-                    "Token.Error",
+                    TOKEN_ERROR,
                     new Object[] {request.getRequestURI()},
-                    "Token error, please check for {0}!"));
+                    TOKEN_ERROR_MSG));
         }
-
 
         //token is in black list
         if(blackListManager.inBlackList(token)) {
             throw new AccessDeniedException(messages.getMessage(
-                    "Token.Error",
+                    TOKEN_ERROR,
                     new Object[] {request.getRequestURI()},
-                    "Token error, please check for {0}!"));
+                    TOKEN_ERROR_MSG));
         }
 
         //validate token
@@ -94,9 +97,9 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
 
         } else {
             throw new AccessDeniedException(messages.getMessage(
-                    "Token.Error",
+                    TOKEN_ERROR,
                     new Object[] {request.getRequestURI()},
-                    "Token error, please check for {0}!"));
+                    TOKEN_ERROR_MSG));
         }
 
         filterChain.doFilter(request, response);

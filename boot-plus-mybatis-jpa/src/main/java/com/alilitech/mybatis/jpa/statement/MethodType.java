@@ -23,24 +23,24 @@ package com.alilitech.mybatis.jpa.statement;
  */
 public enum MethodType {
 
-    findById("findById", ParameterType.ID),
-    findAllById("findAllById", ParameterType.IDS),
-    insert("insert", ParameterType.ENTITY),
-    insertSelective("insertSelective", ParameterType.ENTITY),
-    update("update", ParameterType.ENTITY),
-    updateSelective("updateSelective", ParameterType.ENTITY),
-    deleteById("deleteById", ParameterType.ID),
-    insertBatch("insertBatch", ParameterType.ENTITIES),
-    updateBatch("updateBatch", ParameterType.ENTITIES),
-    deleteBatch("deleteBatch", ParameterType.IDS),
-    existsById("existsById", ParameterType.ID),
+    FIND_BY_ID("findById", ParameterType.ID),
+    FIND_ALL_BY_ID("findAllById", ParameterType.IDS),
+    INSERT("insert", ParameterType.ENTITY),
+    INSERT_SELECTIVE("insertSelective", ParameterType.ENTITY),
+    UPDATE("update", ParameterType.ENTITY),
+    UPDATE_SELECTIVE("updateSelective", ParameterType.ENTITY),
+    DELETE_BY_ID("deleteById", ParameterType.ID),
+    INSERT_BATCH("insertBatch", ParameterType.ENTITIES),
+    UPDATE_BATCH("updateBatch", ParameterType.ENTITIES),
+    DELETE_BATCH("deleteBatch", ParameterType.IDS),
+    EXISTS_BY_ID("existsById", ParameterType.ID),
 
-    findAll("findAll"),
-    findAllPage("findAllPage"),
-    findJoin("findJoin"),
-    findSpecification("findSpecification"),
+    FIND_ALL("findAll"),
+    FIND_ALL_PAGE("findAllPage"),
+    FIND_JOIN("findJoin"),
+    FIND_SPECIFICATION("findSpecification"),
 
-    other("other");
+    OTHER("other");
 
     MethodType(String type) {
         this.type = type;

@@ -28,7 +28,7 @@ import lombok.Setter;
 @Setter
 public class TableColumn {
 
-    private Class columnType;
+    private Class<?> columnType;
 
     private Integer columnSize;
 

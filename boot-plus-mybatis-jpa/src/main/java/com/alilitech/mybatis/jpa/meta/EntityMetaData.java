@@ -48,7 +48,7 @@ public class EntityMetaData {
 
     private String columnNames;
 
-    public EntityMetaData(Class clazz) {
+    public EntityMetaData(Class<?> clazz) {
         this.entityType = clazz;
 
         // 初始化集合
@@ -80,9 +80,7 @@ public class EntityMetaData {
             if(columnMetaData.isPrimaryKey()) {
                 primaryColumnMetaData = columnMetaData;
             }
-            /*if(columnMetaData.getTriggers() != null) {
-                this.hasTriggerValue = true;
-            }*/
+
             columnMetaDataMap.put(field.getName(), columnMetaData);
             if(!columnMetaData.isJoin()) {
                 columnNamesTemp.append(", ").append(columnMetaData.getColumnName());

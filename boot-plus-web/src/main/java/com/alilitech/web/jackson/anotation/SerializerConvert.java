@@ -30,6 +30,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface SerializerConvert {
 
-    Class<? extends SerializerConverter<?>>[] convertClasses() default {};
+    Class<? extends SerializerConverter>[] convertClasses() default {};
 
 }
