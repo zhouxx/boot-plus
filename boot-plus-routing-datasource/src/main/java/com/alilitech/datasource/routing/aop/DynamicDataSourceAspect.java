@@ -71,7 +71,7 @@ public class DynamicDataSourceAspect implements Ordered {
         // switch data source
         DataSourceContextHolder.setDataSource(dataSourceName);
 
-        if(dataSourceName != null) {
+        if(dataSourceName != null && logger.isDebugEnabled()) {
             logger.debug("current transaction use datasource：{}", dataSourceName);
         }
     }

@@ -48,7 +48,7 @@ public class DictSerializerConverter implements SerializerConverter<Object> {
 
         String holderKey = dictAnnotationConfig.getDictKey() + "." + dictKeyStringValue;
         if(DictThreadHolder.exist(holderKey)) {
-            logger.debug("The dictionary '{}' does not exist, the dictionary will not be collected in this thread", holderKey);
+            logger.warn("The dictionary '{}' does not exist, the dictionary will not be collected in the same thread", holderKey);
             return null;
         }
         // If there is no key or no value, reload the dictionary collector

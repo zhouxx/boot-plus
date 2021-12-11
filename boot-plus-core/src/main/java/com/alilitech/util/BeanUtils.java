@@ -42,7 +42,7 @@ public class BeanUtils {
 	private static final String TIP_ERROR = "copy occur error";
 
 
-	/** cache */
+	/** field desc cache */
 	private static final Map<Class<?>, List<FieldDesc>> cache = new ConcurrentHashMap<>();
 
 	private BeanUtils() {
@@ -55,7 +55,9 @@ public class BeanUtils {
 	 */
 	public static Map<String, Object> beanToMapCommon(Object source) {
 		if(source == null) {
-			logger.debug(TIP_SOURCE_NULL);
+			if(logger.isDebugEnabled()) {
+				logger.debug(TIP_SOURCE_NULL);
+			}
 			return Collections.emptyMap();
 		}
 		Map<String, Object> mapRet = new HashMap<>();
@@ -79,7 +81,9 @@ public class BeanUtils {
 	 */
 	public static Map<String, Object> beanToMap(Object source) {
 		if(source == null) {
-			logger.debug(TIP_SOURCE_NULL);
+			if(logger.isDebugEnabled()) {
+				logger.debug(TIP_SOURCE_NULL);
+			}
 			return Collections.emptyMap();
 		}
 		Map<String, Object> mapRet = new HashMap<>();
@@ -111,7 +115,9 @@ public class BeanUtils {
 				listRet.add(copyPropertiesDeep(o, clazz, ignorePropertyArray));
 			}
 		} else {
-			logger.debug("Source List is empty");
+			if(logger.isDebugEnabled()) {
+				logger.debug("Source List is empty");
+			}
 		}
 		return listRet;
 	}
@@ -174,11 +180,15 @@ public class BeanUtils {
 	 */
 	public static void copyPropertiesDeep(Object source, Object target, String... ignoreProperties) {
 		if(target == null) {
-			logger.debug("Target object is null");
+			if(logger.isDebugEnabled()) {
+				logger.debug("Target object is null");
+			}
 			return;
 		}
 		if(source == null) {
-			logger.debug(TIP_SOURCE_NULL);
+			if(logger.isDebugEnabled()) {
+				logger.debug(TIP_SOURCE_NULL);
+			}
 			return;
 		}
 		// 解析需要忽略的字段

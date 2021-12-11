@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  */
 public class OrderBySource implements Render {
 
-    static OrderBySource EMPTY = new OrderBySource("");
+    static final OrderBySource EMPTY = new OrderBySource("");
 
     private static final String BLOCK_SPLIT = "(?<=Asc|Desc)(?=\\p{Lu})";
     private static final Pattern DIRECTION_SPLIT = Pattern.compile("(.+?)(Asc|Desc)?$");

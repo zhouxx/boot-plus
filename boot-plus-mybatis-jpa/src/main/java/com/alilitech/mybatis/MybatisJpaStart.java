@@ -108,7 +108,9 @@ public class MybatisJpaStart implements ApplicationListener<ContextRefreshedEven
         });
 
         watch.stop();
-        logger.debug("Started Mybatis Jpa in {} ms", watch.getTotalTimeMillis());
+        if(logger.isDebugEnabled()) {
+            logger.debug("Started Mybatis Jpa in {} ms", watch.getTotalTimeMillis());
+        }
         applicationContext.publishEvent(new MybatisJpaStartedEvent(applicationContext));
     }
 

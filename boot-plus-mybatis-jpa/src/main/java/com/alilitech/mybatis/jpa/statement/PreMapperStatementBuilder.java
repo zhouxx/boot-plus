@@ -85,7 +85,9 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
         LanguageDriver langDriver = getLanguageDriver(null);
 
         String scriptString = buildSQL();
-        log.trace("script==>" + scriptString);
+        if(log.isTraceEnabled()) {
+            log.trace("script==>" + scriptString);
+        }
         SqlSource sqlSource = this.buildSqlSource(scriptString, langDriver);
 
         preMapperStatement.setId(id);
@@ -188,7 +190,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * 设置无key生成器
-     * @param preMapperStatement
      */
     protected void setNoKeyGenerator(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4NoKeyGenerator());
@@ -198,7 +199,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * set jdbc key generator
-     * @param preMapperStatement
      */
     protected void setTriggerValue4Jdbc3KeyGenerator(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
@@ -208,7 +208,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * set jdbc key generator, but not callback
-     * @param preMapperStatement
      */
     protected void setTriggerValue4Jdbc3KeyGeneratorButNotCallBack(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(new TriggerValue4Jdbc3KeyGenerator());
@@ -218,7 +217,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * set select(sequence) key generator, need execute the sql
-     * @param preMapperStatement
      */
     protected void setTriggerValue4SelectKeyGenerator(PreMapperStatement preMapperStatement) {
         preMapperStatement.setKeyGenerator(buildSelectKeyGenerator(entityMetaData.getPrimaryColumnMetaData(), true));
@@ -228,7 +226,6 @@ public abstract class PreMapperStatementBuilder extends BaseBuilder {
 
     /**
      * 只有insert或update的时候才有key和触发值
-     * @param preMapperStatement
      */
     protected void setKeyGeneratorAndTriggerValue(PreMapperStatement preMapperStatement) {
 

@@ -26,8 +26,8 @@ public interface OffsetRepository {
     /**
      * 存储offset
      * 发生时钟回拨之后，如果是修改偏移量策略，则将新的偏移量存储起来
-     * @param entityClass
-     * @param offset
+     * @param entityClass 实体类的类，每个类对应一个偏移量
+     * @param offset 偏移量
      * @return
      */
     boolean saveOffset(Class<?> entityClass, Long offset);
@@ -35,8 +35,8 @@ public interface OffsetRepository {
     /**
      * 获得offset
      * 在项目重启后会将保存的偏移量拿到内存中
-     * @param entityClass
-     * @return
+     * @param entityClass 实体类的类，每个类对应一个偏移量
+     * @return 偏移量
      */
     Long getOffset(Class<?> entityClass);
 

@@ -67,8 +67,9 @@ public class JpaMapperStatementBuilder {
             if(!configuration.hasStatement(methodDefinition.getStatementId())) {
 
                 String statementId = methodDefinition.getStatementId();
-
-                log.trace("add statement==>" + statementId);
+                if(log.isTraceEnabled()) {
+                    log.trace("add statement==> " + statementId);
+                }
 
                 // add to statement registry
                 AutoGenerateStatementRegistry.getInstance().addStatement(statementId);

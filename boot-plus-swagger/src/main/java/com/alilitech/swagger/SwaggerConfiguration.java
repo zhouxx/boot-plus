@@ -83,7 +83,9 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     @Bean
     public Docket swaggerSpringfoxDocket(SwaggerProperties swaggerProperties) {
-        logger.debug("Starting Swagger");
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting Swagger");
+        }
         StopWatch watch = new StopWatch();
         watch.start();
         Contact contact = new Contact(
@@ -141,13 +143,17 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
                             CollectionUtils.isEmpty(swaggerProperties.getAuthorizedIncludePatterns()) ? swaggerProperties.getDefaultIncludePatterns() : swaggerProperties.getAuthorizedIncludePatterns()));
         }
         watch.stop();
-        logger.debug("Started Swagger in {} ms", watch.getTotalTimeMillis());
+        if(logger.isDebugEnabled()) {
+            logger.debug("Started Swagger in {} ms", watch.getTotalTimeMillis());
+        }
         String protocol = "http";
         if (env.getProperty("server.ssl.key-store") != null) {
             protocol = "https";
         }
         String port = Optional.ofNullable(env.getProperty("server.port")).orElse("8080");
-        logger.debug("Swagger UI : {}://localhost:{}{}", protocol, port, API_PATH);
+        if(logger.isDebugEnabled()) {
+            logger.debug("Swagger UI : {}://localhost:{}{}", protocol, port, API_PATH);
+        }
         return docket;
     }
 

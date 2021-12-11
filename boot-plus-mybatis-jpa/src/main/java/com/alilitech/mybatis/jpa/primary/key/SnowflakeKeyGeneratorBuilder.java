@@ -44,7 +44,9 @@ public class SnowflakeKeyGeneratorBuilder {
     }
 
     public KeyGenerator4Snowflake build(Class<?> entityClass) {
-        log.debug("Snowflake key generator build for class '" + entityClass +  "'");
+        if(log.isDebugEnabled()) {
+            log.debug("Snowflake key generator build for class '" + entityClass + "'");
+        }
         SnowflakeContext snowflakeContext = null;
         switch (mybatisJpaProperties.getSnowflake().getTimeCallbackStrategy()) {
             case WAITING:

@@ -105,8 +105,6 @@ public class MybatisJpaConfiguration {
 
     /**
      * register snowflake key generator builder bean
-     * @param mybatisJpaProperties
-     * @return
      */
     @Bean
     public SnowflakeKeyGeneratorBuilder snowflakeKeyGeneratorBuilder(MybatisJpaProperties mybatisJpaProperties, @Nullable OffsetRepository offsetRepository) {

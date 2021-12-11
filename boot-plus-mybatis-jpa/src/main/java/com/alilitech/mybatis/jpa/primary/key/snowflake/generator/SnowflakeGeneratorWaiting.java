@@ -26,6 +26,7 @@ public class SnowflakeGeneratorWaiting extends AbstractSnowflakeGenerator {
                 try {
                     TimeUnit.MILLISECONDS.sleep(lastTimestamp - currentTimestamp);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     throw new SnowFlakeKeyGenerateException("Waiting time to over occur exception!");
                 }
             } else {

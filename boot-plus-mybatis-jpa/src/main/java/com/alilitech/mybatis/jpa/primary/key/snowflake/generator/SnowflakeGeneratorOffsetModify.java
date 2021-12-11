@@ -52,6 +52,7 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
                     offsetBlockingQueue.put(new OffsetSaveDTO(entityClass, context.getOffset()));
                 } catch (InterruptedException e) {
                     log.error("save offset to queue error!", e);
+                    Thread.currentThread().interrupt();
                 }
             }
             log.warn("Clock is moving backwards. Back time is " + (lastTimestamp - currentTimestamp) + " ms.");
@@ -61,12 +62,14 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
     }
 
 
-    public void setOffsetRepositoryAndEntityClass(OffsetRepository offsetRepository, Class<?> entityClass) {
+    public synchronized void setOffsetRepositoryAndEntityClass(OffsetRepository offsetRepository, Class<?> entityClass) {
         this.entityClass = entityClass;
         if(offsetRepository != null && offsetBlockingQueue == null) {
             offsetBlockingQueue = new LinkedBlockingDeque<>();
             new Thread(new SaveOffsetThread(offsetRepository)).start();
-            log.debug("save offset thread started.");
+            if(log.isDebugEnabled()) {
+                log.debug("save offset thread started.");
+            }
         }
     }
 
@@ -84,10 +87,13 @@ public class SnowflakeGeneratorOffsetModify extends AbstractSnowflakeGenerator {
             while (offsetRepository != null) {
                 try {
                     OffsetSaveDTO offsetSaveDTO = offsetBlockingQueue.take();
-                    log.debug("OffsetRepository save offset: " + offsetSaveDTO.getOffset() + " for class '" + offsetSaveDTO.getEntityClass() +"'");
+                    if(log.isDebugEnabled()) {
+                        log.debug("OffsetRepository save offset: " + offsetSaveDTO.getOffset() + " for class '" + offsetSaveDTO.getEntityClass() + "'");
+                    }
                     offsetRepository.saveOffset(offsetSaveDTO.getEntityClass(), offsetSaveDTO.getOffset());
                 } catch (InterruptedException e) {
                     log.error("take offset from queue error!", e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
