@@ -27,6 +27,7 @@ import com.alilitech.mybatis.jpa.mapper.PageMapper;
 import com.alilitech.mybatis.jpa.parameter.GenerationType;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
+import org.apache.maven.plugin.logging.Log;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -40,6 +41,8 @@ import java.util.*;
  * @since 1.0
  */
 public class GeneratorUtils {
+
+    public static Log log;
 
     public static List<ClassDefinition> process(DataSourceConfig dataSourceConfig, GlobalConfig globalConfig, List<TableConfig> tableConfigList) {
 
@@ -204,6 +207,8 @@ public class GeneratorUtils {
 
             //这里处理domain并动态加载进内存
             String javaSrc = classDefinition.toString();
+            log.debug(classDefinition.getClassName() + "==>" + javaSrc);
+
             String javaName = classDefinition.getClassName();
             if (classDefinition.getPackageName() != null && !classDefinition.getPackageName().equals("")) {
                 javaName = classDefinition.getPackageName() + "." + javaName;

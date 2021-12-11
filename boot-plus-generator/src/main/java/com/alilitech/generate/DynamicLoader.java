@@ -1,14 +1,18 @@
 package com.alilitech.generate;
 
+import org.apache.maven.plugin.logging.Log;
+
 import javax.tools.*;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Required JDK >= 1.6<br><br>
@@ -23,7 +27,9 @@ import java.util.regex.Pattern;
  */
 public class DynamicLoader {
 
-    public static URL[] classpaths;
+    public static List<String> classpaths = new ArrayList<>();
+
+    public static Log log;
 
     /**
      * auto fill in the java-name with code, return null if cannot find the public class
@@ -50,19 +56,20 @@ public class DynamicLoader {
         StandardJavaFileManager stdManager = compiler.getStandardFileManager(null, null, null);
 
         try (MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager)) {
-            JavaFileObject javaFileObject = manager.makeStringSource(javaName, javaSrc);
-            List<String> options = null;
+
+            // 设置classpath
             if(classpaths != null) {
-                List<String> list = new ArrayList<>();
-                for(URL url : classpaths) {
-                    list.add(url.getPath());
-                }
-                String message = String.join(";", list);
-                options = Arrays.asList("-classpath", message);
+                List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
+                stdManager.setLocation(StandardLocation.CLASS_PATH, files);
             }
-            JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, options, null, Arrays.asList(javaFileObject));
-            if (task.call()) {
+
+            JavaFileObject javaFileObject = manager.makeStringSource(javaName, javaSrc);
+
+            JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, null, null, Arrays.asList(javaFileObject));
+            if (Boolean.TRUE.equals(task.call())) {
                 return manager.getClassBytes();
+            } else {
+                log.warn("动态编译失败！");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,9 +83,17 @@ public class DynamicLoader {
         Map<String, byte[]> retMap = new HashMap<>();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager stdManager = compiler.getStandardFileManager(null, null, null);
+        //创建诊断信息监听器
+        DiagnosticCollector<JavaFileObject> diagnosticListeners = new DiagnosticCollector<>();
+        StandardJavaFileManager stdManager = compiler.getStandardFileManager(diagnosticListeners, Locale.getDefault(), StandardCharsets.UTF_8);
 
         try (MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager)) {
+
+            // #3 设置classpath
+            if(classpaths != null) {
+                List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
+                stdManager.setLocation(StandardLocation.CLASS_PATH, files);
+            }
 
             List<JavaFileObject> javaFileObjects = new ArrayList<>();
             for(JavaSrc javaSrc : javaSrcs) {
@@ -86,19 +101,17 @@ public class DynamicLoader {
                 javaFileObjects.add(javaFileObject);
             }
 
-            List<String> options = null;
-            if(classpaths != null) {
-                List<String> list = new ArrayList<>();
-                for(URL url : classpaths) {
-                    list.add(url.getPath());
+            JavaCompiler.CompilationTask task = compiler.getTask(null, manager, diagnosticListeners, null, null, javaFileObjects);
+            if (Boolean.TRUE.equals(task.call())) {
+                retMap.putAll(manager.getClassBytes());
+            } else {
+                log.warn("动态编译失败");
+                //输出诊断信息
+                for(Diagnostic<? extends JavaFileObject> diagnostic : diagnosticListeners.getDiagnostics()) {
+                    log.debug(diagnostic.getMessage(Locale.getDefault()));
                 }
-                String message = String.join(";", list);
-                options = Arrays.asList("-classpath", message);
             }
-            JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, options, null, javaFileObjects);
-            if (task.call()) {
-                retMap.putAll(manager.getClassBytes()); ;
-            }
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

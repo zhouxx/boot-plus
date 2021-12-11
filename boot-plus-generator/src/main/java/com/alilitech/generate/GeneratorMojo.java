@@ -48,8 +48,13 @@ public class GeneratorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         //设置动态编译需要的classpath
-        URL url[] = ((PluginDescriptor) getPluginContext().get("pluginDescriptor")).getClassRealm().getURLs();
-        DynamicLoader.classpaths = url;
+        URL urls[] = ((PluginDescriptor) getPluginContext().get("pluginDescriptor")).getClassRealm().getURLs();
+        if(urls != null) {
+            for (URL url : urls) {
+                DynamicLoader.classpaths.add(url.getPath());
+            }
+        }
+        DynamicLoader.log = getLog();
 
         //获得src路径
         MavenProject mavenProject = (MavenProject) getPluginContext().get("project");
@@ -78,6 +83,8 @@ public class GeneratorMojo extends AbstractMojo {
         GlobalConfig globalConfig = xmlParser.parseText("config.properties", GlobalConfig.class);
 
         List<TableConfig> tableConfigs = xmlParser.parseListAttribute("config.tables.table", TableConfig.class);
+
+        GeneratorUtils.log = getLog();
         List<ClassDefinition> classDefinitions = GeneratorUtils.process(dataSourceConfig, globalConfig, tableConfigs);
         for (int i=0; i<classDefinitions.size(); i++) {
             ClassDefinition classDefinition = classDefinitions.get(i);

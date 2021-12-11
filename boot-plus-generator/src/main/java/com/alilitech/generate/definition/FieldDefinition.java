@@ -141,9 +141,7 @@ public class FieldDefinition {
 
     public FieldDefinition addAnnotation(AnnotationDefinition annotationDefinition) {
         this.addAnnotation(annotationDefinition.toString());
-        annotationDefinition.getImportList().forEach(str -> {
-            this.addImport(str);
-        });
+        annotationDefinition.getImportList().forEach(this::addImport);
         return this;
     }
 
