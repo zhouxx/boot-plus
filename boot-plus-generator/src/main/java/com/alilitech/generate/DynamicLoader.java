@@ -27,7 +27,10 @@ import java.util.stream.Collectors;
  */
 public class DynamicLoader {
 
-    public static List<String> classpaths = new ArrayList<>();
+    private DynamicLoader() {
+    }
+
+    protected static final List<String> classpaths = new ArrayList<>();
 
     public static Log log;
 
@@ -42,8 +45,8 @@ public class DynamicLoader {
         Matcher matcher = pattern.matcher(javaSrc);
 
         if (matcher.find())
-            return compile(matcher.group(1) + ".java", javaSrc);
-        return null;
+            return compile(matcher.group(1) + MemoryJavaFileManager.EXT, javaSrc);
+        return Collections.emptyMap();
     }
 
     /**
@@ -58,12 +61,10 @@ public class DynamicLoader {
         try (MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager)) {
 
             // 设置classpath
-            if(classpaths != null) {
-                List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
-                stdManager.setLocation(StandardLocation.CLASS_PATH, files);
-            }
+            List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
+            stdManager.setLocation(StandardLocation.CLASS_PATH, files);
 
-            JavaFileObject javaFileObject = manager.makeStringSource(javaName, javaSrc);
+            JavaFileObject javaFileObject = MemoryJavaFileManager.makeStringSource(javaName, javaSrc);
 
             JavaCompiler.CompilationTask task = compiler.getTask(null, manager, null, null, null, Arrays.asList(javaFileObject));
             if (Boolean.TRUE.equals(task.call())) {
@@ -73,9 +74,9 @@ public class DynamicLoader {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new DynamicCompileException(e);
         }
-        return null;
+        return Collections.emptyMap();
     }
 
     public static Map<String, byte[]> compile(List<JavaSrc> javaSrcs) {
@@ -90,14 +91,12 @@ public class DynamicLoader {
         try (MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager)) {
 
             // #3 设置classpath
-            if(classpaths != null) {
-                List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
-                stdManager.setLocation(StandardLocation.CLASS_PATH, files);
-            }
+            List<File> files = classpaths.stream().map(File::new).collect(Collectors.toList());
+            stdManager.setLocation(StandardLocation.CLASS_PATH, files);
 
             List<JavaFileObject> javaFileObjects = new ArrayList<>();
             for(JavaSrc javaSrc : javaSrcs) {
-                JavaFileObject javaFileObject = manager.makeStringSource(javaSrc.getJavaName(), javaSrc.getJavaSrc());
+                JavaFileObject javaFileObject = MemoryJavaFileManager.makeStringSource(javaSrc.getJavaName(), javaSrc.getJavaSrcStr());
                 javaFileObjects.add(javaFileObject);
             }
 
@@ -108,20 +107,22 @@ public class DynamicLoader {
                 log.warn("动态编译失败");
                 //输出诊断信息
                 for(Diagnostic<? extends JavaFileObject> diagnostic : diagnosticListeners.getDiagnostics()) {
-                    log.debug(diagnostic.getMessage(Locale.getDefault()));
+                    if(log.isDebugEnabled()) {
+                        log.debug(diagnostic.getMessage(Locale.getDefault()));
+                    }
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new DynamicCompileException(e);
         }
         return retMap;
     }
 
     public static class MemoryClassLoader extends URLClassLoader {
 
-        Map<String, byte[]> classBytes = new HashMap<String, byte[]>();
+        Map<String, byte[]> classBytes = new HashMap<>();
 
         public MemoryClassLoader(Map<String, byte[]> classBytes) {
             super(new URL[0], MemoryClassLoader.class.getClassLoader());
@@ -149,29 +150,32 @@ public class DynamicLoader {
  * JavaFileManager that keeps compiled .class bytes in memory.
  */
 @SuppressWarnings("unchecked")
-final class MemoryJavaFileManager extends ForwardingJavaFileManager {
+final class MemoryJavaFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
     /**
      * Java source file extension.
      */
-    private final static String EXT = ".java";
+    protected static final String EXT = ".java";
 
     private Map<String, byte[]> classBytes;
 
-    public MemoryJavaFileManager(JavaFileManager fileManager) {
+    public MemoryJavaFileManager(StandardJavaFileManager fileManager) {
         super(fileManager);
-        classBytes = new HashMap<String, byte[]>();
+        classBytes = new HashMap<>();
     }
 
     public Map<String, byte[]> getClassBytes() {
         return classBytes;
     }
 
+    @Override
     public void close() throws IOException {
-        classBytes = new HashMap<String, byte[]>();
+        classBytes = new HashMap<>();
     }
 
+    @Override
     public void flush() throws IOException {
+        // do nothing
     }
 
     /**
@@ -185,6 +189,7 @@ final class MemoryJavaFileManager extends ForwardingJavaFileManager {
             this.code = code;
         }
 
+        @Override
         public CharBuffer getCharContent(boolean ignoreEncodingErrors) {
             return CharBuffer.wrap(code);
         }
@@ -205,8 +210,10 @@ final class MemoryJavaFileManager extends ForwardingJavaFileManager {
             this.name = name;
         }
 
+        @Override
         public OutputStream openOutputStream() {
             return new FilterOutputStream(new ByteArrayOutputStream()) {
+                @Override
                 public void close() throws IOException {
                     out.close();
                     ByteArrayOutputStream bos = (ByteArrayOutputStream) out;
@@ -216,6 +223,7 @@ final class MemoryJavaFileManager extends ForwardingJavaFileManager {
         }
     }
 
+    @Override
     public JavaFileObject getJavaFileForOutput(Location location,
                                                String className,
                                                JavaFileObject.Kind kind,
@@ -252,11 +260,11 @@ final class MemoryJavaFileManager extends ForwardingJavaFileManager {
 class JavaSrc {
 
     private String javaName;
-    private String javaSrc;
+    private String javaSrcStr;
 
-    public JavaSrc(String javaName, String javaSrc) {
+    public JavaSrc(String javaName, String javaSrcStr) {
         this.javaName = javaName;
-        this.javaSrc = javaSrc;
+        this.javaSrcStr = javaSrcStr;
     }
 
     public String getJavaName() {
@@ -267,11 +275,34 @@ class JavaSrc {
         this.javaName = javaName;
     }
 
-    public String getJavaSrc() {
-        return javaSrc;
+    public String getJavaSrcStr() {
+        return javaSrcStr;
     }
 
-    public void setJavaSrc(String javaSrc) {
-        this.javaSrc = javaSrc;
+    public void setJavaSrcStr(String javaSrcStr) {
+        this.javaSrcStr = javaSrcStr;
+    }
+}
+
+class DynamicCompileException extends RuntimeException {
+
+    public DynamicCompileException() {
+        super();
+    }
+
+    public DynamicCompileException(String message) {
+        super(message);
+    }
+
+    public DynamicCompileException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public DynamicCompileException(Throwable cause) {
+        super(cause);
+    }
+
+    protected DynamicCompileException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -31,6 +31,7 @@ import org.apache.maven.plugin.logging.Log;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
@@ -41,6 +42,9 @@ import java.util.*;
  * @since 1.0
  */
 public class GeneratorUtils {
+
+    private GeneratorUtils() {
+    }
 
     public static Log log;
 
@@ -207,7 +211,9 @@ public class GeneratorUtils {
 
             //这里处理domain并动态加载进内存
             String javaSrc = classDefinition.toString();
-            log.debug(classDefinition.getClassName() + "==>" + javaSrc);
+            if(log.isDebugEnabled()) {
+                log.debug(classDefinition.getClassName() + "==>" + javaSrc);
+            }
 
             String javaName = classDefinition.getClassName();
             if (classDefinition.getPackageName() != null && !classDefinition.getPackageName().equals("")) {
@@ -219,17 +225,16 @@ public class GeneratorUtils {
                 retJavaName = javaName;
             }
         }
-        try {
 
-            Map<String, byte[]> compile = DynamicLoader.compile(javaSrcList);
-            if(exist != null) {
-                compile.putAll(exist);
-            }
-            return new DynamicLoader.MemoryClassLoader(compile).findClass(retJavaName);
-        } catch (ClassNotFoundException e) {
+        Map<String, byte[]> compile = DynamicLoader.compile(javaSrcList);
+        if(exist != null) {
+            compile.putAll(exist);
+        }
+        try(DynamicLoader.MemoryClassLoader memoryClassLoader = new DynamicLoader.MemoryClassLoader(compile)) {
+            return memoryClassLoader.findClass(retJavaName);
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 

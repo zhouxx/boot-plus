@@ -90,7 +90,7 @@ public class GeneratorMojo extends AbstractMojo {
             ClassDefinition classDefinition = classDefinitions.get(i);
             try {
                 //建立文件夹
-                String fileDirectory = srcPath + File.separator + classDefinition.getPackageName().replaceAll("\\.", "/");
+                String fileDirectory = srcPath + File.separator + classDefinition.getPackageName().replace(".", "/");
                 File fileDir = new File(fileDirectory);
                 if (!fileDir.exists()) {
                     boolean mkdirs = fileDir.mkdirs();

@@ -15,7 +15,6 @@
  */
 package com.alilitech.generate;
 
-import com.alilitech.generate.config.TableConfig;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -159,13 +158,4 @@ public class XmlParser {
         }
         return value;
     }
-
-    public static void main(String[] args) {
-        String path = "D:\\IdeaWorkspace\\BootPlus\\boot-plus-integration-jpa-generator\\src\\main\\resources\\generate.xml";
-        List<TableConfig> tableConfigs = new XmlParser(path).parseListAttribute("config.tables.table", TableConfig.class);
-
-        System.out.println(tableConfigs);
-
-    }
-
 }

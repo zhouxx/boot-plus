@@ -135,7 +135,7 @@ public class ClassDefinition {
     public ClassDefinition addExtend(ResolvedType resolvedType) {
         String extendStr = resolvedType.getErasedType().getSimpleName();
         List<ResolvedType> typeParameters = resolvedType.getTypeBindings().getTypeParameters();
-        if(typeParameters != null && typeParameters.size() > 0) {
+        if(typeParameters != null && !typeParameters.isEmpty()) {
             List<String> list = typeParameters.stream().map(resolvedType1 -> {
                 this.addImport(resolvedType1.getErasedType());
                 return resolvedType1.getErasedType().getSimpleName();
@@ -179,7 +179,7 @@ public class ClassDefinition {
 
     public ClassDefinition addAnnotation(AnnotationDefinition annotationDefinition) {
         this.addAnnotation(annotationDefinition.toString());
-        annotationDefinition.getImportList().forEach(str -> this.addImport(str));
+        annotationDefinition.getImportList().forEach(this::addImport);
         return this;
     }
 
@@ -239,17 +239,13 @@ public class ClassDefinition {
         //comment part
         if(comments != null) {
             builder.append("/**" + lineEnd);
-            comments.forEach(s -> {
-                builder.append(" * " + s + lineEnd);
-            });
+            comments.forEach(s -> builder.append(" * " + s + lineEnd));
             builder.append(" */" + lineEnd);
         }
 
         //annotation part
         if(annotationList != null) {
-            annotationList.forEach(s -> {
-                builder.append("@" + s + lineEnd);
-            });
+            annotationList.forEach(s -> builder.append("@" + s + lineEnd));
         }
 
         //class part
@@ -295,9 +291,7 @@ public class ClassDefinition {
         //method part
         if(methodDefinitions != null) {
             for(MethodDefinition methodDefinition : methodDefinitions) {
-                if(methodDefinition.getAnnotationList() != null) methodDefinition.getAnnotationList().forEach(s -> {
-                    builder.append(space4).append("@").append(s).append(lineEnd);
-                });
+                if(methodDefinition.getAnnotationList() != null) methodDefinition.getAnnotationList().forEach(s -> builder.append(space4).append("@").append(s).append(lineEnd));
                 builder.append(space4).append(methodDefinition.getScope()).append(" ").append(methodDefinition.getReturnValue()).append(" ").append(methodDefinition.getMethodName()).append("(");
                 if(methodDefinition.getParameters() != null) {
                     for (int i = 0; i < methodDefinition.getParameters().size(); i++) {
