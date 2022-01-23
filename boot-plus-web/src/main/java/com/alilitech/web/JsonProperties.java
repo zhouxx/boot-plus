@@ -41,6 +41,11 @@ public class JsonProperties {
      */
     private String targetFiledKeyFormat = "{}Format";
 
+    /**
+     * 是否开启国际化
+     */
+    private boolean enableLocale = false;
+
     public boolean isDefaultNull() {
         return defaultNull;
     }
@@ -63,5 +68,13 @@ public class JsonProperties {
 
     public void setTargetFiledKeyFormat(String targetFiledKeyFormat) {
         this.targetFiledKeyFormat = targetFiledKeyFormat;
+    }
+
+    public boolean isEnableLocale() {
+        return enableLocale;
+    }
+
+    public void setEnableLocale(boolean enableLocale) {
+        this.enableLocale = enableLocale;
     }
 }

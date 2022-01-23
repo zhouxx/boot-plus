@@ -15,6 +15,12 @@
  */
 package com.alilitech.web.jackson;
 
+import com.alilitech.web.support.MessageResourceCollection;
+import com.alilitech.web.support.ResourceBundleCollection;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -29,6 +35,24 @@ public interface DictCollector {
      * 实现这个接口的将全部被加入字典，加入字典的Collector必须被spring管理
      * @return  输出字典map
      */
-    Map<String, Map<String, Object>> findDictAndValues();
+    default ResourceBundleCollection findDictAndValues() {
+        return ResourceBundleCollection.EMPTY;
+    }
+
+    /**
+     * 带有国际化的字典, 默认兼容原有的不带国际化的字典
+     */
+    default MessageResourceCollection findLocaleDictAndValues() {
+        Locale localeDefault = Locale.getDefault();
+        ResourceBundleCollection resourceBundleCollection = this.findDictAndValues();
+
+        if(resourceBundleCollection == null) {
+            return MessageResourceCollection.EMPTY;
+        }
+
+        MessageResourceCollection messageResourceCollection = resourceBundleCollection.covertToMessageResourceCollection(localeDefault);
+
+        return messageResourceCollection;
+    }
 
 }

@@ -13,17 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.jackson.ser;
+package com.alilitech.web;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import java.util.Locale;
 
 /**
- *
  * @author Zhou Xiaoxiang
  * @since 1.3.10
  */
-public interface DictCacheManager {
+public class WebPreConfiguration {
 
-    boolean existAndRefresh(String dictKey, String value);
-
-    Object getDictValByKey(String dictKey, String value);
+    /**
+     * this bean must instantiate before WebConfiguration
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LocaleResolver localeResolver() {
+        AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.getDefault());
+        return localeResolver;
+    }
 
 }
