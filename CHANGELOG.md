@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [v1.3.10] 2022.2.2
+
+* generator:  修复#3
+* web: 字典支持国际化扩展
+* jpa: 升级mybatis-spring-boot-starter至v2.2.1
+
 ## [v1.3.9] 2021.11.20
 
 * log:  提供了基于线程的日志打印，支持同一个线程输出同一个ID，对于日志更好的定位
