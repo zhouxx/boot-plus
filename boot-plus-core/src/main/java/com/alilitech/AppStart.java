@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com;
+package com.alilitech;
 
 import com.alilitech.constants.Profiles;
 import com.alilitech.util.DefaultProfileUtil;
@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
@@ -35,7 +36,7 @@ import java.util.Optional;
  * Spring boot main class
  * @author Zhou Xiaoxiang
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.**", "org.**"})
 public class AppStart {
 
     private static final Logger log = LoggerFactory.getLogger(AppStart.class);
