@@ -35,7 +35,6 @@ import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestParameterBuilder;
 import springfox.documentation.oas.annotations.EnableOpenApi;
-import springfox.documentation.schema.TypeNameExtractor;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
@@ -61,7 +60,7 @@ import static java.util.stream.Collectors.toList;
 @ConditionalOnProperty(value = "springfox.documentation.enabled", havingValue = "true", matchIfMissing = true)
 public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware {
 
-    private static final String API_PATH = "/api.html";
+    public static final String API_PATH = "/api.html";
 
     private Environment env;
 
@@ -159,7 +158,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
 
     //Here is an example where we select any api that matches one of these paths
     private Predicate<String> paths(List<String> patterns) {
-        List<Predicate<String>> predicateList = patterns.stream().map(PathSelectors::regex).collect(toList());
+        List<Predicate<String>> predicateList = patterns.stream().map(PathSelectors::ant).collect(toList());
 
         if(predicateList.size() == 1) {
             return predicateList.get(0);

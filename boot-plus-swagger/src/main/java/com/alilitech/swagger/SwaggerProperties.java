@@ -20,6 +20,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@ConfigurationProperties(prefix = "swagger", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "swagger")
 public class SwaggerProperties {
 
     private String groupName = Docket.DEFAULT_GROUP_NAME;
@@ -50,7 +51,7 @@ public class SwaggerProperties {
 
     private String licenseUrl;
 
-    private List<String> defaultIncludePatterns = Arrays.asList("/.*");
+    private List<String> defaultIncludePatterns = Collections.singletonList("/**");
 
     private String apiHost;
 
@@ -59,8 +60,6 @@ public class SwaggerProperties {
     private List<Authorized> authorized;
 
     private List<String> authorizedIncludePatterns;
-
-    List<SwaggerProperties> documents = new ArrayList<>();
 
     public String getGroupName() {
         return groupName;
@@ -180,13 +179,5 @@ public class SwaggerProperties {
 
     public void setAuthorizedIncludePatterns(List<String> authorizedIncludePatterns) {
         this.authorizedIncludePatterns = authorizedIncludePatterns;
-    }
-
-    public List<SwaggerProperties> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(List<SwaggerProperties> documents) {
-        this.documents = documents;
     }
 }
