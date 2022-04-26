@@ -9,8 +9,14 @@
     {
       "name": "logging.enableThreadLocal",
       "type": "java.lang.Boolean",
-      "sourceType": "com.alilitech.log.aop.LoggingAspect",
+      "sourceType": "com.alilitech.log.ThreadRequestIdConverter",
       "defaultValue": true
+    },
+    {
+      "name": "logging.enableVirtualFilter",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.alilitech.log.LoggingApplicationExtensionListener",
+      "defaultValue": false
     }
   ]
 }
