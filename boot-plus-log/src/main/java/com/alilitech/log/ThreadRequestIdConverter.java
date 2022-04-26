@@ -18,6 +18,7 @@ package com.alilitech.log;
 import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.alilitech.web.ThreadLocalContainer;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -35,7 +36,9 @@ public class ThreadRequestIdConverter extends ClassicConverter {
     public static final ThreadLocal<String> requestIdThreadLocal = new ThreadLocal<>();
 
     public ThreadRequestIdConverter() {
-        ThreadLocalContainer.getInstance().addThreadLocal(requestIdThreadLocal);
+        if(ClassUtils.isPresent("com.alilitech.web.ThreadLocalContainer", null)) {
+            ThreadLocalContainer.getInstance().addThreadLocal(requestIdThreadLocal);
+        }
     }
 
     public String convert(ILoggingEvent event) {
