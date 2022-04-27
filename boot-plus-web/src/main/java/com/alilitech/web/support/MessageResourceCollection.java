@@ -70,15 +70,15 @@ public class MessageResourceCollection {
         return messageSourceMap.keySet();
     }
 
+    public static MessageResourceCollectionBuilder newBuilder() {
+        return new MessageResourceCollectionBuilder();
+    }
+
     public static class MessageResourceCollectionBuilder {
 
         private final MessageResourceCollection messageResourceCollection = new MessageResourceCollection();
 
         private MessageResourceCollectionBuilder() {}
-
-        public static MessageResourceCollectionBuilder newBuilder() {
-            return new MessageResourceCollectionBuilder();
-        }
 
         public MessageResourceCollectionBuilder putMessageResource(String key, MessageSource messageSource) {
             messageResourceCollection.putMessageResource(key, messageSource);

@@ -38,7 +38,7 @@ public class ResourceBundleCollection {
     }
 
     public MessageResourceCollection covertToMessageResourceCollection(Locale locale) {
-        MessageResourceCollection.MessageResourceCollectionBuilder builder = MessageResourceCollection.MessageResourceCollectionBuilder.newBuilder();
+        MessageResourceCollection.MessageResourceCollectionBuilder builder = MessageResourceCollection.newBuilder();
         resourceBundleMap.forEach((s, resourceBundle) -> {
             ReloadableMessageResource messageResource = new ReloadableMessageResource();
             messageResource.putResourceBundle(locale, resourceBundle);
@@ -75,15 +75,15 @@ public class ResourceBundleCollection {
         return resourceBundleMap.get(key);
     }
 
+    public static ResourceBundleCollectionBuilder newBuilder() {
+        return new ResourceBundleCollectionBuilder();
+    }
+
     public static class ResourceBundleCollectionBuilder {
 
         private final ResourceBundleCollection resourceBundleCollection = new ResourceBundleCollection();
 
         private ResourceBundleCollectionBuilder() {}
-
-        public static ResourceBundleCollectionBuilder newBuilder() {
-            return new ResourceBundleCollectionBuilder();
-        }
 
         public ResourceBundleCollectionBuilder putResourceBundles(Map<String, ResourceBundle> resourceBundleMap) {
             resourceBundleCollection.resourceBundleMap.putAll(resourceBundleMap);

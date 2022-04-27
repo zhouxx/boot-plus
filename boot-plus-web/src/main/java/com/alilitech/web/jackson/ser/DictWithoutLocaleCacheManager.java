@@ -43,7 +43,7 @@ public class DictWithoutLocaleCacheManager implements DictCacheManager {
     /**
      * save all dicts and values
      */
-    ResourceBundleCollection resourceBundleCollection = ResourceBundleCollection.ResourceBundleCollectionBuilder.newBuilder().build();
+    ResourceBundleCollection resourceBundleCollection = ResourceBundleCollection.newBuilder().build();
     /**
      * key: dict-key, value: {@link DictCollector} object
      */

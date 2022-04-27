@@ -41,7 +41,7 @@ public class DictWithLocaleCacheManager implements DictCacheManager {
     /**
      * save all dicts and values
      */
-    MessageResourceCollection messageResourceCollection = MessageResourceCollection.MessageResourceCollectionBuilder.newBuilder().build();
+    MessageResourceCollection messageResourceCollection = MessageResourceCollection.newBuilder().build();
 
     /**
      * key: dict-key, value: {@link DictCollector} object
