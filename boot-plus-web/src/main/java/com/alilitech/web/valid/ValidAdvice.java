@@ -15,13 +15,12 @@
  */
 package com.alilitech.web.valid;
 
-import com.alilitech.util.UnicodeUtils;
-import com.alilitech.web.WebConfiguration;
+import com.alilitech.web.CommonBody;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindException;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -37,7 +36,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @ControllerAdvice
 public class ValidAdvice {
 
-    private ValidHandler validHandler;
+    private final ValidHandler validHandler;
 
     public ValidAdvice(@Nullable ValidHandler validHandler) {
         this.validHandler = validHandler;
@@ -46,85 +45,74 @@ public class ValidAdvice {
     @ExceptionHandler({ MethodArgumentNotValidException.class })
     @ResponseBody
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
-        ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
         return ResponseEntity.badRequest()
-                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
-                .build();
+                .body(new CommonBody(e.getBindingResult().getAllErrors()));
     }
 
     @ExceptionHandler({ BindException.class})
     @ResponseBody
     public ResponseEntity<Object> handleBindException(BindException e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
-        ObjectError objectError = e.getBindingResult().getAllErrors().get(0);
         return ResponseEntity.badRequest()
-                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(objectError.getDefaultMessage()))
-                .build();
+                .body(new CommonBody(e.getBindingResult().getAllErrors()));
     }
 
     @ExceptionHandler({ MissingServletRequestParameterException.class,  MissingPathVariableException.class, HttpMessageNotReadableException.class})
     @ResponseBody
     public ResponseEntity<Object> handleServletRequestBindingException(Exception e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
         return ResponseEntity.badRequest()
-                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
-                .build();
+                .body(new CommonBody(e.getMessage()));
     }
 
     @ExceptionHandler({ NoHandlerFoundException.class})
     @ResponseBody
     public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
-        return ResponseEntity.notFound()
-                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
-                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new CommonBody(HttpStatus.NOT_FOUND.value(), e.getMessage()));
     }
 
     @ExceptionHandler({ NoDataFoundException.class})
     @ResponseBody
     public ResponseEntity<Object> handleNoResultException(NoDataFoundException e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
-        return ResponseEntity.notFound()
-                .header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage()))
-                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new CommonBody(HttpStatus.NOT_FOUND.value(), e.getMessage()));
     }
 
     @ExceptionHandler({ ValidException.class })
     @ResponseBody
     public ResponseEntity<Object> handleValidateException(ValidException e) {
-        if(validHandler != null) {
-            ResponseEntity<Object> responseEntity = validHandler.handle(e);
-            if(responseEntity != null) {
-                return responseEntity;
-            }
+        ResponseEntity<Object> responseEntity = customValidHandler(e);
+        if(responseEntity != null) {
+            return responseEntity;
         }
-        return ResponseEntity.badRequest().header(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode(e.getMessage())).build();
+        return ResponseEntity.badRequest()
+                .body(new CommonBody(e.getMessage()));
+    }
+
+    private ResponseEntity<Object> customValidHandler(Exception e) {
+        if(validHandler == null) {
+            return null;
+        }
+        return validHandler.handle(e);
     }
 
 }

@@ -15,8 +15,13 @@
  */
 package com.alilitech.web;
 
+import com.alilitech.web.jackson.BootPlusModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -26,7 +31,14 @@ import java.util.Locale;
  * @author Zhou Xiaoxiang
  * @since 1.3.10
  */
+@Import({BootPlusModule.class})
 public class WebPreConfiguration {
+
+    private final BootPlusModule bootPlusModule;
+
+    public WebPreConfiguration(BootPlusModule bootPlusModule) {
+        this.bootPlusModule = bootPlusModule;
+    }
 
     /**
      * this bean must instantiate before WebConfiguration
@@ -39,4 +51,11 @@ public class WebPreConfiguration {
         return localeResolver;
     }
 
+    @Bean
+    @Primary
+    public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
+        ObjectMapper objectMapper = builder.createXmlMapper(false).build();
+        objectMapper.registerModule(bootPlusModule);
+        return objectMapper;
+    }
 }

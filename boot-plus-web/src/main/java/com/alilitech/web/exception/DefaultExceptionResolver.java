@@ -16,8 +16,7 @@
 package com.alilitech.web.exception;
 
 import com.alilitech.web.ThreadLocalContainer;
-import com.alilitech.web.WebConfiguration;
-import com.alilitech.util.UnicodeUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,8 +39,11 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
     private final ExceptionHandler exceptionHandler;
 
-    public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler) {
+    private final ObjectMapper objectMapper;
+
+    public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
         this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -56,9 +59,11 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.addHeader(WebConfiguration.TIP_KEY, UnicodeUtils.stringToUnicode("服务器内部错误"));
 
-        // return empty mv
-        return new ModelAndView();
+        ModelAndView modelAndView = new ModelAndView(new MappingJackson2JsonView(objectMapper));
+        modelAndView.addObject("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        modelAndView.addObject("message", ex.getMessage());
+
+        return modelAndView;
     }
 }

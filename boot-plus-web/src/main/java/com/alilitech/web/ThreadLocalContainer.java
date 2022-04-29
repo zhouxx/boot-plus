@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class ThreadLocalContainer {
 
-    private Set<ThreadLocal<?>> threadLocalList = new HashSet<>();
+    private final Set<ThreadLocal<?>> threadLocalList = new HashSet<>();
 
     public static final ThreadLocalContainer threadLocalContainer = new ThreadLocalContainer();
 

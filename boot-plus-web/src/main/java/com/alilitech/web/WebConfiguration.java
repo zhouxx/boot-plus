@@ -41,31 +41,17 @@ import java.util.List;
  * @since 1.2.4
  */
 @EnableConfigurationProperties({CorsProperties.class, JsonProperties.class})
-@Import({JacksonInterceptor.class, ThreadLocalInterceptor.class, DictWithLocaleCacheManager.class, DictWithoutLocaleCacheManager.class, CompositeSerializerModifier.class, DefaultExceptionResolver.class, BootPlusModule.class})
+@Import({JacksonInterceptor.class, ThreadLocalInterceptor.class, DictWithLocaleCacheManager.class, DictWithoutLocaleCacheManager.class, CompositeSerializerModifier.class, DefaultExceptionResolver.class})
 public class WebConfiguration implements WebMvcConfigurer {
 
-    public static final String TIP_KEY = "message";
-
     private final CorsProperties corsProperties;
-
-    private final BootPlusModule bootPlusModule;
 
     private final DefaultExceptionResolver defaultExceptionResolver;
 
     public WebConfiguration(CorsProperties corsProperties,
-                            DefaultExceptionResolver defaultExceptionResolver,
-                            BootPlusModule bootPlusModule) {
+                            DefaultExceptionResolver defaultExceptionResolver) {
         this.corsProperties = corsProperties;
         this.defaultExceptionResolver = defaultExceptionResolver;
-        this.bootPlusModule = bootPlusModule;
-    }
-
-    @Bean
-    @Primary
-    public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
-        ObjectMapper objectMapper = builder.createXmlMapper(false).build();
-        objectMapper.registerModule(bootPlusModule);
-        return objectMapper;
     }
 
     @Bean
