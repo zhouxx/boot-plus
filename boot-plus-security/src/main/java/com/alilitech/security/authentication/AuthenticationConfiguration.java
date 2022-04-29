@@ -73,7 +73,7 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
         List<VirtualFilterDefinition> virtualFilterDefinitions = new ArrayList<>();
         boolean overrideUsernamePasswordAuthenticationFilter = extensibleSecurity.addVirtualFilterDefinitions(virtualFilterDefinitions);
 
-        if(virtualFilterDefinitions.size() > 0) {
+        if(!virtualFilterDefinitions.isEmpty()) {
             virtualFilterDefinitions.forEach(virtualFilterDefinition -> {
                 SecurityVirtualFilter securityVirtualFilter = new SecurityVirtualFilter(virtualFilterDefinition);
                 securityVirtualFilter.setAuthenticationFailureHandler(loginFailureHandler);

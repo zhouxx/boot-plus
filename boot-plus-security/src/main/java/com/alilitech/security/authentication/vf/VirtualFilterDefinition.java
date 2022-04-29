@@ -26,6 +26,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
@@ -66,7 +67,7 @@ public class VirtualFilterDefinition {
 
                     // build Authentication
                     String username = servletRequest.getParameter("username");
-                    List<String> roles = new ArrayList<>(Arrays.asList("ROLE_PUBLIC"));
+                    List<String> roles = new ArrayList<>(Collections.singletonList("ROLE_PUBLIC"));
                     return VirtualFilterDefinition.buildSimpleAuthentication(username, roles);
         });
 
