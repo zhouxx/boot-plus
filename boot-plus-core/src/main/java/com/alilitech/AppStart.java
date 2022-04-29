@@ -36,7 +36,7 @@ import java.util.Optional;
  * Spring boot main class
  * @author Zhou Xiaoxiang
  */
-@SpringBootApplication(scanBasePackages = {"com.**", "org.**"})
+@SpringBootApplication(scanBasePackages = {"com.**"})
 public class AppStart {
 
     private static final Logger log = LoggerFactory.getLogger(AppStart.class);
