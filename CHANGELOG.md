@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [v2.0.0] 2022.5.29
+
+* 移除mybatis-jpa 和 generator模块，这块统一去mybatis-jpa-parent单独维护
+* web: 优化一些异常信息响应体
+* log: 添加控制台日志扩展点
+* log: 修复在ThreadLocalContainer不存在时报错
+* version: 将spring boot版本升级至 2.3.12.RELEASE 
+
 ## [v1.3.10] 2022.2.2
 
 * generator:  修复#3
