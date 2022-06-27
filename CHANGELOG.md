@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [v2.0.1] 2022.6.27
+
+* web: 添加spring-boot-starter-validation包
+* web: ValidException支持国际化
+* core: BeanUtils忽略静态属性 
+
 ## [v2.0.0] 2022.4.29
 
 * 移除mybatis-jpa 和 generator模块，这块统一去mybatis-jpa-parent单独维护
