@@ -23,6 +23,7 @@ import java.beans.Transient;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -315,6 +316,10 @@ public class BeanUtils {
 		List<Field> sourceFields = getAllFields(clazzSource, null);
 
 		for (Field field : sourceFields) {
+			// ignore static field
+			if(Modifier.isStatic(field.getModifiers())) {
+				continue;
+			}
 			if (isDirectConvert(field.getType())) {
 				descList.add(new FieldDesc(field));
 				continue;
