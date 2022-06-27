@@ -13,52 +13,40 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web;
-
-import com.alilitech.web.valid.ValidMessage;
-import org.springframework.http.HttpStatus;
-
-import java.util.List;
+package com.alilitech.web.valid;
 
 /**
+ *
  * @author Zhou Xiaoxiang
- * @since 2.0.0
+ * @since 2.0.1
  */
-public class CommonBody {
+public class ValidMessage {
 
-    protected int status;
+    protected String propertyPath;
 
     protected String message;
 
-    protected List<ValidMessage> errors;
-
-    public CommonBody(String message) {
-        this(HttpStatus.BAD_REQUEST.value(), message);
+    public ValidMessage() {
     }
 
-    public CommonBody(int status, String message) {
-        this.status = status;
+    public ValidMessage(String propertyPath, String message) {
+        this.propertyPath = propertyPath;
         this.message = message;
     }
 
-    public CommonBody(int status, List<ValidMessage> errors) {
-        this.status = status;
-        this.errors = errors;
+    public String getPropertyPath() {
+        return propertyPath;
     }
 
-    public CommonBody(List<ValidMessage> errors) {
-        this(HttpStatus.BAD_REQUEST.value(), errors);
-    }
-
-    public int getStatus() {
-        return status;
+    public void setPropertyPath(String propertyPath) {
+        this.propertyPath = propertyPath;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public List<ValidMessage> getErrors() {
-        return errors;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

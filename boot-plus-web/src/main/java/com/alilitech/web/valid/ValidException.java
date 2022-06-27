@@ -15,11 +15,22 @@
  */
 package com.alilitech.web.valid;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
+ * ValidException like hibernate validation
+ *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
 public class ValidException extends RuntimeException {
+
+    private final Map<String, Object> placeholderMap = new ConcurrentHashMap<>();
+
+    private Object validatedValue = -1;
+
+    private String propertyPath;
 
     public ValidException() {
     }
@@ -28,15 +39,31 @@ public class ValidException extends RuntimeException {
         super(message);
     }
 
-    public ValidException(String message, Throwable cause) {
-        super(message, cause);
+    public ValidException addPlaceholder(String key, Object value) {
+        placeholderMap.put(key, value);
+        return this;
     }
 
-    public ValidException(Throwable cause) {
-        super(cause);
+    public ValidException validatedValue(Object validatedValue) {
+        this.validatedValue = validatedValue;
+        placeholderMap.put("validatedValue",validatedValue);
+        return this;
     }
 
-    public ValidException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public ValidException propertyPath(String propertyPath) {
+        this.propertyPath = propertyPath;
+        return this;
+    }
+
+    public Map<String, Object> getPlaceholderMap() {
+        return placeholderMap;
+    }
+
+    public Object getValidatedValue() {
+        return validatedValue;
+    }
+
+    public String getPropertyPath() {
+        return propertyPath;
     }
 }
