@@ -16,17 +16,13 @@
 package com.alilitech.web;
 
 import com.alilitech.web.exception.DefaultExceptionResolver;
-import com.alilitech.web.jackson.BootPlusModule;
 import com.alilitech.web.jackson.JacksonInterceptor;
 import com.alilitech.web.jackson.ser.CompositeSerializerModifier;
-import com.alilitech.web.jackson.ser.DictWithLocaleCacheManager;
-import com.alilitech.web.jackson.ser.DictWithoutLocaleCacheManager;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alilitech.web.jackson.ser.dict.DictWithLocaleCacheManager;
+import com.alilitech.web.jackson.ser.dict.DictWithoutLocaleCacheManager;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

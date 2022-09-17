@@ -15,7 +15,7 @@
  */
 package com.alilitech.web.jackson;
 
-import com.alilitech.web.jackson.ser.DictThreadHolder;
+import com.alilitech.web.jackson.ser.dict.DictThreadHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;

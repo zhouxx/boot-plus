@@ -74,6 +74,15 @@ public class MessageResourceCollection {
         return new MessageResourceCollectionBuilder();
     }
 
+    public void removeByKeys(Set<String> keys) {
+        if(keys == null || keys.isEmpty()) {
+            return;
+        }
+        for(String key : keys) {
+            messageSourceMap.remove(key);
+        }
+    }
+
     public static class MessageResourceCollectionBuilder {
 
         private final MessageResourceCollection messageResourceCollection = new MessageResourceCollection();

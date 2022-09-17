@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ResourceBundleCollection {
 
-    private final Map<String, ResourceBundle> resourceBundleMap =
+    protected final Map<String, ResourceBundle> resourceBundleMap =
             new ConcurrentHashMap<>();
 
     public static final ResourceBundleCollection EMPTY = new ResourceBundleCollection();
@@ -71,6 +71,15 @@ public class ResourceBundleCollection {
         resourceBundleMap.clear();
     }
 
+    public void removeByKeys(Set<String> keys) {
+        if(keys == null || keys.isEmpty()) {
+            return;
+        }
+        for(String key : keys) {
+            resourceBundleMap.remove(key);
+        }
+    }
+
     public ResourceBundle getResourceBundle(String key) {
         return resourceBundleMap.get(key);
     }
@@ -81,7 +90,7 @@ public class ResourceBundleCollection {
 
     public static class ResourceBundleCollectionBuilder {
 
-        private final ResourceBundleCollection resourceBundleCollection = new ResourceBundleCollection();
+        protected final ResourceBundleCollection resourceBundleCollection = new ResourceBundleCollection();
 
         private ResourceBundleCollectionBuilder() {}
 

@@ -50,9 +50,7 @@ public interface DictCollector {
             return MessageResourceCollection.EMPTY;
         }
 
-        MessageResourceCollection messageResourceCollection = resourceBundleCollection.covertToMessageResourceCollection(localeDefault);
-
-        return messageResourceCollection;
+        return resourceBundleCollection.covertToMessageResourceCollection(localeDefault);
     }
 
 }

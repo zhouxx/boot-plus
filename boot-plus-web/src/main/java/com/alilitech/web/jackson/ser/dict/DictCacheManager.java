@@ -13,36 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.jackson.ser;
+package com.alilitech.web.jackson.ser.dict;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.context.ApplicationListener;
 
 /**
+ *
  * @author Zhou Xiaoxiang
- * @since 1.3.8
+ * @since 1.3.10
  */
-public class DictThreadHolder {
+public interface DictCacheManager extends ApplicationListener<DictCacheEvent> {
 
-    private DictThreadHolder() {
-    }
-
-    private static ThreadLocal<Set<String>> notExistDicts = ThreadLocal.withInitial(HashSet::new);
-
-    public static void put(String key) {
-        notExistDicts.get().add(key);
-    }
-
-    public static boolean exist(String key) {
-        return notExistDicts.get().contains(key);
-    }
-
-    public static void clear() {
-        notExistDicts.get().clear();
-    }
-
-    public static void remove() {
-        notExistDicts.remove();
-    }
+    Object getAndRefresh(String dictKey, String value);
 
 }

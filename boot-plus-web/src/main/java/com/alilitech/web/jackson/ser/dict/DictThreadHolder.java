@@ -13,17 +13,36 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.alilitech.web.jackson.ser;
+package com.alilitech.web.jackson.ser.dict;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- *
  * @author Zhou Xiaoxiang
- * @since 1.3.10
+ * @since 1.3.8
  */
-public interface DictCacheManager {
+public class DictThreadHolder {
 
-    boolean existAndRefresh(String dictKey, String value);
+    private DictThreadHolder() {
+    }
 
-    Object getDictValByKey(String dictKey, String value);
+    private static final ThreadLocal<Set<String>> notExistDicts = ThreadLocal.withInitial(HashSet::new);
+
+    public static void put(String key) {
+        notExistDicts.get().add(key);
+    }
+
+    public static boolean exist(String key) {
+        return notExistDicts.get().contains(key);
+    }
+
+    public static void clear() {
+        notExistDicts.get().clear();
+    }
+
+    public static void remove() {
+        notExistDicts.remove();
+    }
 
 }

@@ -16,8 +16,8 @@
 package com.alilitech.web.jackson.ser.converter;
 
 
-import com.alilitech.web.jackson.ser.DictCacheManager;
-import com.alilitech.web.jackson.ser.DictThreadHolder;
+import com.alilitech.web.jackson.ser.dict.DictCacheManager;
+import com.alilitech.web.jackson.ser.dict.DictThreadHolder;
 import com.alilitech.web.jackson.ser.SerializerConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +52,10 @@ public class DictSerializerConverter implements SerializerConverter<Object> {
             return null;
         }
         // If there is no key or no value, reload the dictionary collector
-        if(dictCacheManager.existAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue)) {
-            return dictCacheManager.getDictValByKey(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
-        } else {
+        Object val = dictCacheManager.getAndRefresh(dictAnnotationConfig.getDictKey(), dictKeyStringValue);
+        if(val == null) {
             DictThreadHolder.put(holderKey);
-            return null;
         }
+        return val;
     }
 }

@@ -21,6 +21,7 @@ import com.alilitech.web.jackson.anotation.NumberFormat;
 import com.alilitech.web.jackson.anotation.SerializerConvert;
 import com.alilitech.web.jackson.anotation.SerializerFormat;
 import com.alilitech.web.jackson.ser.converter.*;
+import com.alilitech.web.jackson.ser.dict.DictCacheManager;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotationMap;
@@ -41,11 +42,11 @@ public class CompositeSerializerModifier extends BeanSerializerModifier {
 
     private static final Logger logger = LoggerFactory.getLogger(CompositeSerializerModifier.class);
 
-    private DictCacheManager dictCacheManager;
+    private final DictCacheManager dictCacheManager;
 
-    private String targetFiledKeyFormat;
+    private final String targetFiledKeyFormat;
 
-    private static Class<Annotation>[] effectAnnotationClasses = new Class[]{
+    private static final Class<Annotation>[] effectAnnotationClasses = new Class[]{
             SerializerConvert.class,
             NumberFormat.class, DictFormat.class,
             SerializerFormat.class
