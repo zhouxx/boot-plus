@@ -369,8 +369,8 @@ public class BeanUtils {
 				list.add(field);
 			}
 		}
-		// 父类是Object了
-		if(clazz.getSuperclass() != null && clazz.getSuperclass().isAssignableFrom(Object.class)) {
+		// 查找父类的属性直至父类是Object
+		if(clazz.getSuperclass() != null && !clazz.getSuperclass().isAssignableFrom(Object.class)) {
 			getAllFields(clazz.getSuperclass(), list);
 		}
 		return list;
