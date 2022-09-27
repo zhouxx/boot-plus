@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [v2.0.3] 2022.9.26
+
+* core: 修复BeanUtils无法拷贝父类属性的问题
+
+## [v2.0.2] 2022.9.17
+
+* web: 字典缓存可以基于事件刷新
+
 ## [v2.0.1] 2022.6.27
 
 * web: 添加spring-boot-starter-validation包
