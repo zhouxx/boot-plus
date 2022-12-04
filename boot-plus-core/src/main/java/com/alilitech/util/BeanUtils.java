@@ -111,7 +111,7 @@ public class BeanUtils {
 		List<T> listRet = new ArrayList<>();
 		if(!CollectionUtils.isEmpty(source)) {
 			// 解析需要忽略的字段
-			IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
+			IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.get(0).getClass().getSimpleName(), ignoreProperties);
 			for (Object o : source) {
 				listRet.add(copyPropertiesDeep(o, clazz, ignorePropertyArray));
 			}
