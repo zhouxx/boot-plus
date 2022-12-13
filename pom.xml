@@ -16,6 +16,7 @@
         <module>boot-plus-dependencies</module>
         <module>boot-plus-security</module>
         <module>boot-plus-cache</module>
+        <module>boot-plus-test</module>
     </modules>
     <packaging>pom</packaging>
 
