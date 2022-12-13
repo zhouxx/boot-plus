@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -139,6 +140,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
         if(!CollectionUtils.isEmpty(swaggerProperties.getAuthorized())) {
             docket.securitySchemes(securitySchemes(swaggerProperties.getAuthorized()))
                     .securityContexts(securityContexts(
+                            swaggerProperties.getAuthorized(),
                             CollectionUtils.isEmpty(swaggerProperties.getAuthorizedIncludePatterns()) ? swaggerProperties.getDefaultIncludePatterns() : swaggerProperties.getAuthorizedIncludePatterns()));
         }
         watch.stop();
@@ -176,21 +178,20 @@ public class SwaggerConfiguration implements WebMvcConfigurer, EnvironmentAware 
         return authorizeds.stream().map(authorized -> new ApiKey(authorized.getName(), authorized.getName(), authorized.getIn())).collect(toList());
     }
 
-    private List<SecurityContext> securityContexts(List<String> patterns) {
+    private List<SecurityContext> securityContexts(List<Authorized> authorizeds, List<String> patterns) {
         return Collections.singletonList(
                 SecurityContext.builder()
-                        .securityReferences(defaultAuth())
+                        .securityReferences(defaultAuth(authorizeds))
                         .forPaths(paths(patterns))
                         .build()
         );
     }
 
-    private List<SecurityReference> defaultAuth() {
+    private List<SecurityReference> defaultAuth(List<Authorized> authorizeds) {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Collections.singletonList(
-                new SecurityReference("Authorization", authorizationScopes));
+        return authorizeds.stream().map(authorized -> new SecurityReference(authorized.getName(), authorizationScopes)).collect(Collectors.toList());
     }
 
     @Override
