@@ -20,7 +20,9 @@ import com.alilitech.security.jwt.BlackListManager;
 import com.alilitech.security.jwt.JwtTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 /**
@@ -36,10 +38,17 @@ public class JwtAuthorizationConfiguration extends AuthorizationConfiguration {
     @Autowired
     private BlackListManager blackListManager;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        http.addFilterBefore(new JwtTokenAuthorizationFilter(jwtTokenUtils, extensibleSecurity, blackListManager), FilterSecurityInterceptor.class);
-    }
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        super.configure(http);
+//        http.addFilterBefore(new JwtTokenAuthorizationFilter(jwtTokenUtils, extensibleSecurity, blackListManager), FilterSecurityInterceptor.class);
+//    }
 
+    @Bean
+    @Override
+    protected SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http) throws Exception {
+        super.authorizationSecurityFilterChain(http);
+        http.addFilterBefore(new JwtTokenAuthorizationFilter(jwtTokenUtils, extensibleSecurity, blackListManager), FilterSecurityInterceptor.class);
+        return http.build();
+    }
 }

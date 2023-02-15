@@ -66,6 +66,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         if(corsProperties.isEnabled()) {
             registry.addMapping(corsProperties.getPath())
                     .allowedOrigins(corsProperties.getAllowedOrigins())
+                    .allowedOriginPatterns(corsProperties.getAllowedOriginPatterns())
                     .allowedMethods(corsProperties.getAllowedMethods())
                     .allowCredentials(corsProperties.isAllowCredentials())
                     .exposedHeaders(corsProperties.getExposedHeaders())

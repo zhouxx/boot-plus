@@ -18,10 +18,12 @@ package com.alilitech.web.valid;
 import com.alilitech.web.CommonBody;
 import org.hibernate.validator.internal.engine.MessageInterpolatorContext;
 import org.hibernate.validator.internal.engine.path.PathImpl;
+import org.hibernate.validator.messageinterpolation.ExpressionLanguageFeatureLevel;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -31,7 +33,9 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.validation.MessageInterpolator;
 import javax.validation.ValidatorFactory;
@@ -43,101 +47,71 @@ import java.util.stream.Collectors;
  * @since 1.0
  */
 @ControllerAdvice
-public class ValidAdvice {
+@ConditionalOnMissingBean(ResponseEntityExceptionHandler.class)
+public class ValidAdvice extends ResponseEntityExceptionHandler {
 
-    private final ValidHandler validHandler;
+    protected final ValidatorFactory validatorFactory;
 
-    private final ValidatorFactory validatorFactory;
-
-    public ValidAdvice(@Nullable ValidHandler validHandler, ValidatorFactory validatorFactory) {
-        this.validHandler = validHandler;
+    public ValidAdvice(ValidatorFactory validatorFactory) {
         this.validatorFactory = validatorFactory;
     }
 
-    @ExceptionHandler({ MethodArgumentNotValidException.class })
-    @ResponseBody
-    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new CommonBody(e.getBindingResult().getAllErrors().stream()
                         .map(objectError -> new ValidMessage(((FieldError)objectError).getField(), objectError.getDefaultMessage()))
                         .collect(Collectors.toList())));
     }
 
-    @ExceptionHandler({ BindException.class })
-    @ResponseBody
-    public ResponseEntity<Object> handleBindException(BindException e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
+    @Override
+    protected ResponseEntity<Object> handleBindException(BindException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return ResponseEntity.badRequest()
                 .body(new CommonBody(e.getBindingResult().getAllErrors().stream()
                         .map(objectError -> new ValidMessage(((FieldError)objectError).getField(), objectError.getDefaultMessage()))
                         .collect(Collectors.toList())));
     }
 
-    @ExceptionHandler({ MissingServletRequestParameterException.class,  MissingPathVariableException.class, HttpMessageNotReadableException.class})
-    @ResponseBody
-    public ResponseEntity<Object> handleServletRequestBindingException(Exception e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
-        return ResponseEntity.badRequest()
-                .body(new CommonBody(e.getMessage()));
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return ResponseEntity.badRequest().body(new CommonBody(e.getMessage()));
     }
 
-    @ExceptionHandler({ NoHandlerFoundException.class})
-    @ResponseBody
-    public ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new CommonBody(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+    @Override
+    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return ResponseEntity.badRequest().body(new CommonBody(e.getMessage()));
     }
 
-    @ExceptionHandler({ NoDataFoundException.class})
-    @ResponseBody
-    public ResponseEntity<Object> handleNoResultException(NoDataFoundException e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return ResponseEntity.badRequest().body(new CommonBody(e.getMessage()));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new CommonBody(HttpStatus.NOT_FOUND.value(), e.getMessage()));
     }
 
     @ExceptionHandler({ ValidException.class })
     @ResponseBody
-    public ResponseEntity<Object> handleValidateException(ValidException e) {
-        ResponseEntity<Object> responseEntity = customValidHandler(e);
-        if(responseEntity != null) {
-            return responseEntity;
-        }
+    public ResponseEntity<Object> handleValidException(ValidException e, WebRequest request) {
+        return handleNotValid(e, request);
+    }
+
+    protected ResponseEntity<Object> handleNotValid(ValidException e, WebRequest request) {
         MessageInterpolator messageInterpolator = validatorFactory.getMessageInterpolator();
         MessageInterpolatorContext context = new MessageInterpolatorContext(null,
                 e.getValidatedValue(),
                 Object.class,
-                StringUtils.isEmpty(e.getPropertyPath()) ? null : PathImpl.createPathFromString(e.getPropertyPath()),
+                StringUtils.hasLength(e.getPropertyPath()) ? PathImpl.createPathFromString(e.getPropertyPath()) : null,
                 e.getPlaceholderMap(),
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                ExpressionLanguageFeatureLevel.DEFAULT,
+                false);
         String message = messageInterpolator.interpolate(e.getMessage(), context);
-        CommonBody body = StringUtils.isEmpty(e.getPropertyPath()) ? new CommonBody(message) : new CommonBody(Collections.singletonList(new ValidMessage(e.getPropertyPath(), message)));
-        return ResponseEntity.badRequest()
-                .body(body);
-    }
-
-    private ResponseEntity<Object> customValidHandler(Exception e) {
-        if(validHandler == null) {
-            return null;
-        }
-        return validHandler.handle(e);
+        CommonBody body = StringUtils.hasLength(e.getPropertyPath()) ? new CommonBody(Collections.singletonList(new ValidMessage(e.getPropertyPath(), message))) : new CommonBody(message);
+        return ResponseEntity.badRequest().body(body);
     }
 
 }

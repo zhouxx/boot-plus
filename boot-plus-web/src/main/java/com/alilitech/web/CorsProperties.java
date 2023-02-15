@@ -30,7 +30,9 @@ public class CorsProperties {
 
     private String path = "/**";
 
-    private String[] allowedOrigins = new String[]{"*"};
+    private String[] allowedOrigins = new String[]{};
+
+    private String[] allowedOriginPatterns = new String[]{"*"};
 
     private String[] allowedMethods = new String[]{"*"};
 
@@ -78,6 +80,14 @@ public class CorsProperties {
 
     public void setAllowCredentials(boolean allowCredentials) {
         this.allowCredentials = allowCredentials;
+    }
+
+    public String[] getAllowedOriginPatterns() {
+        return allowedOriginPatterns;
+    }
+
+    public void setAllowedOriginPatterns(String[] allowedOriginPatterns) {
+        this.allowedOriginPatterns = allowedOriginPatterns;
     }
 
     public long getMaxAge() {

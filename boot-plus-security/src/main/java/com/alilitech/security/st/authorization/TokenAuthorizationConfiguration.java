@@ -19,7 +19,9 @@ import com.alilitech.security.authorization.AuthorizationConfiguration;
 import com.alilitech.security.st.SecurityTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
@@ -37,13 +39,23 @@ public class TokenAuthorizationConfiguration extends AuthorizationConfiguration 
     @Autowired(required = false)
     private LocaleResolver localeResolver;
 
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        super.configure(http);
+//        if(this.localeResolver == null) {
+//            this.localeResolver = new AcceptHeaderLocaleResolver();
+//        }
+//        http.addFilterBefore(new TokenAuthorizationFilter(securityTokenUtils, extensibleSecurity, localeResolver), FilterSecurityInterceptor.class);
+//    }
+
+    @Bean
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
+    protected SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http) throws Exception {
+        super.authorizationSecurityFilterChain(http);
         if(this.localeResolver == null) {
             this.localeResolver = new AcceptHeaderLocaleResolver();
         }
         http.addFilterBefore(new TokenAuthorizationFilter(securityTokenUtils, extensibleSecurity, localeResolver), FilterSecurityInterceptor.class);
+        return http.build();
     }
-
 }

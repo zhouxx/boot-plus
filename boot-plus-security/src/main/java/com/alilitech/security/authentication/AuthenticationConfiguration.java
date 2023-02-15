@@ -20,10 +20,12 @@ import com.alilitech.security.SecurityBizProperties;
 import com.alilitech.security.authentication.vf.SecurityVirtualFilter;
 import com.alilitech.security.authentication.vf.VirtualFilterDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -38,8 +40,8 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@Order(1)
-public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
+
+public class AuthenticationConfiguration {
 
     @Autowired
     private AuthenticationSuccessHandler authenticationSuccessHandler;
@@ -56,9 +58,9 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     protected SecurityBizProperties securityBizProperties;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
+    @Order(1)
+    @Bean
+    public SecurityFilterChain authenticationSecurityFilterChain(HttpSecurity http) throws Exception {
         String prefix = securityBizProperties.getAuthenticationPrefix();
 
         HttpSecurity httpSecurity = http.antMatcher(prefix + "/**");
@@ -67,7 +69,7 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl(prefix + "/login")
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(loginFailureHandler)
-                ;
+        ;
         http.logout().logoutUrl(prefix + "/logout").logoutSuccessHandler(logoutSuccessHandler);
 
         List<VirtualFilterDefinition> virtualFilterDefinitions = new ArrayList<>();
@@ -103,5 +105,56 @@ public class AuthenticationConfiguration extends WebSecurityConfigurerAdapter {
         }
 
         extensibleSecurity.authenticationExtension(http);
+
+        return http.build();
     }
+
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//
+//        String prefix = securityBizProperties.getAuthenticationPrefix();
+//
+//        HttpSecurity httpSecurity = http.antMatcher(prefix + "/**");
+//
+//        httpSecurity.formLogin()
+//                .loginProcessingUrl(prefix + "/login")
+//                .successHandler(authenticationSuccessHandler)
+//                .failureHandler(loginFailureHandler)
+//                ;
+//        http.logout().logoutUrl(prefix + "/logout").logoutSuccessHandler(logoutSuccessHandler);
+//
+//        List<VirtualFilterDefinition> virtualFilterDefinitions = new ArrayList<>();
+//        boolean overrideUsernamePasswordAuthenticationFilter = extensibleSecurity.addVirtualFilterDefinitions(virtualFilterDefinitions);
+//
+//        if(!virtualFilterDefinitions.isEmpty()) {
+//            virtualFilterDefinitions.forEach(virtualFilterDefinition -> {
+//                SecurityVirtualFilter securityVirtualFilter = new SecurityVirtualFilter(virtualFilterDefinition);
+//                securityVirtualFilter.setAuthenticationFailureHandler(loginFailureHandler);
+//                securityVirtualFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+//                http.addFilterBefore(securityVirtualFilter, UsernamePasswordAuthenticationFilter.class);
+//            });
+//        }
+//
+//        // since 1.3.1
+//        // 返回true时，则替换默认的filter : UsernamePasswordAuthenticationFilter.class
+//        // 如果是false，一定要覆写认证和鉴权方法
+//        if(overrideUsernamePasswordAuthenticationFilter) {
+//            VirtualFilterDefinition virtualFilterDefinition = VirtualFilterDefinition.get().supportedPredicate((servletRequest, servletResponse) -> {
+//                // 此filter是否支持验证判断
+//                AntPathRequestMatcher requestMatcher = new AntPathRequestMatcher(prefix + "/login", "POST");
+//                RequestMatcher.MatchResult matcher = requestMatcher.matcher((HttpServletRequest) servletRequest);
+//                return matcher.isMatch();
+//            }).authenticationFunction((servletRequest, servletResponse) -> {
+//                // 如何验证，验证失败时可以抛出AuthenticationException
+//                throw new AuthenticationServiceException("refuse");
+//            }).endAuthentication((authentication, servletRequest, servletResponse) -> {
+//                // 此filter认证成功后，是否结束整个流程的认证
+//                return true;
+//            }).alias("refused filter");
+//
+//            http.addFilterAt(new SecurityVirtualFilter(virtualFilterDefinition), UsernamePasswordAuthenticationFilter.class);
+//        }
+//
+//        extensibleSecurity.authenticationExtension(http);
+//    }
 }

@@ -19,12 +19,16 @@ import com.alilitech.security.ExtensibleSecurity;
 import com.alilitech.security.SecurityBizProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,7 +36,7 @@ import org.springframework.util.StringUtils;
  * @since 1.0
  */
 @EnableConfigurationProperties({SecurityBizProperties.class})
-public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAdapter {
+public abstract class AuthorizationConfiguration {
 
     @Autowired
     private CustomSecurityMetadataSource customSecurityMetadataSource;
@@ -49,17 +53,24 @@ public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAd
     @Autowired
     protected SecurityBizProperties securityBizProperties;
 
-    @Override
-    public void configure(WebSecurity web) {
-        //ignore urls
-        if(!StringUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
-            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
-        }
+    @Bean
+    protected WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> {
+            if(!CollectionUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
+                securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
+            }
+        };
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+//    @Override
+//    public void configure(WebSecurity web) {
+//        //ignore urls
+//        if(!StringUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
+//            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
+//        }
+//    }
 
+    protected SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http) throws Exception {
         http.antMatcher("/**").authorizeRequests()
                 .anyRequest().authenticated()
                 .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
@@ -74,5 +85,26 @@ public abstract class AuthorizationConfiguration extends WebSecurityConfigurerAd
         http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
 
         extensibleSecurity.authorizationExtension(http);
+
+        return null;
     }
+
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//
+//        http.antMatcher("/**").authorizeRequests()
+//                .anyRequest().authenticated()
+//                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+//                    public <O extends FilterSecurityInterceptor> O postProcess(
+//                            O fsi) {
+//                        fsi.setSecurityMetadataSource(customSecurityMetadataSource);
+//                        fsi.setAccessDecisionManager(customAccessDecisionManager);
+//                        return fsi;
+//                    }
+//                });
+//
+//        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+//
+//        extensibleSecurity.authorizationExtension(http);
+//    }
 }
