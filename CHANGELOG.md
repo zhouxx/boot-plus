@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [v2.1.0] 2022.2.15
+
+* all: 将spring boot版本升级至2.7.x
+
+## [v2.0.5] 2022.12.13
+
+* swagger: 修复swagger有时候无法设置auth的问题
+
+## [v2.0.4] 2022.12.4
+
+* core: 修复BeanUtils拷贝list的时候无法忽略属性的问题
+
 ## [v2.0.3] 2022.9.26
 
 * core: 修复BeanUtils无法拷贝父类属性的问题
