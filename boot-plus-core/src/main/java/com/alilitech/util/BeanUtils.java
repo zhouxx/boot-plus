@@ -151,6 +151,7 @@ public class BeanUtils {
 			target = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("Instance target object error!");
+			return null;
 		}
 		// 解析需要忽略的字段
 		IgnoreProperty[] ignorePropertyArray = resolveIgnoreProperties(source.getClass().getSimpleName(), ignoreProperties);
@@ -168,6 +169,7 @@ public class BeanUtils {
 			target = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			logger.error("Instance target object error!");
+			return null;
 		}
 		copyPropertiesDeep(source, target, ignoreProperties);
 		return target;
@@ -204,22 +206,26 @@ public class BeanUtils {
 	 */
 	private static void copyPropertiesDeep(Object source, Object target, IgnoreProperty... ignoreProperties) {
 		try {
-			Map<String, TempBean> tbSourceMap = BeanUtils.findSourceMethodAndTranslateGetNameMap(source, ignoreProperties);
-			List<TempBean> listTarget = BeanUtils.findSourceMethod(target, null);
+			Map<String, TempBean> tbSourceMap = findSourceMethodAndTranslateGetNameMap(source, ignoreProperties);
+			List<TempBean> listTarget = findSourceMethod(target, null);
 			for (TempBean tempBeanTarget : listTarget) {
-				//查找源对象的get方法
-				TempBean tempBeanSource = tbSourceMap.get(tempBeanTarget.fieldDesc.getterName);
-				//若不存在，则直接跳过
-				if (tempBeanSource == null) {
-					continue;
+				try {
+					//查找源对象的get方法
+					TempBean tempBeanSource = tbSourceMap.get(tempBeanTarget.fieldDesc.getterName);
+					//若不存在，则直接跳过
+					if (tempBeanSource == null) {
+						continue;
+					}
+					Method setterMethod = tempBeanTarget.fieldDesc.setterMethod;
+					Object value = tempBeanSource.fieldDesc.getterMethod.invoke(tempBeanSource.object);
+					//值为空不需要塞
+					if (value == null) {
+						continue;
+					}
+					setterMethod.invoke(target, value);
+				} catch (Exception e) {
+					logger.error(TIP_ERROR, e);
 				}
-				Method setterMethod = tempBeanTarget.fieldDesc.setterMethod;
-				Object value = tempBeanSource.fieldDesc.getterMethod.invoke(tempBeanSource.object);
-				//值为空不需要塞
-				if (value == null) {
-					continue;
-				}
-				setterMethod.invoke(target, value);
 			}
 		} catch (Exception e) {
 			logger.error(TIP_ERROR, e);
@@ -230,7 +236,7 @@ public class BeanUtils {
 	 * 查找对象源的get和set方法，包括聚合对象, 并转换成以get方法为key的Map
 	 */
 	protected static Map<String, TempBean> findSourceMethodAndTranslateGetNameMap(Object source, IgnoreProperty... ignoreProperties) throws Exception {
-		List<TempBean> list = BeanUtils.findSourceMethod(source, null);
+		List<TempBean> list = findSourceMethod(source, null);
 		Map<String, TempBean> retMap = new HashMap<>();
 
 		// 区分是否有过滤的属性
