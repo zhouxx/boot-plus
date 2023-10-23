@@ -110,8 +110,8 @@ public class ValidAdvice extends ResponseEntityExceptionHandler {
                 ExpressionLanguageFeatureLevel.DEFAULT,
                 false);
         String message = messageInterpolator.interpolate(e.getMessage(), context);
-        CommonBody body = StringUtils.hasLength(e.getPropertyPath()) ? new CommonBody(Collections.singletonList(new ValidMessage(e.getPropertyPath(), message))) : new CommonBody(message);
-        return ResponseEntity.badRequest().body(body);
+        CommonBody body = StringUtils.hasLength(e.getPropertyPath()) ? new CommonBody(e.getHttpStatus().value(), Collections.singletonList(new ValidMessage(e.getPropertyPath(), message))) : new CommonBody(e.getHttpStatus().value(), message);
+        return ResponseEntity.status(e.getHttpStatus()).body(body);
     }
 
 }
