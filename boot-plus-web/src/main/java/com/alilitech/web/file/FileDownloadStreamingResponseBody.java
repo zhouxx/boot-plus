@@ -15,9 +15,7 @@
  */
 package com.alilitech.web.file;
 
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
 import java.io.File;
 import java.io.InputStream;
@@ -65,10 +63,10 @@ public class FileDownloadStreamingResponseBody extends AbstractStreamingResponse
     }
 
     @Override
-    public ResponseEntity<FileDownloadStreamingResponseBody> toResponseEntity() {
-
+    public ResponseEntity<FileDownloadStreamingResponseBody> toResponseEntity(HttpStatus httpStatus, HttpHeaders headers) {
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment").filename(this.fileName, charset).build();
-        return ResponseEntity.ok()
+        return ResponseEntity.status(httpStatus)
+                .headers(headers)
                 .contentType(mediaType)
                 .header("Content-Disposition", contentDisposition.toString())
                 .body(this);
