@@ -20,8 +20,6 @@ Boot-plus是基于Spring Boot构建的框架，提供了全套解决方案，使
 
   [⚡️在线文档](https://zhouxx.github.io/boot-plus/#/README)
 
-  [🚀部分实例]( https://github.com/zhouxx/boot-plus-mybatis-jpa-samples)
-
 # 特性
 
 * **解耦：** 每个模块只对部分功能进行增强，可以任意搭配组合,不随意入侵不同层次模块的代码
