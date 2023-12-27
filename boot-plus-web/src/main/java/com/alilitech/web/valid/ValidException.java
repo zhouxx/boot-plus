@@ -15,6 +15,8 @@
  */
 package com.alilitech.web.valid;
 
+import org.springframework.http.HttpStatus;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,10 +28,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ValidException extends RuntimeException {
 
+    private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+    /**
+     * 除validatedValue外的其它占位符
+     */
     private final Map<String, Object> placeholderMap = new ConcurrentHashMap<>();
 
+    /**
+     * 每个message国际化会自带一个validatedValue占位符
+     */
     private Object validatedValue = -1;
 
+    /**
+     * 字段路径，用于给接口或前端展示
+     */
     private String propertyPath;
 
     public ValidException() {
@@ -44,6 +57,11 @@ public class ValidException extends RuntimeException {
         return this;
     }
 
+    public ValidException httpStatus(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
+        return this;
+    }
+
     public ValidException validatedValue(Object validatedValue) {
         this.validatedValue = validatedValue;
         placeholderMap.put("validatedValue",validatedValue);
@@ -53,6 +71,10 @@ public class ValidException extends RuntimeException {
     public ValidException propertyPath(String propertyPath) {
         this.propertyPath = propertyPath;
         return this;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 
     public Map<String, Object> getPlaceholderMap() {
