@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2022 the original author or authors.
+ *    Copyright 2017-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ package com.alilitech.web.valid;
 import org.springframework.http.HttpStatus;
 
 /**
- * ValidException like hibernate validation
- *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class ValidException extends BusinessException {
+public class NoFoundException extends BusinessException {
 
-    public ValidException(String message) {
-        super(HttpStatus.BAD_REQUEST, message);
+    public NoFoundException(String message) {
+        super(HttpStatus.NOT_FOUND, message);
     }
 }

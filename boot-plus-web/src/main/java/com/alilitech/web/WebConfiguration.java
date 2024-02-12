@@ -20,6 +20,8 @@ import com.alilitech.web.jackson.JacksonInterceptor;
 import com.alilitech.web.jackson.ser.CompositeSerializerModifier;
 import com.alilitech.web.jackson.ser.dict.DictWithLocaleCacheManager;
 import com.alilitech.web.jackson.ser.dict.DictWithoutLocaleCacheManager;
+import com.alilitech.web.valid.ValidAdvice;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -27,7 +29,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ValidatorFactory;
 import java.util.List;
 
 
@@ -77,5 +81,11 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
         resolvers.add(defaultExceptionResolver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ResponseEntityExceptionHandler.class)
+    public ValidAdvice validAdvice(ValidatorFactory validatorFactory) {
+        return new ValidAdvice(validatorFactory);
     }
 }

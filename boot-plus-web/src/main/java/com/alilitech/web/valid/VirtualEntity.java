@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017-2022 the original author or authors.
+ *    Copyright 2017-present the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
  */
 package com.alilitech.web.valid;
 
-import org.springframework.http.HttpStatus;
+import javax.validation.constraints.AssertTrue;
 
 /**
- * ValidException like hibernate validation
- *
  * @author Zhou Xiaoxiang
- * @since 1.0
+ * @since 2.1.3
  */
-public class ValidException extends BusinessException {
-
-    public ValidException(String message) {
-        super(HttpStatus.BAD_REQUEST, message);
-    }
+@AssertTrue
+public class VirtualEntity {
 }
