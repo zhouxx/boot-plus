@@ -1,6 +1,16 @@
 # CHANGELOG
 
-## [v2.1.1] 2022.6.13
+## [v2.1.3] 2024.02.12
+
+* web: 新增BusinessException支持状态码，将ValidException是400状态码
+* web: 修复异常国际化时如果不存在变量则报错的问题
+
+## [v2.1.2] 2023.11.23
+
+* web: ValidException支持状态码定义
+* web: 文件下载或查看支持http头信息和状态码
+
+## [v2.1.1] 2023.6.13
 
 * core: 修复BeanUtils拷贝时，其中一个报错，其它属性也无法继续拷贝了
 
