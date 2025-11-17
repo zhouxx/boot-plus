@@ -16,10 +16,14 @@
 package com.alilitech.web.jackson.ser.dict;
 
 import com.alilitech.web.jackson.DictCollector;
+import com.alilitech.web.jackson.ser.CompositeSerializerModifier;
 import com.alilitech.web.support.ResourceBundleCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -29,6 +33,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 2.0.2
  */
 public class DictCache {
+
+    private static final Logger logger = LoggerFactory.getLogger(DictCache.class);
 
     /**
      * save all dicts and values
@@ -96,6 +102,10 @@ public class DictCache {
                 return null;
             }
             return CACHED.getResourceBundle(dictKey).getObject(valueKey);
+        } catch (MissingResourceException e) {
+            logger.warn("Dict exist key {} but not exist value key {}" ,dictKey, valueKey);
+            // 当dictKey存在，但valueKey不存在时，则直接返回null，不再抛出异常。
+            return null;
         } finally {
             READ_WRITE_LOCK.readLock().unlock();
         }

@@ -5,11 +5,13 @@
     <parent>
         <artifactId>boot-plus</artifactId>
         <groupId>com.alilitech</groupId>
-        <version>2.1.4</version>
+        <version>2.1.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>boot-plus-log</artifactId>
+
+    <name>Boot Plus Logging</name>
 
     <dependencies>
 
