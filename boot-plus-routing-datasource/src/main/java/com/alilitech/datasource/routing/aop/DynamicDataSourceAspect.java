@@ -17,16 +17,13 @@ package com.alilitech.datasource.routing.aop;
 
 import com.alilitech.datasource.routing.DataSourceContextHolder;
 import com.alilitech.datasource.routing.annotation.DynamicSource;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
-
-import java.lang.reflect.Method;
 
 /**
  *
@@ -38,47 +35,61 @@ public class DynamicDataSourceAspect implements Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Before("@annotation(com.alilitech.datasource.routing.annotation.DynamicSource) || @within(com.alilitech.datasource.routing.annotation.DynamicSource)")
-    public void beforeSwitchDataSource(JoinPoint point) throws NoSuchMethodException {
+    /**
+     * Matches methods annotated with {@link DynamicSource}.
+     */
+    @Pointcut("@annotation(com.alilitech.datasource.routing.annotation.DynamicSource)")
+    public void annotatedMethod() {
+    }
 
-        Class<?> clazz = point.getTarget().getClass();
-        String methodName = point.getSignature().getName();
-        Class[] argClass = ((MethodSignature)point.getSignature()).getParameterTypes();
-        // access method object
-        Method method = clazz.getMethod(methodName, argClass);
+    /**
+     * Matches methods declared inside a class annotated with {@link DynamicSource}.
+     */
+    @Pointcut("@within(com.alilitech.datasource.routing.annotation.DynamicSource)")
+    public void annotatedClass() {
+    }
 
-        String dataSourceName = null;
-        /**
-         * Determine whether there is {@link DynamicSource} annotation
-          */
-        if (method.isAnnotationPresent(DynamicSource.class) || clazz.isAnnotationPresent(DynamicSource.class)) {
-            DynamicSource annotation = method.getAnnotation(DynamicSource.class);
+    /**
+     * The annotation is bound directly as an advice argument, so the aspect does not have to
+     * look it up through reflection on every invocation.
+     */
+    @Around("annotatedMethod() && @annotation(dynamicSource)")
+    public Object aroundAnnotatedMethod(ProceedingJoinPoint point, DynamicSource dynamicSource) throws Throwable {
+        return switchDataSource(point, dynamicSource);
+    }
 
-            if(annotation == null) {
-                annotation = clazz.getAnnotation(DynamicSource.class);
-            }
+    /**
+     * A method level annotation takes precedence over a class level one, so the class level
+     * advice excludes methods that carry their own annotation, otherwise such a method would
+     * be advised twice.
+     */
+    @Around("annotatedClass() && !annotatedMethod() && @within(dynamicSource)")
+    public Object aroundAnnotatedClass(ProceedingJoinPoint point, DynamicSource dynamicSource) throws Throwable {
+        return switchDataSource(point, dynamicSource);
+    }
 
-            // 若是运行期间指定，则拿指定的数据源名称
-            if(annotation.runtime()) {
-                dataSourceName = DataSourceContextHolder.getDataSource();
-            } else {
-                // 取出注解中的数据源名
-                dataSourceName = annotation.value();
-            }
+    private Object switchDataSource(ProceedingJoinPoint point, DynamicSource annotation) throws Throwable {
 
+        // if the data source name is resolved at runtime, it is owned by the caller: leave it untouched
+        if (annotation.runtime()) {
+            return point.proceed();
         }
+
+        // take the data source name declared on the annotation
+        String dataSourceName = annotation.value();
 
         // switch data source
         DataSourceContextHolder.setDataSource(dataSourceName);
 
-        if(dataSourceName != null && logger.isDebugEnabled()) {
+        if(logger.isDebugEnabled()) {
             logger.debug("current transaction use datasource：{}", dataSourceName);
         }
-    }
 
-    @After("@annotation(com.alilitech.datasource.routing.annotation.DynamicSource) || @within(com.alilitech.datasource.routing.annotation.DynamicSource)")
-    public void afterSwitchDataSource(){
-        DataSourceContextHolder.clearDataSource();
+        try {
+            return point.proceed();
+        } finally {
+            DataSourceContextHolder.clearDataSource();
+        }
     }
 
     // aop cuts in before the transaction

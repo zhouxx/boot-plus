@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [v2.1.6] 2026.9.21
+
+* routing-datasource: 修复`@DynamicSource(runtime = true)`时外部设置的数据源被切面清除的问题
+* routing-datasource: 切面改用`@Around`直接绑定注解，去除每次调用查找注解的反射开销
+
 ## [v2.1.3] 2024.02.12
 
 * web: 新增BusinessException支持状态码，将ValidException是400状态码
