@@ -20,11 +20,9 @@ import com.alilitech.security.SecurityBizProperties;
 import com.alilitech.security.SecurityConfiguration;
 import com.alilitech.security.st.authentication.TokenLoginSuccessHandler;
 import com.alilitech.security.st.authentication.TokenLogoutSuccessHandler;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
@@ -32,7 +30,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-@ConditionalOnClass(WebSecurityConfigurerAdapter.class)
 @ConditionalOnProperty(name="security.token.type", havingValue = "ST")
 public class SecurityTokenConfiguration extends SecurityConfiguration {
 

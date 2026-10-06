@@ -15,8 +15,8 @@
  */
 package com.alilitech.web.jackson.ser.support;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 import java.io.IOException;
 
@@ -35,13 +35,13 @@ public class NullDefaultValueJsonSerializer extends NullJsonSerializer {
     }
 
     @Override
-    public void writeNullValue(JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void writeNullValue(JsonGenerator gen, SerializationContext serializers) {
         gen.writeString(defaultNullValue);
     }
 
     @Override
-    public void writeNoNullValue(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeObject(value);
+    public void writeNoNullValue(Object value, JsonGenerator gen, SerializationContext serializers) {
+        gen.writePOJO(value);
     }
 
 }

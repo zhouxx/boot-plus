@@ -26,8 +26,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,15 +52,15 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
 
     private static final String BIZ_USER_NAME = "bizUser";
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(inclusion -> inclusion.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .build();
 
     //secrete algorithm
     private Algorithm algorithm;
 
     public JwtTokenUtils(SecurityBizProperties securityBizProperties) {
        super(securityBizProperties);
-        //去除null值。减小token长度
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     /**
@@ -82,8 +82,8 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
 
         String userString = null;
         try {
-            userString = objectMapper.writeValueAsString(user.getBizUser());
-        } catch (JsonProcessingException e) {
+            userString = jsonMapper.writeValueAsString(user.getBizUser());
+        } catch (JacksonException e) {
             e.printStackTrace();
         }
 
@@ -172,7 +172,7 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
 
         Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
 
-        if (!StringUtils.isEmpty(authorityString)) {
+        if (StringUtils.hasLength(authorityString)) {
             authorities = Arrays.asList(authorityString.split(","))
                     .stream()
                     .map(SimpleGrantedAuthority::new).collect(Collectors.toList());
@@ -183,8 +183,8 @@ public class JwtTokenUtils extends TokenUtils implements InitializingBean {
         String bizUserString = decodedJWT.getClaim(BIZ_USER_NAME).asString();
 
         try {
-            user.setBizUser((BizUser) objectMapper.readValue(bizUserString, this.bizClass));
-        } catch (IOException e) {
+            user.setBizUser((BizUser) jsonMapper.readValue(bizUserString, this.bizClass));
+        } catch (JacksonException e) {
             e.printStackTrace();
         }
 

@@ -3,8 +3,12 @@
 
     <springProperty name="enableThreadLocal" source="logging.enableThreadLocal" defaultValue="true"/>
 
-    <!-- if-then-else form -->
-    <if condition="${enableThreadLocal}">
+    <!-- condition must precede if; the condition attribute is no longer evaluated -->
+    <condition class="ch.qos.logback.core.boolex.PropertyEqualityCondition">
+        <key>enableThreadLocal</key>
+        <value>true</value>
+    </condition>
+    <if>
         <then>
             <include resource="com/alilitech/log/base.xml"/>
         </then>

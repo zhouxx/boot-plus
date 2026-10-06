@@ -17,11 +17,11 @@ package com.alilitech.web.jackson.ser;
 
 import com.alilitech.web.jackson.anotation.NullFormat;
 import com.alilitech.web.jackson.ser.support.*;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.ValueSerializerModifier;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -34,21 +34,21 @@ import java.util.Set;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class NullBeanSerializerModifier extends BeanSerializerModifier {
+public class NullBeanSerializerModifier extends ValueSerializerModifier {
     /**
      *
      */
     private boolean defaultNull;
     private String defaultNullValue;
 
-    private final JsonSerializer<Object> nullArrayJsonSerializer = new NullArrayJsonSerializer();
-    private final JsonSerializer<Object> nullStringJsonSerializer = new NullStringJsonSerializer();
-    private final JsonSerializer<Object> nullMapJsonSerializer = new NullMapJsonSerializer();
-    private final JsonSerializer<Object> nullDoubleJsonSerializer = new NullDoubleJsonSerializer();
-    private final JsonSerializer<Object> nullIntegerJsonSerializer = new NullIntegerJsonSerializer();
-    private final JsonSerializer<Object> nullDateJsonSerializer = new NullDateJsonSerializer();
-    private final JsonSerializer<Object> nullObjectJsonSerializer = new NullObjectJsonSerializer();
-    private final JsonSerializer<Object> nullBigDecimalJsonSerializer = new NullBigDecimalJsonSerializer();
+    private final ValueSerializer<Object> nullArrayValueSerializer = new NullArrayJsonSerializer();
+    private final ValueSerializer<Object> nullStringValueSerializer = new NullStringJsonSerializer();
+    private final ValueSerializer<Object> nullMapValueSerializer = new NullMapJsonSerializer();
+    private final ValueSerializer<Object> nullDoubleValueSerializer = new NullDoubleJsonSerializer();
+    private final ValueSerializer<Object> nullIntegerValueSerializer = new NullIntegerJsonSerializer();
+    private final ValueSerializer<Object> nullDateValueSerializer = new NullDateJsonSerializer();
+    private final ValueSerializer<Object> nullObjectValueSerializer = new NullObjectJsonSerializer();
+    private final ValueSerializer<Object> nullBigDecimalValueSerializer = new NullBigDecimalJsonSerializer();
 
     public NullBeanSerializerModifier() {
     }
@@ -59,7 +59,7 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
     }
 
     @Override
-    public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+    public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription.Supplier beanDesc, List<BeanPropertyWriter> beanProperties) {
 
         //如果类上定义了，则在取类定义的值，如果类没定义，则取全局
         String classDefaultNullValue = defaultNullValue;
@@ -150,35 +150,35 @@ public class NullBeanSerializerModifier extends BeanSerializerModifier {
         return clazz.equals(Date.class) || clazz.equals(java.sql.Date.class);
     }
 
-    private JsonSerializer<Object> defaultNullArrayJsonSerializer() {
-        return this.nullArrayJsonSerializer;
+    private ValueSerializer<Object> defaultNullArrayJsonSerializer() {
+        return this.nullArrayValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullStringJsonSerializer() {
-        return this.nullStringJsonSerializer;
+    private ValueSerializer<Object> defaultNullStringJsonSerializer() {
+        return this.nullStringValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullMapJsonSerializer() {
-        return this.nullMapJsonSerializer;
+    private ValueSerializer<Object> defaultNullMapJsonSerializer() {
+        return this.nullMapValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullDoubleJsonSerializer() {
-        return this.nullDoubleJsonSerializer;
+    private ValueSerializer<Object> defaultNullDoubleJsonSerializer() {
+        return this.nullDoubleValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullIntegerJsonSerializer() {
-        return this.nullIntegerJsonSerializer;
+    private ValueSerializer<Object> defaultNullIntegerJsonSerializer() {
+        return this.nullIntegerValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullDateJsonSerializer() {
-        return this.nullDateJsonSerializer;
+    private ValueSerializer<Object> defaultNullDateJsonSerializer() {
+        return this.nullDateValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullObjectJsonSerializer() {
-        return this.nullObjectJsonSerializer;
+    private ValueSerializer<Object> defaultNullObjectJsonSerializer() {
+        return this.nullObjectValueSerializer;
     }
 
-    private JsonSerializer<Object> defaultNullBigDecimalJsonSerializer() {
-        return this.nullBigDecimalJsonSerializer;
+    private ValueSerializer<Object> defaultNullBigDecimalJsonSerializer() {
+        return this.nullBigDecimalValueSerializer;
     }
 }

@@ -20,16 +20,10 @@ import com.alilitech.security.SecurityBizProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Zhou Xiaoxiang
@@ -39,13 +33,10 @@ import org.springframework.util.StringUtils;
 public abstract class AuthorizationConfiguration {
 
     @Autowired
-    private CustomSecurityMetadataSource customSecurityMetadataSource;
-
-    @Autowired
     protected ExtensibleSecurity extensibleSecurity;
 
     @Autowired
-    private CustomAccessDecisionManager customAccessDecisionManager;
+    private CustomAuthorizationManager customAuthorizationManager;
 
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
@@ -56,55 +47,17 @@ public abstract class AuthorizationConfiguration {
     @Bean
     protected WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
-            if(!CollectionUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
-                securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
+            if (!CollectionUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
+                securityBizProperties.getIgnorePatterns().forEach(requestMatcher ->
+                        web.ignoring().requestMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
             }
         };
     }
 
-//    @Override
-//    public void configure(WebSecurity web) {
-//        //ignore urls
-//        if(!StringUtils.isEmpty(securityBizProperties.getIgnorePatterns())) {
-//            securityBizProperties.getIgnorePatterns().forEach(requestMatcher -> web.ignoring().antMatchers(requestMatcher.getMethod(), requestMatcher.getPattern()));
-//        }
-//    }
-
-    protected SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.antMatcher("/**").authorizeRequests()
-                .anyRequest().authenticated()
-                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-                    public <O extends FilterSecurityInterceptor> O postProcess(
-                            O fsi) {
-                        fsi.setSecurityMetadataSource(customSecurityMetadataSource);
-                        fsi.setAccessDecisionManager(customAccessDecisionManager);
-                        return fsi;
-                    }
-                });
-
-        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
-
+    protected void configureAuthorization(HttpSecurity http) throws Exception {
+        http.securityMatcher("/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().access(customAuthorizationManager))
+                .exceptionHandling(exception -> exception.accessDeniedHandler(accessDeniedHandler));
         extensibleSecurity.authorizationExtension(http);
-
-        return null;
     }
-
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//
-//        http.antMatcher("/**").authorizeRequests()
-//                .anyRequest().authenticated()
-//                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-//                    public <O extends FilterSecurityInterceptor> O postProcess(
-//                            O fsi) {
-//                        fsi.setSecurityMetadataSource(customSecurityMetadataSource);
-//                        fsi.setAccessDecisionManager(customAccessDecisionManager);
-//                        return fsi;
-//                    }
-//                });
-//
-//        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
-//
-//        extensibleSecurity.authorizationExtension(http);
-//    }
 }

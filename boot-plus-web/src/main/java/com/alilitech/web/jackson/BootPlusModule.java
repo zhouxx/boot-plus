@@ -18,8 +18,8 @@ package com.alilitech.web.jackson;
 import com.alilitech.web.JsonProperties;
 import com.alilitech.web.jackson.deser.NumberFormatDeserializerModifier;
 import com.alilitech.web.jackson.ser.*;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.core.Version;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Zhou Xiaoxiang
@@ -45,12 +45,12 @@ public class BootPlusModule extends SimpleModule {
         super.setupModule(context);
 
         //SerializerModifier
-//        context.addBeanSerializerModifier(new NumberFormatSerializerModifier());
-        context.addBeanSerializerModifier(compositeSerializerModifier);
-        context.addBeanSerializerModifier(new NullBeanSerializerModifier(jsonProperties.isDefaultNull(), jsonProperties.getDefaultNullValue()));
+//        context.addSerializerModifier(new NumberFormatSerializerModifier());
+        context.addSerializerModifier(compositeSerializerModifier);
+        context.addSerializerModifier(new NullBeanSerializerModifier(jsonProperties.isDefaultNull(), jsonProperties.getDefaultNullValue()));
 
         //DeserializerModifier
-        context.addBeanDeserializerModifier(new NumberFormatDeserializerModifier());
+        context.addDeserializerModifier(new NumberFormatDeserializerModifier());
 
     }
 

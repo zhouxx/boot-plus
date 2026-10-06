@@ -16,7 +16,7 @@
 package com.alilitech.web.exception;
 
 import com.alilitech.web.ThreadLocalContainer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,10 +24,11 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Zhou Xiaoxiang
@@ -39,11 +40,11 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
     private final ExceptionHandler exceptionHandler;
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+    public DefaultExceptionResolver(@Nullable ExceptionHandler exceptionHandler, JsonMapper jsonMapper) {
         this.exceptionHandler = exceptionHandler;
-        this.objectMapper = objectMapper;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -59,11 +60,14 @@ public class DefaultExceptionResolver implements HandlerExceptionResolver {
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-        ModelAndView modelAndView = new ModelAndView(new MappingJackson2JsonView(objectMapper));
-        modelAndView.addObject("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        modelAndView.addObject("message", ex.getMessage());
-
-        return modelAndView;
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        body.put("message", ex.getMessage());
+        try {
+            jsonMapper.writeValue(response.getOutputStream(), body);
+        } catch (Exception writeException) {
+            logger.error("write exception response failed.", writeException);
+        }
+        return new ModelAndView();
     }
 }

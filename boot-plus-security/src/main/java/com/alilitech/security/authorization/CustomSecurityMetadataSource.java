@@ -23,19 +23,16 @@ import com.alilitech.security.domain.BizResource;
 import com.alilitech.security.domain.BizUser;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.lang.Nullable;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -44,7 +41,7 @@ import java.util.stream.Collectors;
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class CustomSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
+public class CustomSecurityMetadataSource {
 
     protected MessageSourceAccessor messages = SecurityBizMessageSource.getAccessor();
 
@@ -54,7 +51,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 
     private final LocaleResolver localeResolver;
 
-    private final Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMap = new HashMap<>();
+    private final Map<RequestMatcher, Collection<String>> requestMatchersPermitAllMap = new HashMap<>();
 
     public CustomSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties,@Nullable LocaleResolver localeResolver) {
         this.extensibleSecurity = extensibleSecurity;
@@ -67,31 +64,18 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
     }
 
     @SuppressWarnings("java:S1168")
-    @Override
-    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        FilterInvocation fi = (FilterInvocation) object;
-        Map<RequestMatcher, Collection<ConfigAttribute>> metadataSource = getMetadataSource(fi.getHttpRequest());
-        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : metadataSource.entrySet()) {
+    public Collection<String> getAttributes(HttpServletRequest request) {
+        Map<RequestMatcher, Collection<String>> metadataSource = getMetadataSource(request);
+        for (Map.Entry<RequestMatcher, Collection<String>> entry : metadataSource.entrySet()) {
             RequestMatcher requestMatcher = entry.getKey();
-            if (requestMatcher.matches(fi.getHttpRequest())) {
+            if (requestMatcher.matches(request)) {
                 return entry.getValue();
             }
         }
         return null;
     }
 
-    @SuppressWarnings("java:S1168")
-    @Override
-    public Collection<ConfigAttribute> getAllConfigAttributes() {
-        return null;
-    }
-
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return FilterInvocation.class.isAssignableFrom(clazz);
-    }
-
-    private Map<RequestMatcher, Collection<ConfigAttribute>> getMetadataSource(HttpServletRequest request) {
+    private Map<RequestMatcher, Collection<String>> getMetadataSource(HttpServletRequest request) {
 
         //拿到用户，判断是否是最大权限
         //从上下文中取得用户对象，只需要解析一次token
@@ -100,7 +84,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
         //角色code
         Collection<String> roles = new ArrayList<>();
         //默认uri匹配
-        RequestMatcher requestMatcher = new AntPathRequestMatcher(request.getRequestURI(), request.getMethod());
+        RequestMatcher requestMatcher = PathPatternRequestMatcher.pathPattern(HttpMethod.valueOf(request.getMethod()), requestPath(request));
 
         //有最大权限的用户
         if(securityBizProperties.getPermitAllUserNames().contains(bizUser.getUsername())) {
@@ -129,30 +113,25 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
             roles.add(UUID.randomUUID().toString());
         }
 
-        Collection<ConfigAttribute> configAttributes = new ArrayList<>();
-        roles.forEach(roleCode -> {
-            ConfigAttribute configAttribute = new SecurityConfig(roleCode);
-            configAttributes.add(configAttribute);
-        });
-
-        Map<RequestMatcher, Collection<ConfigAttribute>> ret = new HashMap<>();
-        ret.put(requestMatcher, configAttributes);
+        Map<RequestMatcher, Collection<String>> ret = new HashMap<>();
+        ret.put(requestMatcher, roles);
         return ret;
     }
 
-    public Map<RequestMatcher, Collection<ConfigAttribute>> getRequestMatchersPermitAllMap() {
+    public Map<RequestMatcher, Collection<String>> getRequestMatchersPermitAllMap() {
         if(CollectionUtils.isEmpty(requestMatchersPermitAllMap)) {
-            List<AntPathRequestMatcher> requestMatchers = securityBizProperties.getPermitAllPatterns().stream().map(requestMatcher -> new AntPathRequestMatcher(requestMatcher.getPattern(), requestMatcher.getMethod().toString())).collect(Collectors.toList());
-            for(RequestMatcher requestMatcher : requestMatchers) {
-                ConfigAttribute configAttribute = new SecurityConfig("ROLE_PUBLIC");
-                requestMatchersPermitAllMap.put(requestMatcher, Collections.singletonList(configAttribute));
+            List<RequestMatcher> requestMatchers = securityBizProperties.getPermitAllPatterns().stream()
+                    .map(pattern -> (RequestMatcher) PathPatternRequestMatcher.pathPattern(pattern.getMethod(), pattern.getPattern()))
+                    .collect(Collectors.toList());
+            for (RequestMatcher requestMatcher : requestMatchers) {
+                requestMatchersPermitAllMap.put(requestMatcher, Collections.singletonList("ROLE_PUBLIC"));
             }
         }
         return requestMatchersPermitAllMap;
     }
 
     private boolean isMatchRequest(HttpServletRequest request) {
-        Map<RequestMatcher, Collection<ConfigAttribute>> requestMatchersPermitAllMapTmp = getRequestMatchersPermitAllMap();
+        Map<RequestMatcher, Collection<String>> requestMatchersPermitAllMapTmp = getRequestMatchersPermitAllMap();
         AtomicBoolean isMatch = new AtomicBoolean(false);
         requestMatchersPermitAllMapTmp.forEach((requestMatcher, configAttributes) -> {
             if(requestMatcher.matches(request)) {
@@ -160,5 +139,13 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
             }
         });
         return isMatch.get();
+    }
+
+    private String requestPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        if (request.getPathInfo() != null) {
+            path = path + request.getPathInfo();
+        }
+        return (path == null || path.isEmpty()) ? "/" : path;
     }
 }

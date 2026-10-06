@@ -16,26 +16,23 @@
 package com.alilitech.security.authorization;
 
 import com.alilitech.security.SecurityBizMessageSource;
-import org.apache.commons.codec.binary.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.lang.Nullable;
-import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.FilterInvocation;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
-public class CustomAccessDecisionManager implements AccessDecisionManager {
+public class CustomAccessDecisionManager {
 
     protected MessageSourceAccessor messages = SecurityBizMessageSource.getAccessor();
 
@@ -49,23 +46,19 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         }
     }
 
-    @Override
-    public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
+    public void decide(Authentication authentication, HttpServletRequest request, Collection<String> requiredAuthorities) {
+        String requestURI = request.getRequestURI();
 
-        FilterInvocation fi = (FilterInvocation) object;
-        String requestURI = fi.getHttpRequest().getRequestURI();
-
-        for (ConfigAttribute attribute : configAttributes) {
+        for (String needCode : requiredAuthorities) {
             if (authentication == null) {
                 throw new AccessDeniedException(messages.getMessage(
                         "Authorization.NotAllowed",
                         new Object[]{requestURI},
-                        "Authorization is not allowed for {0}!", localeResolver.resolveLocale(fi.getRequest())));
+                        "Authorization is not allowed for {0}!", localeResolver.resolveLocale(request)));
             }
-            String needCode = attribute.getAttribute();
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             for (GrantedAuthority authority : authorities) {
-                if (StringUtils.equals(authority.getAuthority(), needCode)) {
+                if (Objects.equals(authority.getAuthority(), needCode)) {
                     return;
                 }
             }
@@ -73,14 +66,6 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
         throw new AccessDeniedException(messages.getMessage(
                 "Authorization.NotAllowed",
                 new Object[] { requestURI },
-                "Authorization is not allowed for {0}!", localeResolver.resolveLocale(fi.getRequest())));
-    }
-
-    public boolean supports(ConfigAttribute attribute) {
-        return true;
-    }
-
-    public boolean supports(Class<?> clazz) {
-        return FilterInvocation.class.isAssignableFrom(clazz);
+                "Authorization is not allowed for {0}!", localeResolver.resolveLocale(request)));
     }
 }

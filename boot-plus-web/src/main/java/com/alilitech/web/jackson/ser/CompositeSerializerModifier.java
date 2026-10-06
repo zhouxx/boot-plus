@@ -22,11 +22,11 @@ import com.alilitech.web.jackson.anotation.SerializerConvert;
 import com.alilitech.web.jackson.anotation.SerializerFormat;
 import com.alilitech.web.jackson.ser.converter.*;
 import com.alilitech.web.jackson.ser.dict.DictCacheManager;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotationMap;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.ValueSerializerModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.3.6
  */
-public class CompositeSerializerModifier extends BeanSerializerModifier {
+public class CompositeSerializerModifier extends ValueSerializerModifier {
 
     private static final Logger logger = LoggerFactory.getLogger(CompositeSerializerModifier.class);
 
@@ -58,10 +58,9 @@ public class CompositeSerializerModifier extends BeanSerializerModifier {
     }
 
     @Override
-    public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDescription, List<BeanPropertyWriter> beanProperties) {
+    public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription.Supplier beanDescription, List<BeanPropertyWriter> beanProperties) {
         for (BeanPropertyWriter writer : beanProperties) {
-            AnnotationMap annotationMap = writer.getMember().getAllAnnotations();
-            List<Annotation> annotations = parseAnnotations(annotationMap);
+            List<Annotation> annotations = parseAnnotations(writer.getMember());
 
             if(annotations.isEmpty()) {
                 continue;
@@ -117,23 +116,20 @@ public class CompositeSerializerModifier extends BeanSerializerModifier {
                 }
             }
 
-            CompositeJsonSerializer compositeJsonSerializer = new CompositeJsonSerializer(jsonFormatter).addAllConvert(serializerConverters);
-            writer.assignSerializer(compositeJsonSerializer);
+            CompositeJsonSerializer compositeValueSerializer = new CompositeJsonSerializer(jsonFormatter).addAllConvert(serializerConverters);
+            writer.assignSerializer(compositeValueSerializer);
         }
 
         return beanProperties;
     }
 
-    private List<Annotation> parseAnnotations(AnnotationMap annotationMap) {
-
+    private List<Annotation> parseAnnotations(AnnotatedMember member) {
         List<Annotation> annotations = new ArrayList<>();
-
-        for(Class<Annotation> clazz : effectAnnotationClasses) {
-            if(annotationMap.has(clazz)) {
-                annotations.add(annotationMap.get(clazz));
+        for (Class<Annotation> clazz : effectAnnotationClasses) {
+            if (member.hasAnnotation(clazz)) {
+                annotations.add(member.getAnnotation(clazz));
             }
         }
-
         return annotations;
     }
 

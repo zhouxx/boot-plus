@@ -1,5 +1,2 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.alilitech.log.LogConfiguration
-
 org.springframework.context.ApplicationListener=\
 com.alilitech.log.LoggingApplicationExtensionListener

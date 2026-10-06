@@ -16,9 +16,9 @@
 package com.alilitech.web.jackson.ser;
 
 import com.alilitech.web.jackson.ser.converter.JsonFormatter;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author Zhou Xiaoxiang
  * @since 1.3.6
  */
-public class CompositeJsonSerializer extends JsonSerializer<Object> {
+public class CompositeJsonSerializer extends ValueSerializer<Object> {
 
     private List<SerializerConverter> serializerConverters = new ArrayList<>();
 
@@ -50,10 +50,10 @@ public class CompositeJsonSerializer extends JsonSerializer<Object> {
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Object value, JsonGenerator gen, SerializationContext serializers) {
         Object tmpValue = value;
 
-        Object currentValue = gen.getCurrentValue();
+        Object currentValue = gen.currentValue();
 
         if(!serializerConverters.isEmpty()) {
             for(SerializerConverter serializerConverter : serializerConverters) {
@@ -62,7 +62,7 @@ public class CompositeJsonSerializer extends JsonSerializer<Object> {
         }
 
         if(jsonFormatter == null) {
-            gen.writeObject(tmpValue);
+            gen.writePOJO(tmpValue);
         } else {
             jsonFormatter.serialize(value, tmpValue, gen);
         }

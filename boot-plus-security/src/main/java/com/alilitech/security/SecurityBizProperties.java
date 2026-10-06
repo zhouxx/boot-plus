@@ -18,7 +18,7 @@ package com.alilitech.security;
 import com.alilitech.security.domain.BizUser;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +93,7 @@ public class SecurityBizProperties {
     }
 
     public List<String> getPermitAllUserNames() {
-        if(StringUtils.isEmpty(this.permitAllUserNames)) {
+        if (CollectionUtils.isEmpty(this.permitAllUserNames)) {
             return Collections.emptyList();
         }
         return permitAllUserNames;

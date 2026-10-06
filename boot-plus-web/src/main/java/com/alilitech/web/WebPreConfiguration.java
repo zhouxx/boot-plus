@@ -16,12 +16,10 @@
 package com.alilitech.web;
 
 import com.alilitech.web.jackson.BootPlusModule;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -52,10 +50,7 @@ public class WebPreConfiguration {
     }
 
     @Bean
-    @Primary
-    public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
-        ObjectMapper objectMapper = builder.createXmlMapper(false).build();
-        objectMapper.registerModule(bootPlusModule);
-        return objectMapper;
+    public JsonMapperBuilderCustomizer bootPlusJsonMapperCustomizer() {
+        return builder -> builder.addModule(bootPlusModule);
     }
 }

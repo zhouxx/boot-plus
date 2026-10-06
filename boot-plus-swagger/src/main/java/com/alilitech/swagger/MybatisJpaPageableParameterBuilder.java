@@ -15,65 +15,48 @@
  */
 package com.alilitech.swagger;
 
-import com.alilitech.mybatis.jpa.domain.Page;
-import com.alilitech.mybatis.jpa.domain.Pageable;
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import springfox.documentation.builders.RequestParameterBuilder;
-import springfox.documentation.service.ParameterType;
-import springfox.documentation.service.RequestParameter;
-import springfox.documentation.service.ResolvedMethodParameter;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.OperationBuilderPlugin;
-import springfox.documentation.spi.service.contexts.OperationContext;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.web.method.HandlerMethod;
 
 /**
+ * Expands mybatis-jpa {@code Pageable}/{@code Page} arguments into query parameters.
+ * The types are matched by name so this module does not compile against mybatis-jpa.
+ *
  * @author Zhou Xiaoxiang
  * @since 1.0
  */
 @Order(Ordered.LOWEST_PRECEDENCE + 10)
-public class MybatisJpaPageableParameterBuilder implements OperationBuilderPlugin {
+public class MybatisJpaPageableParameterBuilder implements OperationCustomizer {
 
-    private final TypeResolver resolver;
-    private final ResolvedType pageableType;
-
-    @Autowired
-    public MybatisJpaPageableParameterBuilder(TypeResolver resolver) {
-        this.resolver = resolver;
-        this.pageableType = resolver.resolve(Pageable.class);
-    }
+    private static final String PAGEABLE = "com.alilitech.mybatis.jpa.domain.Pageable";
+    private static final String PAGE = "com.alilitech.mybatis.jpa.domain.Page";
 
     @Override
-    public void apply(OperationContext context) {
-        List<ResolvedMethodParameter> methodParameters = context.getParameters();
-        List<RequestParameter> parameters = new ArrayList<>();
-
-        for (ResolvedMethodParameter methodParameter : methodParameters) {
-            ResolvedType resolvedType = methodParameter.getParameterType();
-
-            if (pageableType.getTypeName().equals(resolvedType.getErasedType().getName())
-                || resolver.resolve(Page.class).getTypeName().equals(resolvedType.getErasedType().getName())) {
-
-                parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("page").description("Page number/第几页").build());
-                parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("size").description("Page size/每页数量").build());
-                parameters.add(new RequestParameterBuilder().in(ParameterType.QUERY).name("sort").description("排序传参格式: property[,property1][,asc or desc]. "
-                        + "默认排序是正序. "
-                        + "可以传多个").build());
-
-                context.operationBuilder().requestParameters(parameters);
+    public Operation customize(Operation operation, HandlerMethod handlerMethod) {
+        boolean matched = false;
+        for (MethodParameter methodParameter : handlerMethod.getMethodParameters()) {
+            String typeName = methodParameter.getParameterType().getName();
+            if (PAGEABLE.equals(typeName) || PAGE.equals(typeName)) {
+                matched = true;
+                break;
             }
         }
+        if (!matched) {
+            return operation;
+        }
+        operation.addParametersItem(query("page", "Page number/第几页"));
+        operation.addParametersItem(query("size", "Page size/每页数量"));
+        operation.addParametersItem(query("sort", "排序传参格式: property[,property1][,asc or desc]. 默认排序是正序. 可以传多个"));
+        return operation;
     }
 
-    @Override
-    public boolean supports(DocumentationType delimiter) {
-        return true;
+    private Parameter query(String name, String description) {
+        return new Parameter().in("query").name(name).description(description).schema(new StringSchema());
     }
 }

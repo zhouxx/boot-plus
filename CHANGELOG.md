@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [v4.0.0] 2026.10.6
+
+* all: 升级至 Spring Boot 4.1.1、Java 17
+* all: `javax.*` 改为 `jakarta.*`，自动配置改为 `AutoConfiguration.imports`
+* security: 授权改为 `AuthorizationManager`，适配 Spring Security 7
+* web: JSON 序列化改为 Jackson 3
+* swagger: 文档生成改为 springdoc
+
 ## [v2.1.6] 2026.9.21
 
 * routing-datasource: 修复`@DynamicSource(runtime = true)`时外部设置的数据源被切面清除的问题

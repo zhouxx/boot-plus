@@ -93,7 +93,7 @@ public class SecurityTokenUtils extends TokenUtils {
     }
 
     public void removeToken(String token) {
-        if(!StringUtils.isEmpty(token)) {
+        if (StringUtils.hasLength(token)) {
             Cache cache = cacheManager.getCache(SECURITY_CACHE_NAME);
             if(cache != null) {
                 cache.evict(token);

@@ -18,17 +18,18 @@ package com.alilitech.security;
 import com.alilitech.security.authentication.vf.VirtualFilterDefinition;
 import com.alilitech.security.domain.BizResource;
 import com.alilitech.security.domain.BizUser;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,7 +136,7 @@ public interface ExtensibleSecurity {
      * @return biz resource
      */
     default BizResource obtainResource(HttpServletRequest request) {
-        RequestMatcher requestMatcher = new AntPathRequestMatcher("/**", request.getMethod());
+        RequestMatcher requestMatcher = PathPatternRequestMatcher.pathPattern(HttpMethod.valueOf(request.getMethod()), "/**");
         BizResource bizResource = new BizResource(requestMatcher);
         bizResource.setRoles(new ArrayList<>(Collections.singletonList("USER")));
         return bizResource;
@@ -157,21 +158,21 @@ public interface ExtensibleSecurity {
 
     //=======================original extension===================
     default void authenticationExtension(HttpSecurity http) throws Exception {
-        http.cors();
-        http.sessionManagement().disable();
-        http.csrf().disable();
+        http.cors(Customizer.withDefaults());
+        http.sessionManagement(session -> session.disable());
+        http.csrf(csrf -> csrf.disable());
     }
 
     //=======================original extension===================
     default void authorizationExtension(HttpSecurity http) throws Exception {
-        http.cors();
-        http.sessionManagement().disable();
-        http.csrf().disable();
-        http.logout().disable();
-        http.formLogin().disable();
-        http.anonymous().disable();
-        http.securityContext().disable();
-        http.requestCache().disable();
+        http.cors(Customizer.withDefaults());
+        http.sessionManagement(session -> session.disable());
+        http.csrf(csrf -> csrf.disable());
+        http.logout(logout -> logout.disable());
+        http.formLogin(form -> form.disable());
+        http.anonymous(anonymous -> anonymous.disable());
+        http.securityContext(context -> context.disable());
+        http.requestCache(cache -> cache.disable());
     }
 
 }

@@ -20,8 +20,6 @@ import com.alilitech.security.domain.BizUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author Zhou Xiaoxiang
  * @since 1.0

@@ -16,9 +16,9 @@
 package com.alilitech.web.jackson.ser.support;
 
 import com.alilitech.web.jackson.DefaultNullContextHolder;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializationContext;
 
 import java.io.IOException;
 
@@ -26,13 +26,13 @@ import java.io.IOException;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public abstract class NullJsonSerializer extends JsonSerializer<Object> {
+public abstract class NullJsonSerializer extends ValueSerializer<Object> {
 
-    public abstract void writeNullValue(JsonGenerator gen, SerializerProvider serializers) throws IOException;
-    public abstract void writeNoNullValue(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException;
+    public abstract void writeNullValue(JsonGenerator gen, SerializationContext serializers);
+    public abstract void writeNoNullValue(Object value, JsonGenerator gen, SerializationContext serializers);
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Object value, JsonGenerator gen, SerializationContext serializers) {
 
         //如果进入此方法，但线程变量里指定了不转化，直接序列化
         if(DefaultNullContextHolder.get() != null && !DefaultNullContextHolder.get()) {

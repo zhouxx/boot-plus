@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 /**
  * @author Zhou Xiaoxiang
@@ -45,10 +45,9 @@ public class JwtAuthorizationConfiguration extends AuthorizationConfiguration {
 //    }
 
     @Bean
-    @Override
     protected SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http) throws Exception {
-        super.authorizationSecurityFilterChain(http);
-        http.addFilterBefore(new JwtTokenAuthorizationFilter(jwtTokenUtils, extensibleSecurity, blackListManager), FilterSecurityInterceptor.class);
+        configureAuthorization(http);
+        http.addFilterBefore(new JwtTokenAuthorizationFilter(jwtTokenUtils, extensibleSecurity, blackListManager), AuthorizationFilter.class);
         return http.build();
     }
 }

@@ -16,10 +16,7 @@
 package com.alilitech.swagger;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import springfox.documentation.spring.web.plugins.Docket;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +28,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "swagger")
 public class SwaggerProperties {
 
-    private String groupName = Docket.DEFAULT_GROUP_NAME;
+    private String groupName = "default";
 
     private String title = "Application API";
 

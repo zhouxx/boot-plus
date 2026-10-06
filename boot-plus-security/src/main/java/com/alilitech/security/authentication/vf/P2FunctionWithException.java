@@ -17,7 +17,7 @@ package com.alilitech.security.authentication.vf;
 
 import org.springframework.security.core.AuthenticationException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 
 /**

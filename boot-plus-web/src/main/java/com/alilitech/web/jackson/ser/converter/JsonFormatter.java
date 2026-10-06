@@ -15,7 +15,7 @@
  */
 package com.alilitech.web.jackson.ser.converter;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ public class JsonFormatter {
         this.formatConfig = formatConfig;
     }
 
-    public void serialize(Object originalValue, Object value, JsonGenerator gen) throws IOException {
+    public void serialize(Object originalValue, Object value, JsonGenerator gen) {
 
         if(value == null && formatConfig.isDefaultNull()) {
             value = formatConfig.getDefaultNullValue();
@@ -51,10 +51,10 @@ public class JsonFormatter {
 
         // 如果是新的目标属性，则先写原始的，再写格式化的
         if(formatConfig.isNewTarget()) {
-            gen.writeObject(originalValue);
-            gen.writeFieldName(formatConfig.getTargetFiledName());
+            gen.writePOJO(originalValue);
+            gen.writeName(formatConfig.getTargetFiledName());
         }
 
-        gen.writeObject(value);
+        gen.writePOJO(value);
     }
 }

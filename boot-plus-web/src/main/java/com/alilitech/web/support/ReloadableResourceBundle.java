@@ -15,11 +15,12 @@
  */
 package com.alilitech.web.support;
 
-import sun.util.ResourceBundleEnumeration;
-
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * reloadable resource bundle
@@ -46,7 +47,14 @@ public class ReloadableResourceBundle extends ResourceBundle {
 
     @Override
     public Enumeration<String> getKeys() {
-        return new ResourceBundleEnumeration(lookup.keySet(), null);
+        Set<String> keys = new HashSet<>(lookup.keySet());
+        if (parent != null) {
+            Enumeration<String> parentKeys = parent.getKeys();
+            while (parentKeys.hasMoreElements()) {
+                keys.add(parentKeys.nextElement());
+            }
+        }
+        return Collections.enumeration(keys);
     }
 
     // ==================privates====================

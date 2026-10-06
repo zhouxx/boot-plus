@@ -18,6 +18,7 @@ package com.alilitech.security;
 import com.alilitech.security.authentication.LoginFailureHandler;
 import com.alilitech.security.authentication.UserAuthenticationService;
 import com.alilitech.security.authorization.CustomAccessDecisionManager;
+import com.alilitech.security.authorization.CustomAuthorizationManager;
 import com.alilitech.security.authorization.CustomSecurityMetadataSource;
 import com.alilitech.security.authorization.TokenAccessDeniedHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -67,6 +68,12 @@ public class SecurityConfiguration {
     @Bean
     public CustomSecurityMetadataSource customSecurityMetadataSource(ExtensibleSecurity extensibleSecurity, SecurityBizProperties securityBizProperties, @Nullable LocaleResolver localeResolver) {
         return new CustomSecurityMetadataSource(extensibleSecurity, securityBizProperties, localeResolver);
+    }
+
+    @Bean
+    public CustomAuthorizationManager customAuthorizationManager(CustomSecurityMetadataSource customSecurityMetadataSource,
+                                                                  CustomAccessDecisionManager customAccessDecisionManager) {
+        return new CustomAuthorizationManager(customSecurityMetadataSource, customAccessDecisionManager);
     }
 
 }

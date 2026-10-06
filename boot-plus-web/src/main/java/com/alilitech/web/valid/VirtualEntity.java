@@ -15,7 +15,7 @@
  */
 package com.alilitech.web.valid;
 
-import javax.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.AssertTrue;
 
 /**
  * @author Zhou Xiaoxiang

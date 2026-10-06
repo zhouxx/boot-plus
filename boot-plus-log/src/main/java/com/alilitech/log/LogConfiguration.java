@@ -30,8 +30,8 @@ public class LogConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("log.html")
-                .addResourceLocations("classpath:/");
+        registry.addResourceHandler("/log.html")
+                .addResourceLocations("classpath:/log/");
 
 /**
         registry.addResourceHandler("/webjars/**")

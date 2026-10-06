@@ -17,15 +17,14 @@ package com.alilitech.security.authentication.vf;
 
 import com.alilitech.security.authentication.SecurityUser;
 import com.alilitech.security.domain.BizUser;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

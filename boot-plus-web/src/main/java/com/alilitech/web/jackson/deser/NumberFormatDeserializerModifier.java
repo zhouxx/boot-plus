@@ -16,11 +16,11 @@
 package com.alilitech.web.jackson.deser;
 
 import com.alilitech.web.jackson.anotation.NumberParse;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.BeanDeserializerBuilder;
+import tools.jackson.databind.deser.ValueDeserializerModifier;
+import tools.jackson.databind.deser.SettableBeanProperty;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,10 +32,10 @@ import java.util.Iterator;
  * @author Zhou Xiaoxiang
  * @since 1.1
  */
-public class NumberFormatDeserializerModifier extends BeanDeserializerModifier {
+public class NumberFormatDeserializerModifier extends ValueDeserializerModifier {
 
     @Override
-    public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc, BeanDeserializerBuilder builder) {
+    public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription.Supplier beanDesc, BeanDeserializerBuilder builder) {
 
         Iterator<SettableBeanProperty> properties = builder.getProperties();
 
@@ -59,7 +59,7 @@ public class NumberFormatDeserializerModifier extends BeanDeserializerModifier {
                 || clazz.equals(Byte.class) || clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(Double.class) || clazz.equals(Float.class);
     }
 
-    protected static class NumberJsonDeSerializer extends JsonDeserializer<Object> {
+    protected static class NumberJsonDeSerializer extends ValueDeserializer<Object> {
 
         private final NumberParse annotation;
 
@@ -71,7 +71,7 @@ public class NumberFormatDeserializerModifier extends BeanDeserializerModifier {
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) {
             DecimalFormat df = new DecimalFormat(annotation.pattern());
             df.setParseBigDecimal(true);
             BigDecimal bigDecimal = (BigDecimal) df.parse(p.getText(), new ParsePosition(0));
